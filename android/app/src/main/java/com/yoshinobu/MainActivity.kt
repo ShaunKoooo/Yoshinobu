@@ -1,3 +1,5 @@
+import android.os.Bundle
+import com.swmansion.rnscreens.fragment.restoration.RNScreensFragmentFactory
 package com.yoshinobu
 
 import com.facebook.react.ReactActivity
@@ -13,6 +15,11 @@ class MainActivity : ReactActivity() {
    */
   override fun getMainComponentName(): String = "Yoshinobu"
 
+  override fun onCreate(savedInstanceState: Bundle?) {
+    supportFragmentManager.fragmentFactory = RNScreensFragmentFactory()
+    super.onCreate(savedInstanceState)
+  }
+  
   /**
    * Returns the instance of the [ReactActivityDelegate]. We use [DefaultReactActivityDelegate]
    * which allows you to enable New Architecture with a single boolean flags [fabricEnabled]
