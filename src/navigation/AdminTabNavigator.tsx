@@ -1,11 +1,15 @@
 import React from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import Icon from 'src/components/FontelloIconByName';
+import {
+  Icon,
+} from 'src/components';
 import type {AdminTabParamList} from './types';
 
+// Stacks
+import {CustomerStack} from './stacks/admin/CustomerStack';
+
 // Screens
-import CustomerManagementScreen from 'src/screens/admin/CustomerManagementScreen';
 import CourseManagementScreen from 'src/screens/admin/CourseManagementScreen';
 import NotificationsScreen from 'src/screens/shared/NotificationsScreen';
 import ProfileScreen from 'src/screens/shared/ProfileScreen';
@@ -37,9 +41,10 @@ const AdminTabNavigator = () => {
       }}>
       <Tab.Screen
         name="CustomerManagement"
-        component={CustomerManagementScreen}
+        component={CustomerStack}
         options={{
           title: '客戶管理',
+          headerShown: false,
           tabBarIcon: ({color, size}) => (
             <Icon name="customer_management" size={size} color={color} />
           ),
