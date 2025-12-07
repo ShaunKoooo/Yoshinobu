@@ -1776,7 +1776,7 @@
 
 "@react-navigation/material-top-tabs@^7.4.8":
   version "7.4.8"
-  resolved "https://registry.npmjs.org/@react-navigation/material-top-tabs/-/material-top-tabs-7.4.8.tgz"
+  resolved "https://registry.yarnpkg.com/@react-navigation/material-top-tabs/-/material-top-tabs-7.4.8.tgz#0a2b67459cfca04ea6ce5b455ae5f1f8c27faceb"
   integrity sha512-90khv0UCl73EKanGc82xIUEiy1gQusbxW5hate4rp9eK/dRtxBCnmtmDurpT14Z9LG319kIPhiqPhQc6RSVL7Q==
   dependencies:
     "@react-navigation/elements" "^2.9.1"
