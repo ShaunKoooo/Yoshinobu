@@ -3,11 +3,11 @@ import {
   View,
   Text,
   StyleSheet,
-  FlatList,
   TouchableOpacity,
 } from 'react-native';
 import {
   MySearchBar,
+  MyListItem,
   Icon,
 } from 'src/components';
 
@@ -54,41 +54,27 @@ const CustomerListScreen = () => {
   const renderCustomerItem = ({ item }: { item: Customer }) => (
     <TouchableOpacity style={styles.customerCard}>
       <View style={styles.customerInfo}>
-        <View style={styles.avatarContainer}>
-          <Icon name="profile" size={24} color="#B49162" />
-        </View>
         <View style={styles.customerDetails}>
           <Text style={styles.customerName}>{item.name}</Text>
-          <Text style={styles.customerPhone}>{item.phone}</Text>
-          <Text style={styles.customerEmail}>{item.email}</Text>
         </View>
       </View>
-      <Icon name="management" size={20} color="#999" />
+      <View style={styles.addButtonContainer}>
+        <Text style={styles.addButtonText}>新增預約</Text>
+        <View style={{ marginRight: 4 }}>
+          <Icon name="right-open-big" size={16} color="#4E5969" />
+        </View>
+      </View>
     </TouchableOpacity>
   );
 
   return (
     <View style={styles.container}>
       <MySearchBar />
-
-      {/* Customer List */}
-      {filteredCustomers.length > 0 ? (
-        <FlatList
-          data={filteredCustomers}
-          renderItem={renderCustomerItem}
-          keyExtractor={item => item.id}
-          contentContainerStyle={styles.listContent}
-          showsVerticalScrollIndicator={false}
-        />
-      ) : (
-        <View style={styles.emptyContainer}>
-          <Icon name="customer_management" size={48} color="#CCC" />
-          <Text style={styles.emptyText}>
-            {searchQuery ? '找不到符合的客戶' : '尚無客戶資料'}
-          </Text>
-          <Text style={styles.emptySubtext}>點擊上方按鈕新增客戶</Text>
-        </View>
-      )}
+      <MyListItem
+        data={filteredCustomers}
+        renderItem={renderCustomerItem}
+        keyExtractor={item => item.id}
+      />
     </View>
   );
 };
@@ -96,48 +82,31 @@ const CustomerListScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+
     backgroundColor: '#F8F9FA',
   },
   // Add Button
-  addButton: {
+  addButtonContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#B49162',
-    borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 3,
-    elevation: 3,
   },
   addButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
-    marginLeft: 8,
+    color: '#B49162',
+    fontSize: 12,
+    fontWeight: '500',
+    marginRight: 40,
   },
   // List
-  listContent: {
-    paddingBottom: 16,
-  },
   customerCard: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     backgroundColor: '#FFFFFF',
-    borderRadius: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F2F2F7',
     padding: 16,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    height: 64,
   },
   customerInfo: {
     flexDirection: 'row',
@@ -157,9 +126,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   customerName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
+    fontSize: 14,
+    fontWeight: '400',
+    color: '#48484A',
     marginBottom: 4,
   },
   customerPhone: {
