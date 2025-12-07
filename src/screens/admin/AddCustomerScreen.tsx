@@ -1,33 +1,88 @@
 import React from 'react';
-import {View, Text, StyleSheet, Button} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import {
+  View,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+} from 'react-native';
+import {
+  MyListItem,
+  MyButton,
+  Icon,
+} from 'src/components';
+import { useNavigation } from '@react-navigation/native';
+
+const ADD_CUSTOMER_DATA = [
+  {
+    title: '客戶姓名',
+    placeholder: '請輸入',
+    type: 'textInput' as const,
+  },
+  {
+    title: '客戶電話',
+    placeholder: '請輸入',
+    type: 'textInput' as const,
+  },
+  {
+    title: '生日',
+    placeholder: '請選擇',
+    type: 'button' as const,
+  },
+  {
+    title: '聯絡地址',
+    placeholder: '請輸入',
+    type: 'textInput' as const,
+  },
+  {
+    title: '特殊備註',
+    placeholder: '請輸入',
+    type: 'textInput' as const,
+  }
+];
 
 const AddCustomerScreen = () => {
-  const navigation = useNavigation();
+  const renderItem = ({ item }: { item: typeof ADD_CUSTOMER_DATA[0] }) => {
+    if (item.type === 'textInput') {
+      return (
+        <View style={styles.itemContainer}>
+          <View>
+            <Text style={styles.title}>{item.title}</Text>
+          </View>
+          <View>
+            <TextInput
+              style={styles.input}
+              placeholder={item.placeholder}
+              placeholderTextColor="#C9CDD4"
+            />
+          </View>
+        </View>
+      );
+    }
 
-  const handleSave = () => {
-    // 未來：保存客戶資料到 Redux 或 API
-    console.log('Save customer');
-    navigation.goBack();
+    return (
+      <TouchableOpacity style={styles.itemContainer}>
+        <Text style={styles.title}>{item.title}</Text>
+        <View style={styles.button}>
+          <Text style={styles.buttonText}>{item.placeholder}</Text>
+          <Icon name="right-open-big" size={12} color="#4E5969" />
+        </View>
+      </TouchableOpacity>
+    );
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>新增客戶</Text>
-
-      {/* 未來這裡會是表單欄位 */}
-      <View style={styles.formPlaceholder}>
-        <Text style={styles.placeholderText}>
-          表單欄位將在這裡：
-          {'\n'}姓名、電話、Email 等
-        </Text>
-      </View>
-
-      <View style={styles.buttonContainer}>
-        <Button title="取消" onPress={() => navigation.goBack()} />
-        <View style={styles.buttonSpacer} />
-        <Button title="儲存" onPress={handleSave} />
-      </View>
+      <MyListItem
+        data={ADD_CUSTOMER_DATA}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.title}
+      />
+      <MyButton
+        isActive={false}
+        title="確認"
+        onPress={() => { }}
+      />
     </View>
   );
 };
@@ -35,34 +90,37 @@ const AddCustomerScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
     backgroundColor: '#F8F9FA',
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
-  formPlaceholder: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    padding: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  placeholderText: {
-    color: '#999',
-    fontSize: 14,
-    textAlign: 'center',
-    lineHeight: 24,
-  },
-  buttonContainer: {
+  itemContainer: {
     flexDirection: 'row',
-    marginTop: 20,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    height: 64,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F2F2F7'
   },
-  buttonSpacer: {
-    width: 16,
+  title: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+  },
+  input: {
+    fontSize: 16,
+    color: '#333',
+  },
+  button: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F8F9FA',
+  },
+  buttonText: {
+    fontSize: 16,
+    color: '#C9CDD4',
+    marginRight: 8,
   },
 });
 

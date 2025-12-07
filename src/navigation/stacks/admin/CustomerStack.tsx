@@ -4,6 +4,7 @@ import {
   Text,
   StyleSheet,
 } from 'react-native';
+import { Icon } from 'src/components';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 // Screens
@@ -28,6 +29,7 @@ export const CustomerStack = () => {
         headerTitleStyle: {
           fontWeight: 'bold',
         },
+        headerBackTitle: ' ',
       }}>
       <Stack.Screen
         name="CustomerList"
@@ -46,9 +48,16 @@ export const CustomerStack = () => {
       <Stack.Screen
         name="AddCustomer"
         component={AddCustomerScreen}
-        options={{
+        options={({ navigation }) => ({
           title: '新增客戶',
-        }}
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              style={styles.backButton}>
+              <Icon name="left-open-big" size={20} color="white" />
+            </TouchableOpacity>
+          ),
+        })}
       />
     </Stack.Navigator>
   );
@@ -60,5 +69,13 @@ const styles = StyleSheet.create({
   },
   rightButtonContainer: {
     padding: 8,
+  },
+  backButton: {
+    paddingLeft: 8,
+  },
+  backButtonText: {
+    color: '#FFFFFF',
+    fontSize: 32,
+    fontWeight: '300',
   },
 });
