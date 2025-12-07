@@ -75,6 +75,16 @@ export const CustomerStack = () => {
               <Icon name="left-open-big" size={20} color="white" />
             </TouchableOpacity>
           ),
+          headerRight: () => (
+            <TouchableOpacity
+              onPress={() => {
+                // TODO: 實作編輯功能
+                console.log('編輯客戶');
+              }}
+              style={styles.rightButtonContainer}>
+              <Text style={styles.rightButtonText}>編輯</Text>
+            </TouchableOpacity>
+          ),
         })}
       />
     </Stack.Navigator>

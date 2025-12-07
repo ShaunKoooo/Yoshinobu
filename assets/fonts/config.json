@@ -101,6 +101,20 @@
       "css": "left-open-big",
       "code": 59399,
       "src": "entypo"
+    },
+    {
+      "uid": "b1afb8a5f198be4261162a8d7b365dad",
+      "css": "pen",
+      "code": 59400,
+      "src": "custom_icons",
+      "selected": true,
+      "svg": {
+        "path": "M733.4 0L991.2 257.8 257.8 991.2H0V733.4L733.4 0ZM104.2 776.6V887H214.7L715 386.7 604.5 276.2 104.2 776.6ZM678.2 202.6L788.6 313 843.9 257.8 733.4 147.3 678.2 202.6Z",
+        "width": 1000
+      },
+      "search": [
+        "pen"
+      ]
     }
   ]
 }
