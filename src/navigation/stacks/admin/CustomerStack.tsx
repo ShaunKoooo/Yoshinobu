@@ -11,7 +11,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import {
   CustomerListScreen,
   AddCustomerScreen,
-  // CustomerDetailScreen,
+  CustomerDetailScreen,
 } from 'src/screens/admin';
 
 export type CustomerStackParamList = {
@@ -54,6 +54,20 @@ export const CustomerStack = () => {
         component={AddCustomerScreen}
         options={({ navigation }) => ({
           title: '新增客戶',
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              style={styles.backButton}>
+              <Icon name="left-open-big" size={20} color="white" />
+            </TouchableOpacity>
+          ),
+        })}
+      />
+      <Stack.Screen
+        name="CustomerDetail"
+        component={CustomerDetailScreen}
+        options={({ navigation }) => ({
+          title: '客戶名稱（TODO）',
           headerLeft: () => (
             <TouchableOpacity
               onPress={() => navigation.goBack()}

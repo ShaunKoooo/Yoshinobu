@@ -10,6 +10,7 @@ import {
   MyListItem,
   Icon,
 } from 'src/components';
+import { useNavigation } from '@react-navigation/native';
 
 interface Customer {
   id: string;
@@ -41,6 +42,7 @@ const MOCK_CUSTOMERS: Customer[] = [
 ];
 
 const CustomerListScreen = () => {
+  const navigation = useNavigation();
   const [searchQuery, setSearchQuery] = useState('');
   const [customers] = useState<Customer[]>(MOCK_CUSTOMERS);
 
@@ -52,7 +54,9 @@ const CustomerListScreen = () => {
   );
 
   const renderCustomerItem = ({ item }: { item: Customer }) => (
-    <TouchableOpacity style={styles.customerCard}>
+    <TouchableOpacity
+      onPress={() => navigation.navigate('CustomerDetail' as never)}
+      style={styles.customerCard}>
       <View style={styles.customerInfo}>
         <View style={styles.customerDetails}>
           <Text style={styles.customerName}>{item.name}</Text>
