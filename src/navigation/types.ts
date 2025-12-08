@@ -1,5 +1,12 @@
 // Navigation types for type-safe navigation
 
+// Root Stack (包含 Tab Navigator 和獨立畫面)
+export type RootStackParamList = {
+  AdminTabs: undefined;
+  AddCustomer: undefined;
+  CustomerDetail: {customerId?: string};
+};
+
 // 管理者後台 Tabs
 export type AdminTabParamList = {
   CustomerManagement: undefined;  // 客戶管理

@@ -11,6 +11,10 @@ import {
   Icon,
 } from 'src/components';
 import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from 'src/navigation/types';
+
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 interface Customer {
   id: string;
@@ -42,7 +46,7 @@ const MOCK_CUSTOMERS: Customer[] = [
 ];
 
 const CustomerListScreen = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp>();
   const [searchQuery, setSearchQuery] = useState('');
   const [customers] = useState<Customer[]>(MOCK_CUSTOMERS);
 
@@ -55,7 +59,7 @@ const CustomerListScreen = () => {
 
   const renderCustomerItem = ({ item }: { item: Customer }) => (
     <TouchableOpacity
-      onPress={() => navigation.navigate('CustomerDetail' as never)}
+      onPress={() => navigation.navigate('CustomerDetail', { customerId: item.id })}
       style={styles.customerCard}>
       <View style={styles.customerInfo}>
         <View style={styles.customerDetails}>

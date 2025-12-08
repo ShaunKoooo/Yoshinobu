@@ -1,6 +1,10 @@
 import React from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {TouchableOpacity, Text, StyleSheet} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import type {RootStackParamList} from './types';
 import {
   Icon,
 } from 'src/components';
@@ -42,13 +46,23 @@ const AdminTabNavigator = () => {
       <Tab.Screen
         name="CustomerManagement"
         component={CustomerStack}
-        options={{
+        options={({navigation}) => ({
           title: '客戶管理',
-          headerShown: false,
+          headerShown: true,
           tabBarIcon: ({color, size}) => (
             <Icon name="customer_management" size={size} color={color} />
           ),
-        }}
+          headerRight: () => {
+            const rootNavigation = navigation.getParent() as NativeStackNavigationProp<RootStackParamList>;
+            return (
+              <TouchableOpacity
+                onPress={() => rootNavigation.navigate('AddCustomer')}
+                style={styles.rightButtonContainer}>
+                <Text style={styles.rightButtonText}>+ 新增客戶</Text>
+              </TouchableOpacity>
+            );
+          },
+        })}
       />
       <Tab.Screen
         name="CourseManagement"
@@ -83,5 +97,14 @@ const AdminTabNavigator = () => {
     </Tab.Navigator>
   );
 };
+
+const styles = StyleSheet.create({
+  rightButtonText: {
+    color: 'white',
+  },
+  rightButtonContainer: {
+    padding: 8,
+  },
+});
 
 export default AdminTabNavigator;
