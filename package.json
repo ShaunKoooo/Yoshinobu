@@ -4,9 +4,15 @@
   "private": true,
   "scripts": {
     "android": "react-native run-android",
-    "ios": "react-native run-ios",
+    "android:user": "ENVFILE=.env.user react-native run-android --mode=userDebug --appId=me.bbapp.yamamoto",
+    "android:client": "ENVFILE=.env.client react-native run-android --mode=clientDebug --appId=me.bbapp.yoshinobu",
+    "ios": "react-native run-ios --scheme bbUser",
+    "ios:user": "ENVFILE=.env.user react-native run-ios --scheme bbUser --target bbUser",
+    "ios:client": "ENVFILE=.env.client react-native run-ios --scheme bbClient --target bbClient",
     "lint": "eslint .",
     "start": "react-native start",
+    "start:user": "ENVFILE=.env.user react-native start",
+    "start:client": "ENVFILE=.env.client react-native start",
     "test": "jest"
   },
   "dependencies": {
@@ -22,6 +28,7 @@
     "@shopify/flash-list": "^2.2.0",
     "react": "19.1.1",
     "react-native": "0.82.1",
+    "react-native-config": "^1.6.1",
     "react-native-gesture-handler": "^2.29.1",
     "react-native-pager-view": "^7.0.2",
     "react-native-safe-area-context": "^5.6.2",

@@ -1,6 +1,7 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { TouchableOpacity } from 'react-native';
+import Config from 'react-native-config';
 import { Icon } from 'src/components';
 import AdminTabNavigator from './AdminTabNavigator';
 // import UserTabNavigator from './UserTabNavigator'; // 未來使用
@@ -20,61 +21,18 @@ export type RootStackParamList = {
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const RootNavigator = () => {
-  // 未來從 auth state 取得角色
+  // 從環境變數或 auth state 取得 App 類型
   // const userRole = useAppSelector(state => state.auth.role);
+  const appType = Config.APP_TYPE;
 
-  // 暫時先顯示 Admin
-  const isAdmin = true;
+  // 根據環境變數決定是哪個 App
+  // 如果是 client app，直接顯示教練後台
+  // 如果是 user app，可以根據登入狀態顯示 User 或 Client
+  const isClient = appType === 'client';
 
   // 根據角色切換不同的 Navigator
-  if (isAdmin) {
-    return (
-      <Stack.Navigator
-        screenOptions={{
-          headerStyle: {
-            backgroundColor: '#000000',
-          },
-          headerTintColor: '#FFFFFF',
-          headerTitleStyle: {
-            fontWeight: 'bold',
-          },
-          headerBackTitle: '',
-        }}>
-        <Stack.Screen
-          name="AdminTabs"
-          component={AdminTabNavigator}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="AddCustomer"
-          component={AddCustomerScreen}
-          options={({ navigation }) => ({
-            title: '新增客戶',
-            headerLeft: () => (
-              <TouchableOpacity
-                onPress={() => navigation.goBack()}
-                style={{ paddingLeft: 8 }}>
-                <Icon name="left-open-big" size={20} color="white" />
-              </TouchableOpacity>
-            ),
-          })}
-        />
-        <Stack.Screen
-          name="CustomerDetail"
-          component={CustomerDetailScreen}
-          options={({ navigation }) => ({
-            title: '客戶詳情',
-            headerLeft: () => (
-              <TouchableOpacity
-                onPress={() => navigation.goBack()}
-                style={{ paddingLeft: 8 }}>
-                <Icon name="left-open-big" size={20} color="white" />
-              </TouchableOpacity>
-            ),
-          })}
-        />
-      </Stack.Navigator>
-    );
+  if (isClient) {
+    return null;
   }
 
   // return <UserTabNavigator />;

@@ -14,7 +14,8 @@ if linkage != nil
   use_frameworks! :linkage => linkage.to_sym
 end
 
-target 'Yoshinobu' do
+# 定義共用的 pods
+def shared_pods
   config = use_native_modules!
 
   use_react_native!(
@@ -22,20 +23,32 @@ target 'Yoshinobu' do
     # An absolute path to your application root.
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
+end
 
-  post_install do |installer|
-    react_native_post_install(
-      installer,
-      config[:reactNativePath],
-      :mac_catalyst_enabled => false,
-      # :ccache_enabled => true
-    )
+# User App target
+target 'bbUser' do
+  shared_pods
+end
 
-    # Fix for Folly/New.h compilation error in React Native 0.82
-    installer.pods_project.targets.each do |target|
-      target.build_configurations.each do |config|
-        config.build_settings['CLANG_CXX_LANGUAGE_STANDARD'] = 'c++20'
-      end
+# Client App target
+target 'bbClient' do
+  shared_pods
+end
+
+post_install do |installer|
+  config = use_native_modules!
+
+  react_native_post_install(
+    installer,
+    config[:reactNativePath],
+    :mac_catalyst_enabled => false,
+    # :ccache_enabled => true
+  )
+
+  # Fix for Folly/New.h compilation error in React Native 0.82
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      config.build_settings['CLANG_CXX_LANGUAGE_STANDARD'] = 'c++20'
     end
   end
 end
