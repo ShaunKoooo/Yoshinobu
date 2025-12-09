@@ -1,6 +1,19 @@
 pluginManagement { includeBuild("../node_modules/@react-native/gradle-plugin") }
 plugins { id("com.facebook.react.settings") }
-extensions.configure(com.facebook.react.ReactSettingsExtension){ ex -> ex.autolinkLibrariesFromCommand() }
+
+// Set Node.js path for Gradle
+def nodeExecutable = "/opt/homebrew/bin/node"
+if (System.getenv("NODE_BINARY") != null) {
+    nodeExecutable = System.getenv("NODE_BINARY")
+}
+
+extensions.configure(com.facebook.react.ReactSettingsExtension){ ex ->
+    ex.autolinkLibrariesFromCommand()
+}
+
 rootProject.name = 'Yoshinobu'
 include ':app'
 includeBuild('../node_modules/@react-native/gradle-plugin')
+
+include ':react-native-config'
+project(':react-native-config').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-config/android')

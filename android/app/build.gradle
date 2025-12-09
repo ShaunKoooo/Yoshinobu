@@ -2,6 +2,16 @@ apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
 
+// Load env file based on flavor
+project.ext.envConfigFiles = [
+    userDebug: ".env.user",
+    userRelease: ".env.user",
+    clientDebug: ".env.client",
+    clientRelease: ".env.client",
+]
+
+apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"
+
 /**
  * This is the configuration block to customize your React Native Android app.
  * By default you don't need to apply any configuration, just uncomment the lines you need.
@@ -85,6 +95,22 @@ android {
         versionCode 1
         versionName "1.0"
     }
+
+    flavorDimensions "app"
+
+    productFlavors {
+        user {
+            dimension "app"
+            applicationId "me.bbapp.yamamoto"
+            resValue "string", "app_name", "人體工房"
+        }
+
+        client {
+            dimension "app"
+            applicationId "me.bbapp.yoshinobu"
+            resValue "string", "app_name", "人體工房教練"
+        }
+    }
     signingConfigs {
         debug {
             storeFile file('debug.keystore')
@@ -110,6 +136,7 @@ android {
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
+    implementation project(':react-native-config')
 
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")
