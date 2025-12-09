@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { CustomerForm } from 'src/components';
+import { MyButton, CustomerForm } from 'src/components';
 import { CUSTOMER_FIELDS } from 'src/components/customerForm/constants';
-import { useBasicInfoEdit } from '../CustomerDetailScreen';
 
-const BasicInfoTab = () => {
-  const { isEditing } = useBasicInfoEdit();
+const AddCustomerScreen = () => {
   const [formValues, setFormValues] = useState<Record<string, string>>({
     name: '',
     phone: '',
@@ -13,19 +11,6 @@ const BasicInfoTab = () => {
     address: '',
     note: '',
   });
-
-  // TODO: 從 API 取得資料後更新 formValues
-  // useEffect(() => {
-  //   fetchCustomerData().then((data) => {
-  //     setFormValues({
-  //       name: data.name,
-  //       phone: data.phone,
-  //       birthday: data.birthday,
-  //       address: data.address,
-  //       note: data.note,
-  //     });
-  //   });
-  // }, []);
 
   const handleFieldChange = (key: string, value: string) => {
     setFormValues((prev) => ({
@@ -39,14 +24,24 @@ const BasicInfoTab = () => {
     console.log('Button pressed:', key);
   };
 
+  const handleSubmit = () => {
+    // TODO: 處理表單提交到 API
+    console.log('Form data:', formValues);
+  };
+
   return (
     <View style={styles.container}>
       <CustomerForm
-        editable={isEditing}
+        editable={true}
         fields={CUSTOMER_FIELDS}
         values={formValues}
         onFieldChange={handleFieldChange}
         onButtonPress={handleButtonPress}
+      />
+      <MyButton
+        isActive={false}
+        title="確認"
+        onPress={handleSubmit}
       />
     </View>
   );
@@ -59,4 +54,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default BasicInfoTab;
+export default AddCustomerScreen;

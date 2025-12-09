@@ -1,9 +1,7 @@
-import React, { useLayoutEffect } from 'react';
+import React, { useLayoutEffect, createContext, useContext } from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { CustomerStackParamList } from 'src/navigation/stacks/admin/CustomerStack';
 import {
   BasicInfoTab,
   ContractManagementTab,
@@ -17,11 +15,35 @@ export type CustomerDetailTabParamList = {
   VerificationRecords: undefined;
 };
 
+interface BasicInfoEditContextType {
+  isEditing: boolean;
+  setIsEditing: (value: boolean) => void;
+}
+
+export const BasicInfoEditContext = createContext<BasicInfoEditContextType | undefined>(undefined);
+
+export const useBasicInfoEdit = () => {
+  const context = useContext(BasicInfoEditContext);
+  if (!context) {
+    throw new Error('useBasicInfoEdit must be used within BasicInfoEditContext.Provider');
+  }
+  return context;
+};
+
 const Tab = createMaterialTopTabNavigator<CustomerDetailTabParamList>();
 
 const CustomerDetailScreen = () => {
-  const navigation = useNavigation<NativeStackNavigationProp<CustomerStackParamList>>();
+  const navigation = useNavigation();
   const [currentTab, setCurrentTab] = React.useState<keyof CustomerDetailTabParamList>('BasicInfo');
+  const [isEditingBasicInfo, setIsEditingBasicInfo] = React.useState(false);
+
+  const handleToggleEditBasicInfo = () => {
+    if (isEditingBasicInfo) {
+      // TODO: 儲存資料到 API
+      console.log('儲存基本資料');
+    }
+    setIsEditingBasicInfo(!isEditingBasicInfo);
+  };
 
   useLayoutEffect(() => {
     // 根據當前 Tab 更新 header 右側按鈕
@@ -30,12 +52,13 @@ const CustomerDetailScreen = () => {
         case 'BasicInfo':
           return () => (
             <TouchableOpacity
-              onPress={() => {
-                console.log('編輯基本資料');
-                // TODO: 導航到編輯頁面
-              }}
+              onPress={handleToggleEditBasicInfo}
               style={styles.rightButtonContainer}>
-              <Icon name="pen" size={16} color="white" />
+              {isEditingBasicInfo ? (
+                <Text style={styles.rightButtonText}>儲存</Text>
+              ) : (
+                <Icon name="pen" size={16} color="white" />
+              )}
             </TouchableOpacity>
           );
         case 'ContractManagement':
@@ -68,57 +91,64 @@ const CustomerDetailScreen = () => {
     navigation.setOptions({
       headerRight: getHeaderRight(),
     });
-  }, [navigation, currentTab]);
+  }, [navigation, currentTab, isEditingBasicInfo]);
 
   return (
-    <Tab.Navigator
-      screenOptions={{
-        tabBarActiveTintColor: '#B49162',
-        tabBarInactiveTintColor: '#A2A2A2',
-        tabBarIndicatorStyle: {
-          backgroundColor: '#B49162',
-          height: 2,
-        },
-        tabBarLabelStyle: {
-          fontSize: 16,
-          fontWeight: '400',
-          textTransform: 'none',
-        },
-        tabBarStyle: {
-          backgroundColor: '#FFFFFF',
-        },
+    <BasicInfoEditContext.Provider
+      value={{
+        isEditing: isEditingBasicInfo,
+        setIsEditing: setIsEditingBasicInfo,
       }}
-      screenListeners={{
-        state: (e) => {
-          // 當 Tab 切換時更新 currentTab
-          const state = e.data.state;
-          const index = state.index;
-          const routeName = state.routes[index].name as keyof CustomerDetailTabParamList;
-          setCurrentTab(routeName);
-        },
-      }}>
-      <Tab.Screen
-        name="BasicInfo"
-        component={BasicInfoTab}
-        options={{
-          tabBarLabel: '基本資料',
+    >
+      <Tab.Navigator
+        screenOptions={{
+          tabBarActiveTintColor: '#B49162',
+          tabBarInactiveTintColor: '#A2A2A2',
+          tabBarIndicatorStyle: {
+            backgroundColor: '#B49162',
+            height: 2,
+          },
+          tabBarLabelStyle: {
+            fontSize: 16,
+            fontWeight: '400',
+            textTransform: 'none',
+          },
+          tabBarStyle: {
+            backgroundColor: '#FFFFFF',
+          },
         }}
-      />
-      <Tab.Screen
-        name="ContractManagement"
-        component={ContractManagementTab}
-        options={{
-          tabBarLabel: '合約管理',
-        }}
-      />
-      <Tab.Screen
-        name="VerificationRecords"
-        component={VerificationRecordsTab}
-        options={{
-          tabBarLabel: '核銷紀錄',
-        }}
-      />
-    </Tab.Navigator>
+        screenListeners={{
+          state: (e) => {
+            // 當 Tab 切換時更新 currentTab
+            const state = e.data.state;
+            const index = state.index;
+            const routeName = state.routes[index].name as keyof CustomerDetailTabParamList;
+            setCurrentTab(routeName);
+          },
+        }}>
+        <Tab.Screen
+          name="BasicInfo"
+          component={BasicInfoTab}
+          options={{
+            tabBarLabel: '基本資料',
+          }}
+        />
+        <Tab.Screen
+          name="ContractManagement"
+          component={ContractManagementTab}
+          options={{
+            tabBarLabel: '合約管理',
+          }}
+        />
+        <Tab.Screen
+          name="VerificationRecords"
+          component={VerificationRecordsTab}
+          options={{
+            tabBarLabel: '核銷紀錄',
+          }}
+        />
+      </Tab.Navigator>
+    </BasicInfoEditContext.Provider>
   );
 };
 
