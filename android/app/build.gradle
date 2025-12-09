@@ -4,10 +4,10 @@ apply plugin: "com.facebook.react"
 
 // Load env file based on flavor
 project.ext.envConfigFiles = [
-    userDebug: ".env.user",
-    userRelease: ".env.user",
-    clientDebug: ".env.client",
-    clientRelease: ".env.client",
+    spaDebug: ".env.spa",
+    spaRelease: ".env.spa",
+    bbDebug: ".env.bb",
+    bbRelease: ".env.bb",
 ]
 
 apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"
@@ -99,16 +99,16 @@ android {
     flavorDimensions "app"
 
     productFlavors {
-        user {
+        spa {
             dimension "app"
-            applicationId "me.bbapp.yamamoto"
-            resValue "string", "app_name", "人體工房"
+            applicationId "me.spaapp.yamamoto"
+            resValue "string", "app_name", "SPA"
         }
 
-        client {
+        bb {
             dimension "app"
             applicationId "me.bbapp.yoshinobu"
-            resValue "string", "app_name", "人體工房教練"
+            resValue "string", "app_name", "BB"
         }
     }
     signingConfigs {

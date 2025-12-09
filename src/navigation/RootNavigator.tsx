@@ -33,17 +33,14 @@ const RootNavigator = () => {
   console.log('====================');
 
   // 根據環境變數決定是哪個 App
-  // 如果是 client app，直接顯示教練後台
-  // 如果是 user app，可以根據登入狀態顯示 User 或 Client
-  const isClient = AppConfig.APP_TYPE === 'client';
-  console.log('isClient:', isClient)
-  // 根據角色切換不同的 Navigator
-  // 目前兩個 App 都使用相同的後台界面
-  // 未來可以根據 isClient 載入不同的 Navigator
+  const isSPAApp = AppConfig.APP_TYPE === 'spa';
+  const isBBApp = AppConfig.APP_TYPE === 'bb';
 
-  if (isClient) {
-    return null
-  }
+  console.log('isSPAApp:', isSPAApp, 'isBBApp:', isBBApp);
+
+  // 目前兩個 App 都使用相同的界面
+  // 未來可以根據 APP_TYPE 載入不同的 Navigator
+  // 登入後根據 userRole 切換學員/教練界面
 
   return (
     <Stack.Navigator

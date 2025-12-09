@@ -1,23 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1620"
+   LastUpgradeVersion = "1210"
    version = "1.7">
    <BuildAction
       parallelizeBuildables = "YES"
-      buildImplicitDependencies = "YES"
-      buildArchitectures = "Automatic">
+      buildImplicitDependencies = "YES">
       <PreActions>
          <ExecutionAction
             ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
             <ActionContent
                title = "Run Script"
-               scriptText = "# Type a script or drag a script file from your workspace to insert its path.&#10;echo &quot;.env.client&quot; &gt; /tmp/envfile&#10;">
+               scriptText = "# Type a script or drag a script file from your workspace to insert its path.&#10;echo &quot;.env.spa&quot; &gt; /tmp/envfile&#10;">
                <EnvironmentBuildable>
                   <BuildableReference
                      BuildableIdentifier = "primary"
-                     BlueprintIdentifier = "E42E43E62EE7F6EA0061089A"
-                     BuildableName = "bbClient.app"
-                     BlueprintName = "bbClient"
+                     BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
+                     BuildableName = "Yoshinobu.app"
+                     BlueprintName = "spa"
                      ReferencedContainer = "container:Yoshinobu.xcodeproj">
                   </BuildableReference>
                </EnvironmentBuildable>
@@ -33,9 +32,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "E42E43E62EE7F6EA0061089A"
-               BuildableName = "bbClient.app"
-               BlueprintName = "bbClient"
+               BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
+               BuildableName = "Yoshinobu.app"
+               BlueprintName = "spa"
                ReferencedContainer = "container:Yoshinobu.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -45,8 +44,19 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      shouldUseLaunchSchemeArgsEnv = "YES"
-      shouldAutocreateTestPlan = "YES">
+      shouldUseLaunchSchemeArgsEnv = "YES">
+      <Testables>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "00E356ED1AD99517003FC87E"
+               BuildableName = "YoshinobuTests.xctest"
+               BlueprintName = "YoshinobuTests"
+               ReferencedContainer = "container:Yoshinobu.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+      </Testables>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
@@ -62,9 +72,9 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "E42E43E62EE7F6EA0061089A"
-            BuildableName = "bbClient.app"
-            BlueprintName = "bbClient"
+            BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
+            BuildableName = "Yoshinobu.app"
+            BlueprintName = "spa"
             ReferencedContainer = "container:Yoshinobu.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -79,9 +89,9 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "E42E43E62EE7F6EA0061089A"
-            BuildableName = "bbClient.app"
-            BlueprintName = "bbClient"
+            BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
+            BuildableName = "Yoshinobu.app"
+            BlueprintName = "spa"
             ReferencedContainer = "container:Yoshinobu.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

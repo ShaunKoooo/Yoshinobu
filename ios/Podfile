@@ -25,13 +25,13 @@ def shared_pods
   )
 end
 
-# User App target
-target 'bbUser' do
+# spa App target
+target 'spa' do
   shared_pods
 end
 
-# Client App target
-target 'bbClient' do
+# bb App target
+target 'bb' do
   shared_pods
 end
 
