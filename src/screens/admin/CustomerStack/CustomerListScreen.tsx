@@ -13,6 +13,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from 'src/navigation/types';
+import { Colors } from 'src/theme';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -100,7 +101,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   addButtonText: {
-    color: '#B49162',
+    color: Colors.primary,
     fontSize: 12,
     fontWeight: '500',
     marginRight: 40,

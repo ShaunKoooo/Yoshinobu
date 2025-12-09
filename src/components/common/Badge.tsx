@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { Colors } from 'src/theme';
 
 export type BadgeVariant = 'shared' | 'reserved' | 'completed' | 'memberPending' | 'canceled';
 
@@ -34,17 +35,17 @@ const styles = StyleSheet.create({
   },
   // 共用
   shared: {
-    borderColor: '#B49162',
+    borderColor: Colors.primary,
   },
   sharedText: {
-    color: '#B49162',
+    color: Colors.primary,
   },
   // 已預約
   reserved: {
-    borderColor: '#B49162',
+    borderColor: Colors.primary,
   },
   reservedText: {
-    color: '#B49162',
+    color: Colors.primary,
   },
   // 已完成
   completed: {

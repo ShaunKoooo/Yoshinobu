@@ -5,6 +5,7 @@ import {
   StyleSheet,
   View,
 } from "react-native";
+import { Colors } from "src/theme";
 
 const MyButton = ({
   isActive,
@@ -30,7 +31,7 @@ const styles = StyleSheet.create({
   button: {
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#B49162",
+    backgroundColor: Colors.primary,
     borderRadius: 6,
     height: 40,
     margin: 16,

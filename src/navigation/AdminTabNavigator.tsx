@@ -9,6 +9,7 @@ import {
   Icon,
 } from 'src/components';
 import type {AdminTabParamList} from './types';
+import { Colors } from 'src/theme';
 
 // Stacks
 import {CustomerStack} from './stacks/admin/CustomerStack';
@@ -19,7 +20,7 @@ import NotificationsScreen from 'src/screens/shared/NotificationsScreen';
 import ProfileScreen from 'src/screens/shared/ProfileScreen';
 
 const Tab = createBottomTabNavigator<AdminTabParamList>();
-const tabBarActiveTintColor = '#B49162';
+const tabBarActiveTintColor = Colors.primary;
 const tabBarInactiveTintColor = '#D6D6D6';
 
 const AdminTabNavigator = () => {

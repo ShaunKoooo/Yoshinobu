@@ -8,6 +8,7 @@ import {
   VerificationRecordsTab,
 } from 'src/screens/admin';
 import { Icon } from 'src/components';
+import { Colors } from 'src/theme';
 
 export type CustomerDetailTabParamList = {
   BasicInfo: undefined;
@@ -102,10 +103,10 @@ const CustomerDetailScreen = () => {
     >
       <Tab.Navigator
         screenOptions={{
-          tabBarActiveTintColor: '#B49162',
+          tabBarActiveTintColor: Colors.primary,
           tabBarInactiveTintColor: '#A2A2A2',
           tabBarIndicatorStyle: {
-            backgroundColor: '#B49162',
+            backgroundColor: Colors.primary,
             height: 2,
           },
           tabBarLabelStyle: {

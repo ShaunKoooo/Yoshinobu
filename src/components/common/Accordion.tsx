@@ -1,6 +1,7 @@
 import React, { ReactNode } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
 import Icon from '../FontelloIconByName';
+import { Colors } from 'src/theme';
 
 interface AccordionProps {
   isExpanded: boolean;
@@ -31,7 +32,7 @@ const Accordion = ({
           <Icon
             name={isExpanded ? 'down-dir' : 'right-dir'}
             size={16}
-            color="#B49162"
+            color={Colors.primary}
             style={styles.arrow}
           />
         )}
