@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 背景顏色（SPA 主色或其他顏色） -->
+    <!-- <item android:drawable="@color/splash_background"/> -->
+
+    <!-- 中間的 Logo（不是 App Icon，是自訂的 logo） -->
+    <item>
+        <bitmap
+            android:gravity="center"
+            android:src="@drawable/launchscreen"
+            android:scaleType="fitCenter"/>
+    </item>
+</layer-list>

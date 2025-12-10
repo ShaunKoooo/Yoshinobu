@@ -1,9 +1,6 @@
 <resources>
 
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
-        <!-- Customize your theme here. -->
-        <item name="android:editTextBackground">@drawable/rn_edit_text_material</item>
-    </style>
+  <!-- 這個 theme 不再使用，因為每個 flavor 都有自己的 AppTheme -->
+  <!-- 可以刪除或保留作為備用 -->
 
 </resources>
