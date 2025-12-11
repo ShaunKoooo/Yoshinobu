@@ -11,7 +11,7 @@ import AdminTabNavigator from './AdminTabNavigator';
 import {
   AddCustomerScreen,
   CustomerDetailScreen,
-} from 'src/screens/admin';
+} from 'src/screens/coach';
 import { LoginPage } from 'src/screens/shared';
 
 export type RootStackParamList = {

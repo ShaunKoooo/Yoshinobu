@@ -1,23 +1,26 @@
 import React from 'react';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {TouchableOpacity, Text, StyleSheet} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
-import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import type {RootStackParamList} from './types';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from './types';
 import {
   Icon,
 } from 'src/components';
-import type {AdminTabParamList} from './types';
+import type { AdminTabParamList } from './types';
 import { Colors } from 'src/theme';
 
 // Stacks
-import {CustomerStack} from './stacks/admin/CustomerStack';
+import { CustomerStack } from './stacks/admin/CustomerStack';
 
+import {
+  NotificationsScreen,
+  LoginPage,
+  ProfileScreen,
+} from 'src/screens/shared';
 // Screens
-import CourseManagementScreen from 'src/screens/admin/CourseManagementScreen';
-import NotificationsScreen from 'src/screens/shared/NotificationsScreen';
-import ProfileScreen from 'src/screens/shared/ProfileScreen';
+import CourseManagementScreen from 'src/screens/coach/CourseManagementScreen';
 
 const Tab = createBottomTabNavigator<AdminTabParamList>();
 const tabBarActiveTintColor = Colors.primary;
@@ -47,10 +50,10 @@ const AdminTabNavigator = () => {
       <Tab.Screen
         name="CustomerManagement"
         component={CustomerStack}
-        options={({navigation}) => ({
+        options={({ navigation }) => ({
           title: '客戶管理',
           headerShown: true,
-          tabBarIcon: ({color, size}) => (
+          tabBarIcon: ({ color, size }) => (
             <Icon name="customer_management" size={size} color={color} />
           ),
           headerRight: () => {
@@ -70,7 +73,7 @@ const AdminTabNavigator = () => {
         component={CourseManagementScreen}
         options={{
           title: '課程管理',
-          tabBarIcon: ({color, size}) => (
+          tabBarIcon: ({ color, size }) => (
             <Icon name="management" size={size} color={color} />
           ),
         }}
@@ -80,7 +83,7 @@ const AdminTabNavigator = () => {
         component={NotificationsScreen}
         options={{
           title: '通知',
-          tabBarIcon: ({color, size}) => (
+          tabBarIcon: ({ color, size }) => (
             <Icon name="notification" size={size} color={color} />
           ),
         }}
@@ -90,7 +93,7 @@ const AdminTabNavigator = () => {
         component={ProfileScreen}
         options={{
           title: '我的',
-          tabBarIcon: ({color, size}) => (
+          tabBarIcon: ({ color, size }) => (
             <Icon name="profile" size={size} color={color} />
           ),
         }}

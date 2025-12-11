@@ -6,7 +6,7 @@ import {
   BasicInfoTab,
   ContractManagementTab,
   VerificationRecordsTab,
-} from 'src/screens/admin';
+} from 'src/screens/coach';
 import { Icon } from 'src/components';
 import { Colors } from 'src/theme';
 
