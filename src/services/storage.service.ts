@@ -12,6 +12,11 @@ export interface UserData {
   account?: string;
   phone?: string;
   name: string;
+  first_name?: string;
+  last_name?: string;
+  nick_name?: string;
+  avatar_thumbnail_url?: string | null;
+  hasura_token?: string;
   [key: string]: any;
 }
 

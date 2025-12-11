@@ -65,12 +65,12 @@ const LoginPage = () => {
         </View>
 
         {/* 登入表單 */}
-        {/* <AccountLoginForm
+        <AccountLoginForm
           onLogin={handleLogin}
           onForgotPassword={handleForgotPassword}
-        /> */}
+        />
 
-        <PhoneLoginForm onLogin={handlePhoneLogin} />
+        {/* <PhoneLoginForm onLogin={handlePhoneLogin} /> */}
 
         {/* 底部文字 */}
         <LoginFooter />

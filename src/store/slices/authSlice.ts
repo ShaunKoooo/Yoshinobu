@@ -1,5 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { storageService, UserData } from 'src/services/storage.service';
+import { authApi } from 'src/services/api';
+import { AppConfig } from 'src/config/AppConfig';
 
 type User = UserData;
 
@@ -48,26 +50,41 @@ export const loginWithAccount = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      // TODO: 替換成實際的 API 呼叫
-      // const response = await fetch('YOUR_API_URL/login', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ account, password }),
-      // });
-      // const data = await response.json();
+      // 根據 APP_TYPE 決定 app_name
+      const appName = AppConfig.APP_TYPE === 'spa' ? 'spa' : 'buddy_body';
 
-      // 模擬 API 回應
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      const mockToken = 'mock-jwt-token-' + Date.now();
-      const mockUserData = { account, name: '測試用戶' };
+      // 呼叫登入 API
+      const response = await authApi.signIn({
+        app_name: appName,
+        email: account,
+        password,
+        source: 'cofit',
+      });
+
+      // 驗證回應
+      if (!response.access_token) {
+        console.error('❌ API 回應缺少 access_token:', response);
+        throw new Error('登入回應格式錯誤：缺少 access_token');
+      }
+
+      // 組裝用戶資料
+      const userData: UserData = {
+        account,
+        name: response.nick_name || `${response.first_name} ${response.last_name}`,
+        first_name: response.first_name,
+        last_name: response.last_name,
+        nick_name: response.nick_name,
+        avatar_thumbnail_url: response.avatar_thumbnail_url,
+        hasura_token: response.hasura_token,
+      };
 
       // 儲存到 Storage
-      await storageService.setAuthToken(mockToken);
-      await storageService.setUserData(mockUserData);
+      await storageService.setAuthToken(response.access_token);
+      await storageService.setUserData(userData);
 
       return {
-        token: mockToken,
-        user: mockUserData,
+        token: response.access_token,
+        user: userData,
       };
     } catch (error: any) {
       return rejectWithValue(error.message || '登入失敗');
