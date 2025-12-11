@@ -12,7 +12,7 @@ const MyButton = ({
   onPress,
   title,
 }: {
-  isActive: boolean;
+  isActive?: boolean;
   onPress: () => void;
   title: string;
 }) => {
