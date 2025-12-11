@@ -12,6 +12,7 @@ import {
   AddCustomerScreen,
   CustomerDetailScreen,
   AddContractScreen,
+  AddBookingScreen,
 } from 'src/screens/coach';
 import { LoginPage } from 'src/screens/shared';
 
@@ -19,6 +20,7 @@ export type RootStackParamList = {
   Login: undefined;
   AdminTabs: undefined;
   AddCustomer: undefined;
+  AddBooking: undefined;
   AddContract: undefined;
   CustomerDetail: { customerId?: string };
 };
@@ -103,6 +105,20 @@ const RootNavigator = () => {
             component={AddContractScreen}
             options={({ navigation }) => ({
               title: '新增合約',
+              headerLeft: () => (
+                <TouchableOpacity
+                  onPress={() => navigation.goBack()}
+                  style={{ paddingLeft: 8 }}>
+                  <Icon name="left-open-big" size={20} color="white" />
+                </TouchableOpacity>
+              ),
+            })}
+          />
+          <Stack.Screen
+            name="AddBooking"
+            component={AddBookingScreen}
+            options={({ navigation }) => ({
+              title: '新增預約',
               headerLeft: () => (
                 <TouchableOpacity
                   onPress={() => navigation.goBack()}

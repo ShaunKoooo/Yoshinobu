@@ -77,8 +77,7 @@ const CustomerDetailScreen = () => {
           return () => (
             <TouchableOpacity
               onPress={() => {
-                console.log('匯出核銷紀錄');
-                // TODO: 實作匯出功能
+                navigation.navigate('AddBooking');
               }}
               style={styles.rightButtonContainer}>
               <Text style={styles.rightButtonText}>+ 新增預約</Text>
