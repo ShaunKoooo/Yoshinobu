@@ -1,5 +1,4 @@
-import {configureStore, Middleware} from '@reduxjs/toolkit';
-import counterReducer from './slices/counterSlice';
+import { configureStore, Middleware } from '@reduxjs/toolkit';
 import authReducer from './slices/authSlice';
 import Reactotron from '../../ReactotronConfig';
 
@@ -28,7 +27,6 @@ const stateLoggerMiddleware: Middleware = store => next => action => {
 
 export const store = configureStore({
   reducer: {
-    counter: counterReducer,
     auth: authReducer,
   },
   middleware: getDefaultMiddleware =>
