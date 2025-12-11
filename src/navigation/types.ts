@@ -4,7 +4,8 @@
 export type RootStackParamList = {
   AdminTabs: undefined;
   AddCustomer: undefined;
-  CustomerDetail: {customerId?: string};
+  AddContract: undefined;
+  CustomerDetail: { customerId?: string };
 };
 
 // 管理者後台 Tabs

@@ -11,6 +11,7 @@ import AdminTabNavigator from './AdminTabNavigator';
 import {
   AddCustomerScreen,
   CustomerDetailScreen,
+  AddContractScreen,
 } from 'src/screens/coach';
 import { LoginPage } from 'src/screens/shared';
 
@@ -18,6 +19,7 @@ export type RootStackParamList = {
   Login: undefined;
   AdminTabs: undefined;
   AddCustomer: undefined;
+  AddContract: undefined;
   CustomerDetail: { customerId?: string };
 };
 
@@ -87,6 +89,20 @@ const RootNavigator = () => {
             component={AddCustomerScreen}
             options={({ navigation }) => ({
               title: '新增客戶',
+              headerLeft: () => (
+                <TouchableOpacity
+                  onPress={() => navigation.goBack()}
+                  style={{ paddingLeft: 8 }}>
+                  <Icon name="left-open-big" size={20} color="white" />
+                </TouchableOpacity>
+              ),
+            })}
+          />
+          <Stack.Screen
+            name="AddContract"
+            component={AddContractScreen}
+            options={({ navigation }) => ({
+              title: '新增合約',
               headerLeft: () => (
                 <TouchableOpacity
                   onPress={() => navigation.goBack()}
