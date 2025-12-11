@@ -6,6 +6,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Alert,
 } from 'react-native';
 import {
   AccountLoginForm,
@@ -13,18 +14,37 @@ import {
   PhoneLoginForm,
 } from 'src/components';
 import { AppConfig } from 'src/config/AppConfig';
+import { useAppDispatch } from 'src/store/hooks';
+import { loginWithAccount, loginWithPhone } from 'src/store/slices/authSlice';
 
 const isSPAApp = AppConfig.APP_TYPE === 'spa';
 
 const LoginPage = () => {
+  const dispatch = useAppDispatch();
+
   const handleForgotPassword = () => {
     // TODO: 導航到忘記密碼頁面
     console.log('忘記密碼');
   };
 
-  const handleLogin = (account: string, password: string) => {
-    // TODO: 打 API 登入
-    console.log('登入:', { account, password });
+  const handleLogin = async (account: string, password: string) => {
+    try {
+      const result = await dispatch(loginWithAccount({ account, password })).unwrap();
+      console.log('登入成功:', result);
+    } catch (error: any) {
+      console.error('登入失敗:', error);
+      Alert.alert('登入失敗', error || '請稍後再試');
+    }
+  };
+
+  const handlePhoneLogin = async (phone: string, verificationCode: string) => {
+    try {
+      const result = await dispatch(loginWithPhone({ phone, verificationCode })).unwrap();
+      console.log('登入成功:', result);
+    } catch (error: any) {
+      console.error('登入失敗:', error);
+      Alert.alert('登入失敗', error || '請稍後再試');
+    }
   };
 
   return (
@@ -50,11 +70,7 @@ const LoginPage = () => {
           onForgotPassword={handleForgotPassword}
         /> */}
 
-        <PhoneLoginForm
-          onLogin={(phone, code) => {
-            console.log('手機登入:', { phone, code });
-          }}
-        />
+        <PhoneLoginForm onLogin={handlePhoneLogin} />
 
         {/* 底部文字 */}
         <LoginFooter />

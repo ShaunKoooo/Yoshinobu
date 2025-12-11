@@ -1,8 +1,9 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { TouchableOpacity } from 'react-native';
+import { TouchableOpacity, ActivityIndicator, View } from 'react-native';
 import { AppConfig } from 'src/config/AppConfig';
 import { Icon } from 'src/components';
+import { useAppSelector } from 'src/store/hooks';
 import AdminTabNavigator from './AdminTabNavigator';
 // import UserTabNavigator from './UserTabNavigator'; // 未來使用
 
@@ -11,8 +12,10 @@ import {
   AddCustomerScreen,
   CustomerDetailScreen,
 } from 'src/screens/admin';
+import { LoginPage } from 'src/screens/shared';
 
 export type RootStackParamList = {
+  Login: undefined;
   AdminTabs: undefined;
   AddCustomer: undefined;
   CustomerDetail: { customerId?: string };
@@ -21,6 +24,16 @@ export type RootStackParamList = {
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const RootNavigator = () => {
+  const { isAuthenticated, isLoading } = useAppSelector((state) => state.auth);
+
+  // 顯示載入畫面
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}>
+        <ActivityIndicator size="large" color="#FFFFFF" />
+      </View>
+    );
+  }
   // 從環境變數或 auth state 取得 App 類型
   // const userRole = useAppSelector(state => state.auth.role);
 
@@ -54,39 +67,51 @@ const RootNavigator = () => {
         },
         headerBackTitle: '',
       }}>
-      <Stack.Screen
-        name="AdminTabs"
-        component={AdminTabNavigator}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="AddCustomer"
-        component={AddCustomerScreen}
-        options={({ navigation }) => ({
-          title: '新增客戶',
-          headerLeft: () => (
-            <TouchableOpacity
-              onPress={() => navigation.goBack()}
-              style={{ paddingLeft: 8 }}>
-              <Icon name="left-open-big" size={20} color="white" />
-            </TouchableOpacity>
-          ),
-        })}
-      />
-      <Stack.Screen
-        name="CustomerDetail"
-        component={CustomerDetailScreen}
-        options={({ navigation }) => ({
-          title: '客戶詳情',
-          headerLeft: () => (
-            <TouchableOpacity
-              onPress={() => navigation.goBack()}
-              style={{ paddingLeft: 8 }}>
-              <Icon name="left-open-big" size={20} color="white" />
-            </TouchableOpacity>
-          ),
-        })}
-      />
+      {!isAuthenticated ? (
+        // 未登入 - 顯示登入畫面
+        <Stack.Screen
+          name="Login"
+          component={LoginPage}
+          options={{ headerShown: false }}
+        />
+      ) : (
+        // 已登入 - 顯示主應用
+        <>
+          <Stack.Screen
+            name="AdminTabs"
+            component={AdminTabNavigator}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="AddCustomer"
+            component={AddCustomerScreen}
+            options={({ navigation }) => ({
+              title: '新增客戶',
+              headerLeft: () => (
+                <TouchableOpacity
+                  onPress={() => navigation.goBack()}
+                  style={{ paddingLeft: 8 }}>
+                  <Icon name="left-open-big" size={20} color="white" />
+                </TouchableOpacity>
+              ),
+            })}
+          />
+          <Stack.Screen
+            name="CustomerDetail"
+            component={CustomerDetailScreen}
+            options={({ navigation }) => ({
+              title: '客戶詳情',
+              headerLeft: () => (
+                <TouchableOpacity
+                  onPress={() => navigation.goBack()}
+                  style={{ paddingLeft: 8 }}>
+                  <Icon name="left-open-big" size={20} color="white" />
+                </TouchableOpacity>
+              ),
+            })}
+          />
+        </>
+      )}
     </Stack.Navigator>
   );
 };

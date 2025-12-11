@@ -1,11 +1,20 @@
 import React from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import { View, StyleSheet } from 'react-native';
+import { MyButton } from 'src/components';
+import { useAppDispatch } from 'src/store/hooks';
+import { logout } from 'src/store/slices/authSlice';
 
 const ProfileScreen = () => {
+  const dispatch = useAppDispatch();
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>我的</Text>
-      <Text style={styles.subtitle}>Profile</Text>
+      <MyButton
+        title="登出"
+        isActive
+        onPress={() => {
+          dispatch(logout());
+        }} />
     </View>
   );
 };
