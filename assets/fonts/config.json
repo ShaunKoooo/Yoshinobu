@@ -139,6 +139,12 @@
       "css": "left-dir",
       "code": 59404,
       "src": "fontawesome"
+    },
+    {
+      "uid": "981c9f3d44fd4fd6b37c0b5a981334ce",
+      "css": "clock",
+      "code": 59405,
+      "src": "mfglabs"
     }
   ]
 }
