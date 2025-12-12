@@ -7,7 +7,7 @@ import {
   ScrollView,
   Image,
 } from 'react-native';
-import { DateRangePicker, Icon, MyListItem, Badge } from 'src/components';
+import { DateRangePicker, Icon, MyListItem, Badge, MyAlert } from 'src/components';
 import { Colors } from 'src/theme';
 import type { BadgeVariant } from 'src/components/common/Badge';
 
@@ -74,6 +74,8 @@ const CourseManagementScreen = () => {
   const [endDate, setEndDate] = useState(new Date('2025-10-08'));
   const [selectedStatus, setSelectedStatus] = useState<BookingStatus>('reserved');
   const [showAllStatuses, setShowAllStatuses] = useState(false);
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [bookingToCancel, setBookingToCancel] = useState<Booking | null>(null);
 
   const filteredBookings = MOCK_BOOKINGS.filter(
     (booking) => showAllStatuses || booking.status === selectedStatus
@@ -102,6 +104,25 @@ const CourseManagementScreen = () => {
       case 'cancelled':
         return { variant: 'canceled', text: '已取消' };
     }
+  };
+
+  const handleCancelPress = (booking: Booking) => {
+    setBookingToCancel(booking);
+    setAlertVisible(true);
+  };
+
+  const handleConfirmCancel = () => {
+    if (bookingToCancel) {
+      // TODO: 實際取消預約的 API 調用
+      console.log('取消預約:', bookingToCancel);
+    }
+    setAlertVisible(false);
+    setBookingToCancel(null);
+  };
+
+  const handleCancelAlert = () => {
+    setAlertVisible(false);
+    setBookingToCancel(null);
   };
 
   return (
@@ -191,7 +212,10 @@ const CourseManagementScreen = () => {
 
               {/* 操作按鈕 */}
               <View style={styles.actionButtons}>
-                <TouchableOpacity style={styles.cancelButton}>
+                <TouchableOpacity
+                  style={styles.cancelButton}
+                  onPress={() => handleCancelPress(booking)}
+                >
                   <Text style={styles.cancelButtonText}>取消預約</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.verifyButton}>
@@ -202,6 +226,19 @@ const CourseManagementScreen = () => {
           )}
         />
       </View>
+
+      {/* 取消預約確認對話框 */}
+      {bookingToCancel && (
+        <MyAlert
+          visible={alertVisible}
+          title="取消預約"
+          message={`取消 ${bookingToCancel.customerName} ${bookingToCancel.date}(${getWeekday(bookingToCancel.date)}) ${bookingToCancel.time} ${bookingToCancel.service} ${bookingToCancel.duration}?`}
+          onCancel={handleCancelAlert}
+          onConfirm={handleConfirmCancel}
+          cancelText="否"
+          confirmText="是"
+        />
+      )}
     </View>
   );
 };
