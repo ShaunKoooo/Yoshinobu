@@ -38,11 +38,13 @@ const AddCustomerScreen = () => {
         onFieldChange={handleFieldChange}
         onButtonPress={handleButtonPress}
       />
-      <MyButton
-        isActive={false}
-        title="確認"
-        onPress={handleSubmit}
-      />
+      <View style={styles.buttonContainer}>
+        <MyButton
+          isActive={false}
+          title="確認"
+          onPress={handleSubmit}
+        />
+      </View>
     </View>
   );
 };
@@ -51,6 +53,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F8F9FA',
+  },
+  buttonContainer: {
+    padding: 16,
   },
 });
 
