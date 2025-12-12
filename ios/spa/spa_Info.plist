@@ -6,6 +6,10 @@
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
+	<key>CodePushDeploymentKey</key>
+  <string>NB6QLXQKJCsdKhF1AlzldgdiB1HzfmFG8PB</string>
+  <key>CodePushServerURL</key>
+  <string>https://codepush.appsonair.com</string>
 	<key>CFBundleDisplayName</key>
 	<string>人體工房教練</string>
 	<key>CFBundleExecutable</key>

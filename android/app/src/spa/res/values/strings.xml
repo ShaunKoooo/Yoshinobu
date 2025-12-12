@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">人體工房</string>
+    <string moduleConfig="true" name="CodePushDeploymentKey">CyN3krPUTlY6RCzOytq61LCRa5HtfmFG8PB</string>
+    <string moduleConfig="true" name="CodePushServerUrl">https://codepush.appsonair.com</string>
 </resources>

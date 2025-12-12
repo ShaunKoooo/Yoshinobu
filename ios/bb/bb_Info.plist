@@ -8,6 +8,10 @@
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
 	<string>Yoshinobu</string>
+  <key>CodePushDeploymentKey</key>
+  <string>_nquBoiG-n74V6fVHkRgXJ__29e0fmFG8PB</string>
+  <key>CodePushServerURL</key>
+  <string>https://codepush.appsonair.com</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
