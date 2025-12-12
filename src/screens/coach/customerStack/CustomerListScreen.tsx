@@ -47,7 +47,7 @@ const MOCK_CUSTOMERS: Customer[] = [
 ];
 
 const CustomerListScreen = () => {
-  const navigation = useNavigation<NavigationProp>();
+  const navigation = useNavigation<any>();
   const [searchQuery, setSearchQuery] = useState('');
   const [customers] = useState<Customer[]>(MOCK_CUSTOMERS);
 
@@ -68,7 +68,11 @@ const CustomerListScreen = () => {
         </View>
       </View>
       <View style={styles.addButtonContainer}>
-        <Text style={styles.addButtonText}>新增預約</Text>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('AddBooking')}
+        >
+          <Text style={styles.addButtonText}>新增預約</Text>
+        </TouchableOpacity>
         <View style={{ marginRight: 4 }}>
           <Icon name="right-open-big" size={16} color="#4E5969" />
         </View>
