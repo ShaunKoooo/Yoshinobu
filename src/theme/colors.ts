@@ -10,7 +10,8 @@ const SPA_COLORS = {
 
 // BB App 主色（待定義）
 const BB_COLORS = {
-  primary: '#B49162',  // TODO: 更換為 BB App 的主色
+  primary: '#cdc1b2',  // TODO: 更換為 BB App 的主色
+  baseColor: '#231815',
   primaryDark: '#9a7a50',
   primaryLight: '#c9a77b',
 };
