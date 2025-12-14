@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import {
 	StyleSheet,
 	TextInput,
@@ -9,16 +9,25 @@ import {
 	Icon,
 } from 'src/components';
 
-const MySearchBar = () => {
-	const [searchQuery, setSearchQuery] = useState('');
+interface MySearchBarProps {
+	value?: string;
+	onChangeText?: (text: string) => void;
+	placeholder?: string;
+}
+
+const MySearchBar: React.FC<MySearchBarProps> = ({
+	value = '',
+	onChangeText,
+	placeholder = '搜尋客戶姓名',
+}) => {
 	return (
 		<View style={styles.searchContainer}>
 			<Icon name="magnifier" size={20} color="#4E5969" />
 			<TextInput
 				style={styles.searchInput}
-				placeholder=""
-				value={searchQuery}
-				onChangeText={setSearchQuery}
+				placeholder={placeholder}
+				value={value}
+				onChangeText={onChangeText}
 				placeholderTextColor="#999"
 			/>
 		</View>
