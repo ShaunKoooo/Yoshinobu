@@ -3,13 +3,12 @@ import { AppConfig } from 'src/config/AppConfig';
 
 // API 基礎配置
 export const API_CONFIG = {
-  BASE_URL: 'https://staging.cofit.me',
+  BASE_URL: 'https://ff-staging.cofit.me',
   TIMEOUT: 30000,
 
-  // 如果不同 app 需要不同的 base URL，可以這樣設計：
-  // BASE_URL: AppConfig.APP_TYPE === 'spa'
-  //   ? 'https://staging-spa.cofit.me'
-  //   : 'https://staging-bb.cofit.me',
+  // TODO 拆分 staging / production 環境
+  // BASE_URL staging https://ff-staging.cofit.me
+  // BASE_URL production https://ff.cofit.me
 } as const;
 
 // HTTP 請求工具
