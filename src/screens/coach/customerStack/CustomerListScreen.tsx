@@ -11,33 +11,31 @@ import {
   Icon,
 } from 'src/components';
 import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { RootStackParamList } from 'src/navigation/types';
 import { Colors } from 'src/theme';
 import { useClients } from 'src/services/hooks';
+import type { Client } from 'src/services/api/types';
 
-type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
-
-interface Customer {
-  client: {
-    id: number;
-    address: string;
-    birthday: string;
-    gender: string;
-    name: string;
-    email: string;
-    note: string;
-  },
-  identities?: []
-};
 
 const CustomerListScreen = () => {
   const navigation = useNavigation<any>();
   const [searchQuery, setSearchQuery] = useState('');
   const { data: clients = [], isLoading, error } = useClients();
 
-  const renderCustomerItem = ({ item }: { item: Customer }) => {
-    const { name, id } = item?.client;
+  // 根據 searchQuery 過濾客戶
+  const filteredClients = React.useMemo(() => {
+    if (!searchQuery.trim()) {
+      return clients;
+    }
+
+    return clients.filter((item: Client) => {
+      const name = item?.client?.name?.toLowerCase() || '';
+      const query = searchQuery.toLowerCase();
+      return name.includes(query);
+    });
+  }, [clients, searchQuery]);
+
+  const renderCustomerItem = ({ item }: { item: Client }) => {
+    const { name, id } = item?.client || {};
     return (
       <TouchableOpacity
         onPress={() => navigation.navigate('CustomerDetail', { customerId: id })}
@@ -64,9 +62,13 @@ const CustomerListScreen = () => {
 
   return (
     <View style={styles.container}>
-      <MySearchBar />
+      <MySearchBar
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+        placeholder="搜尋客戶姓名"
+      />
       <MyListItem
-        data={clients}
+        data={filteredClients}
         renderItem={renderCustomerItem}
         keyExtractor={item => item.id}
       />

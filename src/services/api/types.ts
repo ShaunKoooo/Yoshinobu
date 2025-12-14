@@ -6,15 +6,15 @@
 // ==================== 客戶管理 ====================
 
 export interface Client {
-  id: number;
-  name: string;
-  email: string;
-  mobile: string;
-  gender: 'male' | 'female' | 'other';
-  address?: string;
-  note?: string;
-  created_at?: string;
-  updated_at?: string;
+  client: {
+    id: number;
+    name: string;
+    email: string;
+    mobile: string;
+    gender: 'male' | 'female' | 'other';
+    address?: string;
+    note?: string;
+  }
 }
 
 export interface CreateClientRequest {
@@ -26,7 +26,7 @@ export interface CreateClientRequest {
   note?: string;
 }
 
-export interface UpdateClientRequest extends Partial<CreateClientRequest> {}
+export interface UpdateClientRequest extends Partial<CreateClientRequest> { }
 
 export interface GetClientsResponse {
   clients: Client[];
