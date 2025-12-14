@@ -14,77 +14,59 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from 'src/navigation/types';
 import { Colors } from 'src/theme';
+import { useClients } from 'src/services/hooks';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 interface Customer {
-  id: string;
-  name: string;
-  phone: string;
-  email: string;
-}
-
-// Mock data - 未來從 Redux 或 API 取得
-const MOCK_CUSTOMERS: Customer[] = [
-  {
-    id: '1',
-    name: '王小明',
-    phone: '0912-345-678',
-    email: 'wang@example.com',
+  client: {
+    id: number;
+    address: string;
+    birthday: string;
+    gender: string;
+    name: string;
+    email: string;
+    note: string;
   },
-  {
-    id: '2',
-    name: '李小華',
-    phone: '0923-456-789',
-    email: 'lee@example.com',
-  },
-  {
-    id: '3',
-    name: '陳大同',
-    phone: '0934-567-890',
-    email: 'chen@example.com',
-  },
-];
+  identities?: []
+};
 
 const CustomerListScreen = () => {
   const navigation = useNavigation<any>();
   const [searchQuery, setSearchQuery] = useState('');
-  const [customers] = useState<Customer[]>(MOCK_CUSTOMERS);
+  const { data: clients = [], isLoading, error } = useClients();
 
-  const filteredCustomers = customers.filter(
-    customer =>
-      customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      customer.phone.includes(searchQuery) ||
-      customer.email.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
-
-  const renderCustomerItem = ({ item }: { item: Customer }) => (
-    <TouchableOpacity
-      onPress={() => navigation.navigate('CustomerDetail', { customerId: item.id })}
-      style={styles.customerCard}>
-      <View style={styles.customerInfo}>
-        <View style={styles.customerDetails}>
-          <Text style={styles.customerName}>{item.name}</Text>
+  const renderCustomerItem = ({ item }: { item: Customer }) => {
+    const { name, id } = item?.client;
+    return (
+      <TouchableOpacity
+        onPress={() => navigation.navigate('CustomerDetail', { customerId: id })}
+        style={styles.customerCard}
+      >
+        <View style={styles.customerInfo}>
+          <View style={styles.customerDetails}>
+            <Text style={styles.customerName}>{name}</Text>
+          </View>
         </View>
-      </View>
-      <View style={styles.addButtonContainer}>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('AddBooking')}
-        >
-          <Text style={styles.addButtonText}>新增預約</Text>
-        </TouchableOpacity>
-        <View style={{ marginRight: 4 }}>
-          <Icon name="right-open-big" size={16} color="#4E5969" />
+        <View style={styles.addButtonContainer}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('AddBooking')}
+          >
+            <Text style={styles.addButtonText}>新增預約</Text>
+          </TouchableOpacity>
+          <View style={{ marginRight: 4 }}>
+            <Icon name="right-open-big" size={16} color="#4E5969" />
+          </View>
         </View>
-      </View>
-    </TouchableOpacity>
-  );
+      </TouchableOpacity>
+    )
+  };
 
   return (
     <View style={styles.container}>
       <MySearchBar />
       <MyListItem
-        data={filteredCustomers}
+        data={clients}
         renderItem={renderCustomerItem}
         keyExtractor={item => item.id}
       />
