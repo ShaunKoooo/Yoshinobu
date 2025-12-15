@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   StyleSheet,
@@ -6,19 +6,13 @@ import {
 import {
   MyButton,
   CustomerForm,
-  BottomSheetModal,
-  MyPicker,
 } from 'src/components';
 import { useCreateClient } from 'src/services/hooks';
 import { CUSTOMER_FIELDS } from 'src/components/customerForm/constants';
-import { Calendar } from 'react-native-calendars';
+import { useCustomerFormModal } from 'src/components/customerForm/useCustomerFormModal';
 
 const AddCustomerScreen = () => {
   const { mutate } = useCreateClient();
-  const [activeModal, setActiveModal] = useState<{
-    type: {};
-    fieldKey: string;
-  } | null>(null);
   const [formValues, setFormValues] = useState<Record<string, string>>({
     name: '',
     email: '',
@@ -36,20 +30,10 @@ const AddCustomerScreen = () => {
     }));
   }, []);
 
-  const handleButtonPress = useCallback((key: string) => {
-    const field = CUSTOMER_FIELDS.find((f) => f.key === key);
-    if (field?.modalType) {
-      setActiveModal({ type: field.modalType, fieldKey: key });
-    }
-  }, []);
-
-  const handleModalClose = useCallback(() => {
-    setActiveModal(null);
-  }, []);
-
-  const handleModalConfirm = useCallback(() => {
-    setActiveModal(null);
-  }, []);
+  const { handleButtonPress, ModalComponent } = useCustomerFormModal({
+    formValues,
+    onFieldChange: handleFieldChange,
+  });
 
   // 檢查必填欄位是否為空
   const validateForm = useCallback(() => {
@@ -83,44 +67,6 @@ const AddCustomerScreen = () => {
     });
   }, [formValues, mutate]);
 
-  // Memoized modal content to avoid unnecessary re-renders
-  const modalContent = useMemo(() => {
-    if (!activeModal) return null;
-
-    const field = CUSTOMER_FIELDS.find((f) => f.key === activeModal.fieldKey);
-
-    switch (activeModal.type) {
-      case 'calendar':
-        return (
-          <Calendar
-            markedDates={{
-              [formValues.birthday]: {
-                selected: true,
-                disableTouchEvent: true
-              },
-            }}
-            onDayPress={(day) => {
-              handleFieldChange(activeModal.fieldKey, day.dateString);
-            }}
-          />
-        );
-
-      case 'picker':
-        return (
-          <MyPicker
-            items={field?.pickerItems || []}
-            selectedValue={formValues[activeModal.fieldKey]}
-            onValueChange={(value) => {
-              handleFieldChange(activeModal.fieldKey, value as string);
-            }}
-          />
-        );
-
-      default:
-        return null;
-    }
-  }, [activeModal, formValues, handleFieldChange]);
-
   return (
     <View style={styles.container}>
       <CustomerForm
@@ -137,15 +83,7 @@ const AddCustomerScreen = () => {
           onPress={handleSubmit}
         />
       </View>
-      {activeModal && (
-        <BottomSheetModal
-          visible={true}
-          onClose={handleModalClose}
-          onConfirm={handleModalConfirm}
-        >
-          {modalContent}
-        </BottomSheetModal>
-      )}
+      {ModalComponent}
     </View>
   );
 };

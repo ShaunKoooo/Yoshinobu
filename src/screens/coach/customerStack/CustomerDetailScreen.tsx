@@ -19,6 +19,8 @@ export type CustomerDetailTabParamList = {
 interface BasicInfoEditContextType {
   isEditing: boolean;
   setIsEditing: (value: boolean) => void;
+  setSaveHandler: (handler: () => void) => void;
+  exitEditMode: () => void;
 }
 
 export const BasicInfoEditContext = createContext<BasicInfoEditContextType | undefined>(undefined);
@@ -39,14 +41,27 @@ const CustomerDetailScreen = ({ route }: any) => {
   const { id } = route.params || {};
   const [currentTab, setCurrentTab] = React.useState<keyof CustomerDetailTabParamList>('BasicInfo');
   const [isEditingBasicInfo, setIsEditingBasicInfo] = React.useState(false);
+  const saveHandlerRef = React.useRef<(() => void) | null>(null);
 
   const handleToggleEditBasicInfo = () => {
     if (isEditingBasicInfo) {
-      // TODO: 儲存資料到 API
-      console.log('儲存基本資料');
+      // 呼叫 BasicInfoTab 的儲存函數
+      // 只有當驗證通過且儲存成功時，才會在 BasicInfoTab 中呼叫 exitEditMode
+      if (saveHandlerRef.current) {
+        saveHandlerRef.current();
+      }
+    } else {
+      setIsEditingBasicInfo(true);
     }
-    setIsEditingBasicInfo(!isEditingBasicInfo);
   };
+
+  const setSaveHandler = React.useCallback((handler: () => void) => {
+    saveHandlerRef.current = handler;
+  }, []);
+
+  const exitEditMode = React.useCallback(() => {
+    setIsEditingBasicInfo(false);
+  }, []);
 
   useLayoutEffect(() => {
     // 根據當前 Tab 更新 header 右側按鈕
@@ -99,6 +114,8 @@ const CustomerDetailScreen = ({ route }: any) => {
       value={{
         isEditing: isEditingBasicInfo,
         setIsEditing: setIsEditingBasicInfo,
+        setSaveHandler,
+        exitEditMode,
       }}
     >
       <Tab.Navigator
