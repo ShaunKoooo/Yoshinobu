@@ -11,3 +11,4 @@ export { default as BottomSheetModal } from './common/BottomSheetModal.tsx';
 export { default as LoginFooter } from './common/LoginFooter.tsx';
 export { default as AccountLoginForm } from './common/AccountLoginForm.tsx';
 export { default as PhoneLoginForm } from './common/PhoneLoginForm.tsx';
+export { default as MyPicker } from './common/MyPicker.tsx';
