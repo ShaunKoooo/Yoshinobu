@@ -9,6 +9,10 @@ import {
 import { MyListItem, Icon } from 'src/components';
 import { CustomerFormProps, CustomerFormField } from './types';
 
+const getGenderLabel = (gender: 'male' | 'female') => {
+  return gender === 'male' ? '男' : '女';
+};
+
 const CustomerForm: React.FC<CustomerFormProps> = ({
   editable,
   fields,
@@ -59,7 +63,13 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
               !editable && styles.disabledText,
             ]}
           >
-            {value || (editable ? item.placeholder : item.nonEditPlaceholder)}
+            {value
+              ? item.key === 'gender'
+                ? getGenderLabel(value as 'male' | 'female')
+                : value
+              : editable
+              ? item.placeholder
+              : item.nonEditPlaceholder}
           </Text>
           {editable && <Icon name="right-open-big" size={12} color="#4E5969" />}
         </View>

@@ -9,7 +9,7 @@ export const CUSTOMER_FIELDS: CustomerFormField[] = [
     type: 'textInput',
   },
   {
-    key: 'phone',
+    key: 'mobile',
     title: '客戶電話',
     placeholder: '請輸入',
     nonEditPlaceholder: '未輸入',
@@ -28,6 +28,19 @@ export const CUSTOMER_FIELDS: CustomerFormField[] = [
     placeholder: '請選擇',
     nonEditPlaceholder: '未輸入',
     type: 'button',
+    modalType: 'calendar',
+  },
+  {
+    key: 'gender',
+    title: '性別',
+    placeholder: '請選擇',
+    nonEditPlaceholder: '未輸入',
+    type: 'button',
+    modalType: 'picker',
+    pickerItems: [
+      { label: '男', value: 'male' },
+      { label: '女', value: 'female' },
+    ],
   },
   {
     key: 'address',

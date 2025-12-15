@@ -4,6 +4,8 @@ export interface CustomerFormField {
   type: 'textInput' | 'button';
   key: string;
   nonEditPlaceholder?: string;
+  modalType?: 'calendar' | 'picker' | null;
+  pickerItems?: { label: string; value: string }[];
 }
 
 export interface CustomerFormProps {

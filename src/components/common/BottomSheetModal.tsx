@@ -11,12 +11,12 @@ import {
 import { Colors } from 'src/theme';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
-const MODAL_HEIGHT = SCREEN_HEIGHT * 0.4; // 2/5 的高度
+const MODAL_HEIGHT = SCREEN_HEIGHT * 0.5;
 
 interface BottomSheetModalProps {
   visible: boolean;
   onClose: () => void;
-  onConfirm: (startDate: Date, endDate: Date) => void;
+  onConfirm?: () => void;
   children?: React.ReactNode;
 }
 
@@ -43,10 +43,8 @@ const BottomSheetModal: React.FC<BottomSheetModalProps> = ({
                 <TouchableOpacity onPress={onClose}>
                   <Text style={styles.cancelText}>取消</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => { }}>
-                  <Text style={[styles.confirmText]}>
-                    確認
-                  </Text>
+                <TouchableOpacity onPress={onConfirm}>
+                  <Text style={[styles.confirmText]}>確認</Text>
                 </TouchableOpacity>
               </View>
 
@@ -70,6 +68,7 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     height: MODAL_HEIGHT,
+    justifyContent: 'flex-end',
     backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,

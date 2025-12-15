@@ -19,10 +19,11 @@ export interface Client {
 }
 
 export interface CreateClientRequest {
-  name: string;
-  email: string;
-  mobile: string;
-  gender: 'male' | 'female' | 'other';
+  name?: string;
+  email?: string;
+  mobile?: string;
+  birthday?: string;
+  gender?: 'male' | 'female';
   address?: string;
   note?: string;
 }
