@@ -1,8 +1,9 @@
 export interface CustomerFormField {
   title: string;
-  placeholder: string;
+  placeholder?: string;
   type: 'textInput' | 'button';
   key: string;
+  nonEditPlaceholder?: string;
 }
 
 export interface CustomerFormProps {

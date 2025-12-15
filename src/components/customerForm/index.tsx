@@ -36,7 +36,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
               />
             ) : (
               <Text style={[styles.input, !value && styles.placeholder]}>
-                {value || item.placeholder}
+                {value || (editable ? item.placeholder : item.nonEditPlaceholder)}
               </Text>
             )}
           </View>
@@ -59,7 +59,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
               !editable && styles.disabledText,
             ]}
           >
-            {value || item.placeholder}
+            {value || (editable ? item.placeholder : item.nonEditPlaceholder)}
           </Text>
           {editable && <Icon name="right-open-big" size={12} color="#4E5969" />}
         </View>

@@ -11,7 +11,7 @@ import { Icon } from 'src/components';
 import { Colors } from 'src/theme';
 
 export type CustomerDetailTabParamList = {
-  BasicInfo: undefined;
+  BasicInfo: { id: number };
   ContractManagement: undefined;
   VerificationRecords: undefined;
 };
@@ -33,9 +33,10 @@ export const useBasicInfoEdit = () => {
 
 const Tab = createMaterialTopTabNavigator<CustomerDetailTabParamList>();
 
-const CustomerDetailScreen = () => {
+const CustomerDetailScreen = ({ route }: any) => {
   // Adjust the type to allow navigation to 'AddContract'
   const navigation = useNavigation<any>();
+  const { id } = route.params || {};
   const [currentTab, setCurrentTab] = React.useState<keyof CustomerDetailTabParamList>('BasicInfo');
   const [isEditingBasicInfo, setIsEditingBasicInfo] = React.useState(false);
 
@@ -129,6 +130,7 @@ const CustomerDetailScreen = () => {
         <Tab.Screen
           name="BasicInfo"
           component={BasicInfoTab}
+          initialParams={{ id }}
           options={{
             tabBarLabel: '基本資料',
           }}

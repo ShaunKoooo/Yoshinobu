@@ -38,7 +38,7 @@ const CustomerListScreen = () => {
     const { name, id } = item?.client || {};
     return (
       <TouchableOpacity
-        onPress={() => navigation.navigate('CustomerDetail', { customerId: id })}
+        onPress={() => navigation.navigate('CustomerDetail', { id })}
         style={styles.customerCard}
       >
         <View style={styles.customerInfo}>

@@ -12,6 +12,7 @@ export interface Client {
     email: string;
     mobile: string;
     gender: 'male' | 'female' | 'other';
+    birthday?: string;
     address?: string;
     note?: string;
   }
