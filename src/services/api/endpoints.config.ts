@@ -27,20 +27,20 @@ const AUTH_ENDPOINTS = {
 // 教練端專用端點
 const COACH_ENDPOINTS = {
   // 客戶管理
-  CLIENTS: '/api/spa/v1/clients',
-  CLIENT_DETAIL: (id: number) => `/api/spa/v1/clients/${id}`,
+  CLIENTS: '/api/spa/user/v1/clients',
+  CLIENT_DETAIL: (id: number) => `/api/spa/user/v1/clients/${id}`,
 
   // 預約管理
-  VISITS: '/api/spa/v1/visits',
-  CANCEL_VISIT: (id: number) => `/api/spa/v1/visits/${id}/cancel`,
+  VISITS: '/api/spa/user/v1/visits',
+  CANCEL_VISIT: (id: number) => `/api/spa/user/v1/visits/${id}/cancel`,
 
   // 預約系統 (SimplyBook)
-  SERVICES: '/api/spa/v1/simply_book/services',
-  PROVIDERS: '/api/spa/v1/simply_book/providers',
-  SCHEDULES: '/api/spa/v1/simply_book/schedules',
-  SLOTS: '/api/spa/v1/simply_book/slots',
-  FIRST_AVAILABLE_SLOT: '/api/spa/v1/simply_book/slots/first_available_slot',
-  BOOKINGS: '/api/spa/v1/simply_book/bookings',
+  SERVICES: '/api/spa/user/v1/simply_book/services',
+  PROVIDERS: '/api/spa/user/v1/simply_book/providers',
+  SCHEDULES: '/api/spa/user/v1/simply_book/schedules',
+  SLOTS: '/api/spa/user/v1/simply_book/slots',
+  FIRST_AVAILABLE_SLOT: '/api/spa/user/v1/simply_book/slots/first_available_slot',
+  BOOKINGS: '/api/spa/user/v1/simply_book/bookings',
 };
 
 // 客戶端專用端點（未來擴充）
