@@ -46,10 +46,12 @@ const MyPicker: React.FC<MyPickerProps> = ({
 const styles = StyleSheet.create({
   container: {
     width: '100%',
+    height: 216,
   },
   pickerContainer: {
     justifyContent: 'center',
     alignItems: 'center',
+    height: 216,
   },
   selectionIndicator: {
     top: '50%',
