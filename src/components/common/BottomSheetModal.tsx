@@ -67,8 +67,6 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalContainer: {
-    height: MODAL_HEIGHT,
-    justifyContent: 'flex-end',
     backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
@@ -101,8 +99,8 @@ const styles = StyleSheet.create({
     opacity: 0.3,
   },
   content: {
-    flex: 1,
     paddingTop: 16,
+    paddingBottom: 32,
   },
   dateRow: {
     flexDirection: 'row',
