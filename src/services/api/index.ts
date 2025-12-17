@@ -9,5 +9,8 @@ export { apiClient } from './config';
 export { API_ENDPOINTS, getEndpoints } from './endpoints.config';
 export { authApi } from './auth.api';
 export { clientsApi } from './clients.api';
+export { categoriesApi } from './categories.api';
+export { contractsApi } from './contracts.api';
+export { shareContractsApi } from './shareContracts.api';
 export { visitsApi } from './visits.api';
 export { simplyBookApi } from './simplyBook.api';

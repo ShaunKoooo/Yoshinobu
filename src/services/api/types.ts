@@ -73,6 +73,62 @@ export interface CancelVisitResponse {
   message?: string;
 }
 
+// ==================== 類別管理 ====================
+
+export interface Category {
+  id: number;
+  name: string;
+  description?: string;
+  is_active: boolean;
+}
+
+export interface GetCategoriesResponse {
+  categories: Category[];
+}
+
+// ==================== 合約管理 ====================
+
+export interface Contract {
+  id: number;
+  client_id: number;
+  category_id: number;
+  contract_time: number; // 合約時間（分鐘）
+  remaining_time?: number; // 剩餘時間（分鐘）
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateContractRequest {
+  client_id: number;
+  category_id: number;
+  contract_time: number;
+}
+
+export interface CreateContractResponse {
+  contract: Contract;
+}
+
+// ==================== 共用合約管理 ====================
+
+export interface ShareContract {
+  id: number;
+  client_id: number;
+  contract_id: number;
+  contract_time: number; // 分享的時間（分鐘）
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateShareContractRequest {
+  client_id: number;
+  contract_id: number;
+  contract_time: number;
+}
+
+export interface CreateShareContractResponse {
+  share_contract: ShareContract;
+}
+
 // ==================== SimplyBook 預約系統 ====================
 
 export interface Service {
