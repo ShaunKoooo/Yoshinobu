@@ -4,8 +4,9 @@ import { TouchableOpacity, ActivityIndicator, View } from 'react-native';
 import { AppConfig } from 'src/config/AppConfig';
 import { Icon } from 'src/components';
 import { useAppSelector } from 'src/store/hooks';
+import { useInitializeUser } from 'src/hooks/useInitializeUser';
 import AdminTabNavigator from './AdminTabNavigator';
-// import UserTabNavigator from './UserTabNavigator'; // 未來使用
+import { Colors } from 'src/theme';
 
 // Screens
 import {
@@ -30,11 +31,14 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 const RootNavigator = () => {
   const { isAuthenticated, isLoading } = useAppSelector((state) => state.auth);
 
+  // 自動載入使用者資料（當為教練身份時）
+  const { isLoading: isUserLoading } = useInitializeUser();
+
   // 顯示載入畫面
-  if (isLoading) {
+  if (isLoading || isUserLoading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}>
-        <ActivityIndicator size="large" color="#FFFFFF" />
+        <ActivityIndicator size="large" color={Colors.primary} />
       </View>
     );
   }

@@ -26,6 +26,7 @@ const AUTH_ENDPOINTS = {
 
 // 教練端專用端點
 const COACH_ENDPOINTS = {
+  USER_ME: '/api/v4.1/users/me',
   // 客戶管理
   CLIENTS: '/api/spa/user/v1/clients',
   CLIENT_DETAIL: (id: number) => `/api/spa/user/v1/clients/${id}`,

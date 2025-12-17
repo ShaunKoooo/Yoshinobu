@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { storageService, UserData } from 'src/services/storage.service';
 import { authApi } from 'src/services/api';
 import { AppConfig } from 'src/config/AppConfig';
+import { clearUserProfile } from './userSlice';
 
 type User = UserData;
 
@@ -152,9 +153,11 @@ export const sendVerificationCode = createAsyncThunk(
 // 登出
 export const logout = createAsyncThunk(
   'auth/logout',
-  async (_, { rejectWithValue }) => {
+  async (_, { rejectWithValue, dispatch }) => {
     try {
       await storageService.clearAuthData();
+      // 清除使用者資料
+      dispatch(clearUserProfile());
       return null;
     } catch (error: any) {
       return rejectWithValue(error.message || '登出失敗');
