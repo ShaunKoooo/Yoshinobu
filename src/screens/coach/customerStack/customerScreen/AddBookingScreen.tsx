@@ -1,28 +1,61 @@
-import React, { useState } from 'react';
+import React, {
+  useState,
+} from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  Dimensions,
 } from 'react-native';
-import { MyButton, Icon, Badge } from 'src/components';
+import {
+  MyButton,
+  Icon,
+  Badge,
+  BottomSheetModal,
+  MyPicker,
+} from 'src/components';
 import { Colors } from 'src/theme';
+import {
+  useServices,
+  useProviders,
+  useSlots,
+} from 'src/services/hooks';
+import { Calendar } from 'react-native-calendars';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 const AddBookingScreen = () => {
-  const [serviceItem, setServiceItem] = useState('');
-  const [therapist, setTherapist] = useState('');
+  const [serviceId, setServiceId] = useState<number | null>(null);
+  const [activeModal, setActiveModal] = useState<'service' | 'therapist' | 'time' | null>(null);
+  const [providerId, setProviderId] = useState<number | null>(null);
+  const [bookingDate, setBookingDate] = useState('');
   const [bookingTime, setBookingTime] = useState('');
   const [contractNumber, setContractNumber] = useState('C123456789');
   const [contractType, setContractType] = useState('專業徒手');
   const [duration, setDuration] = useState('180分鐘');
   const [isSharedContract, setIsSharedContract] = useState(true);
 
+  const { data: services, isLoading: servicesLoading } = useServices();
+  const { data: providers, isLoading: providersLoading } = useProviders();
+
+  // 根據選擇的日期、provider、service 動態查詢可用時段
+  const { data: slots, isLoading: slotsLoading } = useSlots(
+    {
+      date: bookingDate,
+      provider_id: providerId || 0,
+      service_id: serviceId || 0,
+    },
+    !!bookingDate && !!providerId && !!serviceId // 只有全部都選了才執行
+  )
+  console.log(slots, 'shaunslots')
+
   const handleSubmit = () => {
     // TODO: 處理表單提交到 API
     console.log('Booking data:', {
-      serviceItem,
-      therapist,
+      serviceId,
+      providerId,
       bookingTime,
       contractNumber,
       contractType,
@@ -30,23 +63,116 @@ const AddBookingScreen = () => {
       isSharedContract,
     });
   };
+  console.log(services, providers, 'shaunservices')
 
-  const isFormValid = serviceItem && therapist && bookingTime;
+  const serviceItems = services?.services?.map(service => ({
+    label: service.name,
+    value: service.id,
+  })) || [];
+
+  const providerItems = providers?.providers?.map(provider => ({
+    label: provider.name,
+    value: provider.id,
+  })) || [];
+
+  const modalContent = () => {
+    switch (activeModal) {
+      case 'service':
+        return (
+          <MyPicker
+            items={serviceItems}
+            selectedValue={serviceId ?? undefined}
+            onValueChange={(value) => { setServiceId(Number(value)); }}
+          />
+        );
+      case 'therapist':
+        return (
+          <MyPicker
+            items={providerItems}
+            selectedValue={providerId ?? undefined}
+            onValueChange={(value) => { setProviderId(Number(value)); }}
+          />
+        );
+      case 'time':
+        return (
+          <View>
+            <Calendar
+              markedDates={{
+                [bookingDate]: {
+                  selected: true,
+                  disableTouchEvent: true,
+                },
+              }}
+              onDayPress={(day) => {
+                setBookingDate(day.dateString);
+              }}
+              disableArrowLeft={true}
+              theme={{
+                backgroundColor: 'white',
+                calendarBackground: 'white',
+                textSectionTitleColor: '#b6c1cd',
+                selectedDayBackgroundColor: Colors.primary,
+                selectedDayTextColor: '#E6DBCB',
+                todayTextColor: Colors.primary,
+                arrowColor: Colors.primary,
+              }}
+            />
+            <View style={styles.slotsContainer}>
+              {slots?.slots?.map((item, index) => {
+                const itemWidth = (SCREEN_WIDTH - 32 - 30) / 4; // 32 = container padding, 30 = gaps (3 gaps of 10px)
+                const isSelected = bookingTime === item.time;
+                return (
+                  <TouchableOpacity
+                    key={index}
+                    onPress={() => setBookingTime(item.time)}
+                    style={[
+                      styles.slotButton,
+                      { width: itemWidth },
+                      isSelected && styles.slotButtonSelected,
+                      (index + 1) % 4 === 0 && styles.slotButtonLast,
+                    ]}
+                  >
+                    <Text style={[
+                      styles.slotText,
+                      isSelected && styles.slotTextSelected,
+                    ]}>
+                      {item.time}
+                    </Text>
+                  </TouchableOpacity>
+                )
+              })}
+            </View>
+          </View>
+        );
+      default:
+        return null;
+    }
+  };
+
+
+  // 根據 ID 找出對應的 name 來顯示
+  const selectedService = services?.services?.find(s => s.id === serviceId);
+  const selectedProvider = providers?.providers?.find(p => p.id === providerId);
+
+  const isFormValid = serviceId && providerId && bookingTime;
 
   return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollContainer}>
         {/* 服務項目 */}
-        <TouchableOpacity style={styles.row}>
+        <TouchableOpacity
+          style={styles.row}
+          onPress={() => setActiveModal('service')}
+        >
           <Text style={styles.label}>服務項目</Text>
           <View style={styles.selectorContainer}>
             <Text
               style={[
                 styles.selectorText,
-                !serviceItem && styles.placeholderText,
+                !selectedService && styles.placeholderText,
               ]}
             >
-              {serviceItem || '請選擇'}
+              {selectedService?.name || '請選擇'}
             </Text>
             <Icon name="right-open-big" size={16} />
           </View>
@@ -55,24 +181,31 @@ const AddBookingScreen = () => {
         <View style={styles.divider} />
 
         {/* 選擇芳療師或按摩師 */}
-        <TouchableOpacity style={styles.row}>
+        <TouchableOpacity
+          style={styles.row}
+          onPress={() => setActiveModal('therapist')}
+        >
           <Text style={styles.label}>選擇芳療師或按摩師</Text>
           <View style={styles.selectorContainer}>
             <Text
               style={[
                 styles.selectorText,
-                !therapist && styles.placeholderText,
+                !selectedProvider && styles.placeholderText,
               ]}
             >
-              {therapist || '請選擇'}
+              {selectedProvider?.name || '請選擇'}
             </Text>
             <Icon name="right-open-big" size={16} />
           </View>
         </TouchableOpacity>
 
         {/* 預約時間 */}
-        <TouchableOpacity style={styles.row}>
-          <Text style={styles.label}>預約時間</Text>
+        <TouchableOpacity
+          style={styles.row}
+          onPress={() => { setActiveModal('time'); }}
+          disabled={!serviceId && !providerId}
+        >
+          <Text style={[styles.label, !serviceId && !providerId && { color: 'gray' }]}>預約時間</Text>
           <View style={styles.selectorContainer}>
             <Text
               style={[
@@ -118,6 +251,13 @@ const AddBookingScreen = () => {
           onPress={handleSubmit}
         />
       </View>
+
+      <BottomSheetModal
+        visible={activeModal != null}
+        onClose={() => { setActiveModal(null); }}
+        onConfirm={() => { setActiveModal(null); }}
+        children={modalContent()}
+      />
     </View>
   );
 };
@@ -177,6 +317,37 @@ const styles = StyleSheet.create({
   divider: {
     height: 8,
     backgroundColor: '#F8F9FA',
+  },
+  slotsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-start',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  slotButton: {
+    paddingHorizontal: 11,
+    paddingVertical: 10,
+    borderRadius: 6,
+    alignItems: 'center',
+    backgroundColor: '#E9E9E9',
+    marginRight: 10,
+    marginBottom: 10,
+    justifyContent: 'center',
+  },
+  slotButtonSelected: {
+    backgroundColor: Colors.primary,
+  },
+  slotButtonLast: {
+    marginRight: 0,
+  },
+  slotText: {
+    fontSize: 17,
+    fontWeight: '400',
+    color: Colors.text.primary,
+  },
+  slotTextSelected: {
+    color: '#FFFFFF',
   },
 });
 
