@@ -31,45 +31,11 @@ interface Booking {
 
 // 狀態標籤配置
 const STATUS_TABS = [
-  { key: 'reserved', label: '已預約', count: 3 },
-  { key: 'pending_verification', label: '會員待核銷', count: 1 },
-  { key: 'completed', label: '已完成', count: 0 },
-  { key: 'cancelled', label: '已取消', count: 0 },
+  { key: 'reserved', label: '已預約' },
+  { key: 'pending_verification', label: '會員待核銷' },
+  { key: 'completed', label: '已完成' },
+  { key: 'cancelled', label: '已取消' },
 ] as const;
-
-// 模擬資料
-const MOCK_BOOKINGS: Booking[] = [
-  {
-    id: 1,
-    date: '2025-09-30',
-    time: '14:30',
-    customerName: '林雅婷',
-    service: '專業徒手-深層調理',
-    duration: '1堂(60分鐘)',
-    providerName: 'Sunny',
-    status: 'reserved',
-  },
-  {
-    id: 2,
-    date: '2025-09-30',
-    time: '15:00',
-    customerName: '王美玲',
-    service: '專業徒手-美式徒手',
-    duration: '1堂(60分鐘)',
-    providerName: 'Yvonne',
-    status: 'reserved',
-  },
-  {
-    id: 3,
-    date: '2025-10-08',
-    time: '20:00',
-    customerName: '林雅婷',
-    service: '專業徒手-美式油壓',
-    duration: '1堂(60分鐘)',
-    providerName: 'Sunny',
-    status: 'reserved',
-  },
-];
 
 const CourseManagementScreen = () => {
   const { profile } = useInitializeUser();
@@ -89,9 +55,6 @@ const CourseManagementScreen = () => {
   const [alertVisible, setAlertVisible] = useState(false);
   const [bookingToCancel, setBookingToCancel] = useState<Booking | null>(null);
   const [datePickerVisible, setDatePickerVisible] = useState(false);
-  const filteredBookings = MOCK_BOOKINGS.filter(
-    (booking) => showAllStatuses || booking.status === selectedStatus
-  );
 
   const formatDateRange = () => {
     const start = startDate.toISOString().split('T')[0];
@@ -193,7 +156,7 @@ const CourseManagementScreen = () => {
               ]}
             >
               {tab.label}
-              {tab.count > 0 && `(${tab.count})`}
+              {visits?.filter((booking) => booking?.state === tab.key)?.length > 0 && `(${visits?.filter((booking) => booking?.state === tab.key)?.length})`}
             </Text>
           </TouchableOpacity>
         ))}
@@ -202,7 +165,7 @@ const CourseManagementScreen = () => {
       {/* 預約列表 */}
       <View style={styles.listContainer}>
         <MyListItem
-          data={visits}
+          data={visits?.filter((booking) => booking.state === selectedStatus)}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item: booking }) => (
             <View style={styles.bookingCard}>
