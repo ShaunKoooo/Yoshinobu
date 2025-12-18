@@ -57,7 +57,8 @@ export interface Visit {
 }
 
 export interface GetVisitsRequest {
-  date?: string; // YYYY-MM-DD format
+  from_date?: string; // YYYY-MM-DD format
+  to_date?: string; // YYYY-MM-DD format
   state?: VisitState;
   client_id?: number;
   provider_id?: number;

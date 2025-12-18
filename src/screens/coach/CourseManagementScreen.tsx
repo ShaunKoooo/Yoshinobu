@@ -7,7 +7,9 @@ import {
   ScrollView,
   Image,
 } from 'react-native';
-import { DateRangePicker, Icon, MyListItem, Badge, MyAlert } from 'src/components';
+import { useInitializeUser } from 'src/hooks/useInitializeUser';
+import { useVisits } from 'src/services/hooks';
+import { Icon, MyListItem, Badge, MyAlert } from 'src/components';
 import { Colors } from 'src/theme';
 import type { BadgeVariant } from 'src/components/common/Badge';
 
@@ -70,13 +72,22 @@ const MOCK_BOOKINGS: Booking[] = [
 ];
 
 const CourseManagementScreen = () => {
+  const { profile } = useInitializeUser();
+  const { data: visits = [], isLoading, error } = useVisits({
+    from_date: '2025-12-18',
+    to_date: '2025-12-19',
+    state: 'reserved',
+    client_id: profile?.id,
+    provider_id: 5
+  });
+  console.log('Visits Data:', visits);
   const [startDate, setStartDate] = useState(new Date('2025-09-30'));
   const [endDate, setEndDate] = useState(new Date('2025-10-08'));
   const [selectedStatus, setSelectedStatus] = useState<BookingStatus>('reserved');
   const [showAllStatuses, setShowAllStatuses] = useState(false);
   const [alertVisible, setAlertVisible] = useState(false);
   const [bookingToCancel, setBookingToCancel] = useState<Booking | null>(null);
-
+  console.log(profile, 'shaunyyyyy')
   const filteredBookings = MOCK_BOOKINGS.filter(
     (booking) => showAllStatuses || booking.status === selectedStatus
   );
@@ -91,6 +102,13 @@ const CourseManagementScreen = () => {
     const weekdays = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
     const date = new Date(dateStr);
     return weekdays[date.getDay()];
+  };
+
+  const formatTime = (timeStr: string) => {
+    const date = new Date(timeStr);
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    return `${hours}:${minutes}`;
   };
 
   const getStatusBadge = (status: BookingStatus): { variant: BadgeVariant; text: string } => {
@@ -124,7 +142,7 @@ const CourseManagementScreen = () => {
     setAlertVisible(false);
     setBookingToCancel(null);
   };
-
+  console.log(filteredBookings, 'shaunyy')
   return (
     <View style={styles.container}>
       {/* 日期範圍選擇器 */}
@@ -176,7 +194,7 @@ const CourseManagementScreen = () => {
       {/* 預約列表 */}
       <View style={styles.listContainer}>
         <MyListItem
-          data={filteredBookings}
+          data={visits}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item: booking }) => (
             <View style={styles.bookingCard}>
@@ -184,29 +202,29 @@ const CourseManagementScreen = () => {
               <View style={styles.cardHeader}>
                 <Text style={styles.dateTimeText}>
                   {booking.date.replace(/-/g, '-')}
-                  {getWeekday(booking.date)} {booking.time}
+                  {getWeekday(booking.date)} {formatTime(booking.time)}
                 </Text>
                 <Badge
-                  variant={getStatusBadge(booking.status).variant}
-                  text={getStatusBadge(booking.status).text}
+                  variant={getStatusBadge(booking.state).variant}
+                  text={getStatusBadge(booking.state).text}
                 />
               </View>
 
               {/* 客戶姓名 */}
-              <Text style={styles.customerName}>{booking.customerName}</Text>
+              <Text style={styles.customerName}>{booking.data.real_name}</Text>
 
               {/* 服務項目 */}
-              <Text style={styles.serviceText}>{booking.service}</Text>
+              <Text style={styles.serviceText}>{booking.service_name}</Text>
 
               {/* 時長和教練 */}
               <View style={styles.providerRow}>
-                <Text style={styles.durationText}>{booking.duration}</Text>
+                <Text style={styles.durationText}>{booking.duration} 分鐘</Text>
                 <View style={styles.providerInfo}>
                   <Image
-                    source={{ uri: 'https://via.placeholder.com/24' }}
+                    source={{ uri: 'https://mediaproxy.snopes.com/width/1200/https://media.snopes.com/2018/07/poop_emoji.jpg' }}
                     style={styles.providerAvatar}
                   />
-                  <Text style={styles.providerName}>{booking.providerName}</Text>
+                  <Text style={styles.providerName}>{booking.provider_name}</Text>
                 </View>
               </View>
 
