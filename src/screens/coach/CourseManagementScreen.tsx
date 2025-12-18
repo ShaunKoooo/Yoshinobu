@@ -8,8 +8,19 @@ import {
   Image,
 } from 'react-native';
 import { useInitializeUser } from 'src/hooks/useInitializeUser';
-import { useVisits } from 'src/services/hooks';
-import { Icon, MyListItem, Badge, MyAlert, DateRangePicker } from 'src/components';
+import {
+  useVisits,
+  useProviders,
+} from 'src/services/hooks';
+import {
+  Icon,
+  MyListItem,
+  Badge,
+  MyAlert,
+  DateRangePicker,
+  BottomSheetModal,
+  MyPicker,
+} from 'src/components';
 import { Colors } from 'src/theme';
 import type { BadgeVariant } from 'src/components/common/Badge';
 
@@ -39,22 +50,33 @@ const STATUS_TABS = [
 
 const CourseManagementScreen = () => {
   const { profile } = useInitializeUser();
+  const { data: providers, isLoading: providersLoading } = useProviders();
+
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
+  const [selectedStatus, setSelectedStatus] = useState<BookingStatus>('reserved');
+  const [showAllStatuses, setShowAllStatuses] = useState(false);
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [bookingToCancel, setBookingToCancel] = useState<Booking | null>(null);
+  const [datePickerVisible, setDatePickerVisible] = useState(false);
+  const [providerModalVisible, setProviderModalVisible] = useState(false);
+  const [providerId, setProviderId] = useState<number | null>(null);
 
   const { data: visits = [], isLoading, error } = useVisits({
     from_date: startDate.toISOString().split('T')[0],
     to_date: endDate.toISOString().split('T')[0],
     state: 'reserved',
     client_id: profile?.id,
-    provider_id: 5, // TODO: 教練 ID
+    provider_id: providerId ?? 0,
   });
-  console.log('Visits Data:', visits);
-  const [selectedStatus, setSelectedStatus] = useState<BookingStatus>('reserved');
-  const [showAllStatuses, setShowAllStatuses] = useState(false);
-  const [alertVisible, setAlertVisible] = useState(false);
-  const [bookingToCancel, setBookingToCancel] = useState<Booking | null>(null);
-  const [datePickerVisible, setDatePickerVisible] = useState(false);
+
+  const providerItems = providers?.providers?.map((provider: { name: string; id: number }) => ({
+    label: provider.name,
+    value: provider.id,
+  })) || [];
+
+  // 根據 ID 找出對應的 name 來顯示
+  const selectedProvider = providers?.providers?.find((p: { id: number; name: string }) => p.id === providerId);
 
   const formatDateRange = () => {
     const start = startDate.toISOString().split('T')[0];
@@ -123,10 +145,15 @@ const CourseManagementScreen = () => {
           <Text style={styles.dateRangeText}>{formatDateRange()}</Text>
         </TouchableOpacity>
 
-        {/* 全部下拉選單 */}
-        <TouchableOpacity style={styles.dropdownButton}>
+        {/* Provider 下拉選單 */}
+        <TouchableOpacity
+          style={styles.dropdownButton}
+          onPress={() => setProviderModalVisible(true)}
+        >
           <Icon name="down-dir" size={16} color={Colors.text.primary} />
-          <Text style={styles.dropdownText}>全部</Text>
+          <Text style={styles.dropdownText}>
+            {selectedProvider?.name || '全部'}
+          </Text>
         </TouchableOpacity>
       </View>
 
@@ -237,6 +264,23 @@ const CourseManagementScreen = () => {
         initialStartDate={startDate}
         initialEndDate={endDate}
       />
+
+      {/* Provider 選擇器 Modal */}
+      <BottomSheetModal
+        visible={providerModalVisible}
+        onClose={() => setProviderModalVisible(false)}
+        onConfirm={() => {
+          setProviderModalVisible(false)
+        }}
+      >
+        <MyPicker
+          items={providerItems}
+          selectedValue={providerId ?? undefined}
+          onValueChange={(value) => {
+            setProviderId(Number(value));
+          }}
+        />
+      </BottomSheetModal>
     </View>
   );
 };
