@@ -1930,7 +1930,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - react-native-date-picker (5.0.12):
+  - react-native-date-picker (5.0.13):
     - boost
     - DoubleConversion
     - fast_float
@@ -3159,7 +3159,7 @@ SPEC CHECKSUMS:
   React-Mapbuffer: 20046c0447efaa7aace0b76085aa9bb35b0e8105
   React-microtasksnativemodule: 0e837de56519c92d8a2e3097717df9497feb33cb
   react-native-config: 2249b7e68644c86ea68358f5a0d746d1c648f900
-  react-native-date-picker: 9e761de1a6b100b2f61669de1f2c3e5717e2b525
+  react-native-date-picker: 4f4f40f6e65798038bb4b1bff47890c2be69c2e6
   react-native-pager-view: 5c3098839820aa73d75873e7b1a7eb9f119602b7
   react-native-safe-area-context: c00143b4823773bba23f2f19f85663ae89ceb460
   React-NativeModulesApple: 1a378198515f8e825c5931a7613e98da69320cee

@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { useInitializeUser } from 'src/hooks/useInitializeUser';
 import { useVisits } from 'src/services/hooks';
-import { Icon, MyListItem, Badge, MyAlert } from 'src/components';
+import { Icon, MyListItem, Badge, MyAlert, DateRangePicker } from 'src/components';
 import { Colors } from 'src/theme';
 import type { BadgeVariant } from 'src/components/common/Badge';
 
@@ -73,21 +73,22 @@ const MOCK_BOOKINGS: Booking[] = [
 
 const CourseManagementScreen = () => {
   const { profile } = useInitializeUser();
+  const [startDate, setStartDate] = useState(new Date());
+  const [endDate, setEndDate] = useState(new Date());
+
   const { data: visits = [], isLoading, error } = useVisits({
-    from_date: '2025-12-18',
-    to_date: '2025-12-19',
+    from_date: startDate.toISOString().split('T')[0],
+    to_date: endDate.toISOString().split('T')[0],
     state: 'reserved',
     client_id: profile?.id,
-    provider_id: 5
+    provider_id: 5, // TODO: 教練 ID
   });
   console.log('Visits Data:', visits);
-  const [startDate, setStartDate] = useState(new Date('2025-09-30'));
-  const [endDate, setEndDate] = useState(new Date('2025-10-08'));
   const [selectedStatus, setSelectedStatus] = useState<BookingStatus>('reserved');
   const [showAllStatuses, setShowAllStatuses] = useState(false);
   const [alertVisible, setAlertVisible] = useState(false);
   const [bookingToCancel, setBookingToCancel] = useState<Booking | null>(null);
-  console.log(profile, 'shaunyyyyy')
+  const [datePickerVisible, setDatePickerVisible] = useState(false);
   const filteredBookings = MOCK_BOOKINGS.filter(
     (booking) => showAllStatuses || booking.status === selectedStatus
   );
@@ -142,12 +143,19 @@ const CourseManagementScreen = () => {
     setAlertVisible(false);
     setBookingToCancel(null);
   };
-  console.log(filteredBookings, 'shaunyy')
+
+  const handleDateRangeConfirm = (start: Date, end: Date) => {
+    setStartDate(start);
+    setEndDate(end);
+  };
   return (
     <View style={styles.container}>
       {/* 日期範圍選擇器 */}
       <View style={styles.dateRangeContainer}>
-        <TouchableOpacity style={styles.dateRangeButton}>
+        <TouchableOpacity
+          style={styles.dateRangeButton}
+          onPress={() => setDatePickerVisible(true)}
+        >
           <Icon name="clock" size={18} color={Colors.text.primary} />
           <Text style={styles.dateRangeText}>{formatDateRange()}</Text>
         </TouchableOpacity>
@@ -257,6 +265,15 @@ const CourseManagementScreen = () => {
           confirmText="是"
         />
       )}
+
+      {/* 日期範圍選擇器 Modal */}
+      <DateRangePicker
+        visible={datePickerVisible}
+        onClose={() => setDatePickerVisible(false)}
+        onConfirm={handleDateRangeConfirm}
+        initialStartDate={startDate}
+        initialEndDate={endDate}
+      />
     </View>
   );
 };

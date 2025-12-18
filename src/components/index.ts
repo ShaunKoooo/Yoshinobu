@@ -12,3 +12,4 @@ export { default as LoginFooter } from './common/LoginFooter.tsx';
 export { default as AccountLoginForm } from './common/AccountLoginForm.tsx';
 export { default as PhoneLoginForm } from './common/PhoneLoginForm.tsx';
 export { default as MyPicker } from './common/MyPicker.tsx';
+export { default as DateRangePicker } from './common/DateRangePicker.tsx';
