@@ -19,7 +19,7 @@ export const contractsApi = {
   getContracts: async (params: GetContractsRequest): Promise<GetContractsResponse> => {
     return await apiClient.get<GetContractsResponse>(
       API_ENDPOINTS.CONTRACTS,
-      { params }
+      params
     );
   },
 

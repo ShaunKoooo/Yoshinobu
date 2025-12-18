@@ -4,52 +4,26 @@ import {
   Text,
   StyleSheet,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import {
   Badge,
   Accordion,
 } from 'src/components';
-
-interface Contract {
-  id: string;
-  customerId: string;
-  isShared: boolean;
-  createdAt: string;
-  phone: string;
-  name: string;
-  contractType: string;
-  time: string;
-  photos?: string[];
-}
+import { useContracts } from 'src/services/hooks';
+import { Colors } from 'src/theme';
+import { formatDate } from 'src/utils';
+import type { Contract as ApiContract } from 'src/services/api/types';
 
 const ContractManagementTab = () => {
-  // TODO: 從 route params 或 Redux 取得實際的 customer ID 和合約列表
-  const customerId = 'C223456789';
-  const [contracts] = useState<Contract[]>([
-    {
-      id: '1',
-      customerId: 'C223456789',
-      isShared: true,
-      createdAt: '2024-01-15',
-      phone: '0912-345-678',
-      name: '王小明',
-      contractType: '月租',
-      time: '2024-01-15 ~ 2025-01-14',
-      photos: [],
-    },
-    {
-      id: '2',
-      customerId: 'C223456789',
-      isShared: true,
-      createdAt: '2024-01-15',
-      phone: '0912-345-678',
-      name: '王小明',
-      contractType: '月租',
-      time: '2024-01-15 ~ 2025-01-14',
-      photos: [],
-    },
-  ]);
-  const [expandedContracts, setExpandedContracts] = useState<Set<string>>(new Set(['1']));
+  const clientId = 240197; // TODO 使用固定的 client_id
+
+  // 使用 useContracts 取得合約列表
+  const { data: contractsData, isLoading, error } = useContracts({
+    client_id: clientId,
+  });
+
+  const [expandedContracts, setExpandedContracts] = useState<Set<string>>(new Set());
 
   const toggleContract = (contractId: string) => {
     setExpandedContracts((prev) => {
@@ -63,57 +37,69 @@ const ContractManagementTab = () => {
     });
   };
 
-  const renderContractItem = (contract: Contract) => {
-    const isExpanded = expandedContracts.has(contract.id);
+  const renderContractItem = (contract: ApiContract) => {
+    const contractId = contract.id.toString();
+    const isExpanded = expandedContracts.has(contractId);
 
     return (
       <Accordion
         key={contract.id}
         isExpanded={isExpanded}
-        onToggle={() => toggleContract(contract.id)}
+        onToggle={() => toggleContract(contractId)}
         header={
           <>
-            <Text style={styles.contractCustomerId}>{contract.customerId}</Text>
+            <Text style={styles.contractCustomerId}>合約 #{contract.id}</Text>
             <View style={styles.rightSection}>
-              {contract.isShared && <Badge variant="shared" text="共用" />}
+              {/* TODO: 判斷是否為共用合約，目前先不顯示 */}
             </View>
           </>
         }>
         <View style={styles.detail}>
-          <Text style={styles.detailLabel}>創建日期：</Text>
-          <Text style={styles.detailValue}>{contract.createdAt}</Text>
+          <Text style={styles.detailLabel}>創建日期</Text>
+          <Text style={styles.detailValue}>{formatDate(new Date(contract.created_at))}</Text>
         </View>
         <View style={styles.detail}>
-          <Text style={styles.detailLabel}>電話：</Text>
-          <Text style={styles.detailValue}>{contract.phone}</Text>
+          <Text style={styles.detailLabel}>時間</Text>
+          <Text style={styles.detailValue}>{contract.contract_time} 分鐘</Text>
         </View>
         <View style={styles.detail}>
-          <Text style={styles.detailLabel}>姓名：</Text>
-          <Text style={styles.detailValue}>{contract.name}</Text>
+          <Text style={styles.detailLabel}>合約類別</Text>
+          <Text style={styles.detailValue}>{contract.category.name}</Text>
         </View>
         <View style={styles.detail}>
-          <Text style={styles.detailLabel}>合約類別：</Text>
-          <Text style={styles.detailValue}>{contract.contractType}</Text>
+          <Text style={styles.detailLabel}>照片</Text>
+          <Text style={styles.detailValue}></Text>
         </View>
-        <View style={styles.detail}>
-          <Text style={styles.detailLabel}>時間：</Text>
-          <Text style={styles.detailValue}>{contract.time}</Text>
-        </View>
-        {contract.photos && contract.photos.length > 0 && (
-          <View style={styles.detail}>
-            <Text style={styles.detailLabel}>照片：</Text>
-            <View style={styles.photosContainer}>
-              {contract.photos.map((_, index) => (
-                <View key={index} style={styles.photoPlaceholder}>
-                  <Text style={styles.photoText}>照片 {index + 1}</Text>
-                </View>
-              ))}
-            </View>
-          </View>
-        )}
       </Accordion>
     );
   };
+
+  if (isLoading) {
+    return (
+      <View style={[styles.container, styles.centerContent]}>
+        <ActivityIndicator size="large" color={Colors.primary} />
+        <Text style={styles.loadingText}>載入中...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={[styles.container, styles.centerContent]}>
+        <Text style={styles.errorText}>載入失敗：{error.message}</Text>
+      </View>
+    );
+  }
+
+  const contracts = contractsData?.contracts || [];
+
+  if (contracts.length === 0) {
+    return (
+      <View style={[styles.container, styles.centerContent]}>
+        <Text style={styles.emptyText}>尚無合約資料</Text>
+      </View>
+    );
+  }
 
   return (
     <ScrollView style={styles.container}>
@@ -126,6 +112,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
+  },
+  centerContent: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
   },
   contractItem: {
     justifyContent: 'space-between',
@@ -174,6 +165,21 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '400',
     color: '#86909C',
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: '#86909C',
+  },
+  errorText: {
+    fontSize: 16,
+    color: '#FF3B30',
+    textAlign: 'center',
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#86909C',
+    textAlign: 'center',
   },
   photosContainer: {
     flex: 1,
