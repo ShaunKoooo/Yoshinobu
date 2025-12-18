@@ -16,6 +16,7 @@ const AddContractScreen = () => {
   const [phone, setPhone] = useState('');
   const [name, setName] = useState('');
   const [contractNumber, setContractNumber] = useState('');
+  const [contractCategory, setContractCategory] = useState('');
   const [contractType, setContractType] = useState('');
   const [time, setTime] = useState('');
 
@@ -46,23 +47,35 @@ const AddContractScreen = () => {
         </View>
 
         {/* 電話 */}
-        <View style={styles.row}>
-          <Text style={styles.label}>電話</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="請輸入"
-            placeholderTextColor={Colors.text.placeholder}
-            value={phone}
-            onChangeText={setPhone}
-            keyboardType="phone-pad"
-          />
-        </View>
+        {isSharedContract &&
+          <View>
+            <View style={styles.row}>
+              <Text style={styles.label}>電話</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="請輸入"
+                placeholderTextColor={Colors.text.placeholder}
+                value={phone}
+                onChangeText={setPhone}
+                keyboardType="phone-pad"
+              />
+            </View>
 
-        {/* 姓名 */}
-        <View style={styles.row}>
-          <Text style={styles.label}>姓名</Text>
-        </View>
-        <View style={styles.divider} />
+            <View style={styles.row}>
+              <Text style={styles.label}>姓名</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="請輸入"
+                placeholderTextColor={Colors.text.placeholder}
+                value={name}
+                onChangeText={setName}
+                keyboardType="default"
+              />
+            </View>
+            <View style={styles.divider} />
+          </View>
+        }
+
         {/* 合約號碼 */}
         <TouchableOpacity style={styles.row}>
           <Text style={styles.label}>合約號碼</Text>
@@ -80,14 +93,45 @@ const AddContractScreen = () => {
         </TouchableOpacity>
 
         {/* 合約類別 */}
-        <View style={styles.row}>
+        <TouchableOpacity style={styles.row}>
           <Text style={styles.label}>合約類別</Text>
-        </View>
+          <View style={styles.selectorContainer}>
+            <Text
+              style={[
+                styles.selectorText,
+                !contractCategory && styles.placeholderText,
+              ]}
+            >
+              {contractCategory || '請選擇'}
+            </Text>
+            <Icon name="right-open-big" size={16} />
+          </View>
+        </TouchableOpacity>
 
         {/* 時間 */}
         <TouchableOpacity style={styles.row}>
           <Text style={styles.label}>時間</Text>
+          <View style={styles.selectorContainer}>
+            <Text
+              style={[
+                styles.selectorText,
+                !time && styles.placeholderText,
+              ]}
+            >
+              {time || '請選擇'}
+            </Text>
+            <Icon name="right-open-big" size={16} />
+          </View>
         </TouchableOpacity>
+
+        {!isSharedContract && <View style={styles.column}>
+          <Text style={styles.label}>上傳照片</Text>
+          <TouchableOpacity
+            style={{ backgroundColor: '#E0E0E0', width: 64, height: 64, justifyContent: 'center', alignItems: 'center', marginTop: 16 }}
+          >
+            <Text style={{ fontSize: 24, color: '#86909C' }}>+</Text>
+          </TouchableOpacity>
+        </View>}
       </ScrollView>
 
       {/* 底部確認按鈕 */}
@@ -119,6 +163,14 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderBottomWidth: 1,
     height: 64,
+    borderBottomColor: '#F2F2F7',
+  },
+  column: {
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    height: 136,
     borderBottomColor: '#F2F2F7',
   },
   label: {
