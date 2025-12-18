@@ -98,6 +98,14 @@ export interface Contract {
   updated_at: string;
 }
 
+export interface GetContractsRequest {
+  client_id: number;
+}
+
+export interface GetContractsResponse {
+  contracts: Contract[];
+}
+
 export interface CreateContractRequest {
   client_id: number;
   category_id: number;
@@ -193,11 +201,11 @@ export interface FirstAvailableSlot {
 }
 
 export interface CreateBookingRequest {
-  client_id: number;
   service_id: number;
   provider_id: number;
-  start_datetime: string; // "YYYY-MM-DD HH:MM:SS"
-  note?: string;
+  date: string; // "YYYY-MM-DD"
+  time: string; // "HH:MM"
+  client_id: number;
 }
 
 export interface CreateBookingResponse {

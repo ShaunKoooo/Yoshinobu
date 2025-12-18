@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { categoriesApi, contractsApi, shareContractsApi } from '../api';
 import type {
+  GetContractsRequest,
   CreateContractRequest,
   CreateShareContractRequest,
 } from '../api/types';
@@ -17,6 +18,8 @@ export const categoryKeys = {
 
 export const contractKeys = {
   all: ['contracts'] as const,
+  lists: () => [...contractKeys.all, 'list'] as const,
+  list: (clientId: number) => [...contractKeys.lists(), clientId] as const,
 };
 
 export const shareContractKeys = {
@@ -35,6 +38,17 @@ export const useCategories = () => {
 };
 
 /**
+ * 取得客戶的合約列表
+ */
+export const useContracts = (params: GetContractsRequest, enabled = true) => {
+  return useQuery({
+    queryKey: contractKeys.list(params.client_id),
+    queryFn: () => contractsApi.getContracts(params),
+    enabled: enabled && !!params.client_id,
+  });
+};
+
+/**
  * 建立合約
  */
 export const useCreateContract = () => {
@@ -42,8 +56,9 @@ export const useCreateContract = () => {
 
   return useMutation({
     mutationFn: (data: CreateContractRequest) => contractsApi.createContract(data),
-    onSuccess: () => {
-      // 重新獲取相關資料
+    onSuccess: (_, variables) => {
+      // 重新獲取該客戶的合約列表
+      queryClient.invalidateQueries({ queryKey: contractKeys.list(variables.client_id) });
       queryClient.invalidateQueries({ queryKey: contractKeys.all });
       queryClient.invalidateQueries({ queryKey: ['clients'] });
     },
