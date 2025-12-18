@@ -14,9 +14,11 @@ import { useContracts } from 'src/services/hooks';
 import { Colors } from 'src/theme';
 import { formatDate } from 'src/utils';
 import type { Contract as ApiContract } from 'src/services/api/types';
+import { useInitializeUser } from 'src/hooks';
 
 const ContractManagementTab = () => {
-  const clientId = 240197; // TODO 使用固定的 client_id
+  const { profile } = useInitializeUser()
+  const clientId = profile?.id; // TODO 使用固定的 client_id
 
   // 使用 useContracts 取得合約列表
   const { data: contractsData, isLoading, error } = useContracts({

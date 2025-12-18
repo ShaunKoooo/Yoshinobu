@@ -99,7 +99,7 @@ export interface Contract {
 }
 
 export interface GetContractsRequest {
-  client_id: number;
+  client_id: number | undefined;
 }
 
 export interface GetContractsResponse {
