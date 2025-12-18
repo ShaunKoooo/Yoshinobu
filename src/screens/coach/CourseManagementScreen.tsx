@@ -67,7 +67,6 @@ const CourseManagementScreen = () => {
     to_date: endDate.toISOString().split('T')[0],
     state: 'reserved',
     client_id: profile?.id,
-    provider_id: providerId ?? 0,
   });
 
   const providerItems = providers?.providers?.map((provider: { name: string; id: number }) => ({

@@ -15,7 +15,7 @@ export const visitKeys = {
 
 /**
  * 取得預約列表
- * @param params - 查詢參數 (from_date, to_date, state, client_id, provider_id)
+ * @param params - 查詢參數 (from_date, to_date, state, client_id)
  */
 export const useVisits = (params?: GetVisitsRequest) => {
   return useQuery({
