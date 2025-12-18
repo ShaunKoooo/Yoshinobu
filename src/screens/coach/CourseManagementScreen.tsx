@@ -218,7 +218,7 @@ const CourseManagementScreen = () => {
                 <Text style={styles.durationText}>{booking.duration} 分鐘</Text>
                 <View style={styles.providerInfo}>
                   <Image
-                    source={{ uri: 'https://mediaproxy.snopes.com/width/1200/https://media.snopes.com/2018/07/poop_emoji.jpg' }}
+                    source={{ uri: '' }}
                     style={styles.providerAvatar}
                   />
                   <Text style={styles.providerName}>{booking.provider_name}</Text>
