@@ -3,6 +3,7 @@ import { storageService, UserData } from 'src/services/storage.service';
 import { authApi } from 'src/services/api';
 import { AppConfig } from 'src/config/AppConfig';
 import { clearUserProfile } from './userSlice';
+import { queryClient } from 'src/services/queryClient';
 
 type User = UserData;
 
@@ -83,6 +84,9 @@ export const loginWithAccount = createAsyncThunk(
         hasura_token: response.hasura_token,
       };
 
+      // 清除舊的快取資料（避免顯示前一個用戶的資料）
+      queryClient.clear();
+
       // 儲存到 Storage
       await storageService.setAuthToken(response.access_token);
       await storageService.setUserData(userData);
@@ -124,6 +128,9 @@ export const loginWithPhone = createAsyncThunk(
         avatar_thumbnail_url: response.avatar_thumbnail_url,
         hasura_token: response.hasura_token,
       };
+
+      // 清除舊的快取資料（避免顯示前一個用戶的資料）
+      queryClient.clear();
 
       // 儲存到 Storage
       await storageService.setAuthToken(response.access_token);
@@ -174,6 +181,9 @@ export const logout = createAsyncThunk(
       await storageService.clearAuthData();
       // 清除使用者資料
       dispatch(clearUserProfile());
+      // 清除所有 React Query 快取
+      queryClient.clear();
+      console.log('✅ 已清除所有快取資料');
       return null;
     } catch (error: any) {
       return rejectWithValue(error.message || '登出失敗');
