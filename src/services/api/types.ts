@@ -110,6 +110,7 @@ export interface CreateContractRequest {
   client_id: number;
   category_id: number;
   contract_time: number;
+  contract_number: string;
 }
 
 export interface CreateContractResponse {

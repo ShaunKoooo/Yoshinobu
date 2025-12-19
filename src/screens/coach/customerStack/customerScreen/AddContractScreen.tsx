@@ -7,32 +7,110 @@ import {
   TouchableOpacity,
   Switch,
   ScrollView,
+  Alert,
 } from 'react-native';
-import { MyButton, Icon } from 'src/components';
+import {
+  MyButton,
+  Icon,
+  BottomSheetModal,
+  MyPicker,
+} from 'src/components';
 import { Colors } from 'src/theme';
-import { useCategories } from 'src/services/hooks';
+import {
+  useCategories,
+  useCreateContract,
+} from 'src/services/hooks';
 
 const AddContractScreen = () => {
   const { data: categories } = useCategories();
+  const createContract = useCreateContract();
   const [isSharedContract, setIsSharedContract] = useState(false);
   const [phone, setPhone] = useState('');
   const [name, setName] = useState('');
   const [contractNumber, setContractNumber] = useState('');
-  const [contractCategory, setContractCategory] = useState('');
+  const [contractCategoryId, setContractCategoryId] = useState<number | null>(null);
   const [contractType, setContractType] = useState('');
-  const [time, setTime] = useState('');
+  const [time, setTime] = useState(60);
+  const [activeModal, setActiveModal] = useState<'category' | 'time' | null>(null);
 
   const handleSubmit = () => {
-    // TODO: 處理表單提交到 API
-    console.log('Contract data:', {
-      isSharedContract,
-      phone,
-      name,
-      contractNumber,
-      contractType,
-      time,
-    });
+    // 驗證必填欄位
+    if (!contractNumber || !contractCategoryId || !time) {
+      Alert.alert('錯誤', '請填寫所有必填欄位');
+      return;
+    }
+
+    // TODO: 需要從 Redux 或其他地方獲取 client_id
+    const clientId = 677330; // 暫時使用固定值
+
+    createContract.mutate(
+      {
+        client_id: clientId,
+        category_id: contractCategoryId,
+        contract_time: time,
+        contract_number: contractNumber,
+      },
+      {
+        onSuccess: (data) => {
+          Alert.alert(
+            '建立成功',
+            '合約已成功建立！',
+            [
+              {
+                text: '確定',
+                onPress: () => {
+                  // TODO: 導航回上一頁或其他頁面
+                  console.log('合約建立成功:', data);
+                },
+              },
+            ]
+          );
+        },
+        onError: (error: any) => {
+          Alert.alert(
+            '建立失敗',
+            error?.message || '建立合約時發生錯誤，請稍後再試'
+          );
+        },
+      }
+    );
   };
+
+  const categoryItems = categories?.map(category => ({
+    label: category.name,
+    value: category.id,
+  })) || [];
+
+  const timeItems = [30, 60, 90, 120, 180].map(time => ({
+    label: time + ' 分鐘',
+    value: time,
+  })) || [];
+
+  const modalContent = () => {
+    switch (activeModal) {
+      case 'category':
+        return (
+          <MyPicker
+            items={categoryItems}
+            selectedValue={contractCategoryId ?? undefined}
+            onValueChange={(value) => { setContractCategoryId(Number(value)); }}
+          />
+        );
+      case 'time':
+        return (
+          <MyPicker
+            items={timeItems}
+            selectedValue={time}
+            onValueChange={(value) => { setTime(Number(value)); }}
+          />
+        );
+      default:
+        return null;
+    }
+  };
+
+  // 根據 ID 找出對應的 name 來顯示
+  const selectedCategory = categories?.find(c => c.id === contractCategoryId);
 
   const isFormValid = phone && name && contractNumber && contractType && time;
 
@@ -92,23 +170,29 @@ const AddContractScreen = () => {
         </TouchableOpacity>
 
         {/* 合約類別 */}
-        <TouchableOpacity style={styles.row}>
+        <TouchableOpacity
+          style={styles.row}
+          onPress={() => setActiveModal('category')}
+        >
           <Text style={styles.label}>合約類別</Text>
           <View style={styles.selectorContainer}>
             <Text
               style={[
                 styles.selectorText,
-                !contractCategory && styles.placeholderText,
+                !selectedCategory && styles.placeholderText,
               ]}
             >
-              {contractCategory || '請選擇'}
+              {selectedCategory?.name || '請選擇'}
             </Text>
             <Icon name="right-open-big" size={16} />
           </View>
         </TouchableOpacity>
 
         {/* 時間 */}
-        <TouchableOpacity style={styles.row}>
+        <TouchableOpacity
+          style={styles.row}
+          onPress={() => setActiveModal('time')}
+        >
           <Text style={styles.label}>時間</Text>
           <View style={styles.selectorContainer}>
             <Text
@@ -136,11 +220,18 @@ const AddContractScreen = () => {
       {/* 底部確認按鈕 */}
       <View style={styles.buttonContainer}>
         <MyButton
-          isActive={!!isFormValid}
-          title="確認"
+          isActive={!!contractNumber && !!contractCategoryId && !!time && !createContract.isPending}
+          title={createContract.isPending ? "建立中..." : "確認"}
           onPress={handleSubmit}
         />
       </View>
+
+      <BottomSheetModal
+        visible={activeModal != null}
+        onClose={() => { setActiveModal(null); }}
+        onConfirm={() => { setActiveModal(null); }}
+        children={modalContent()}
+      />
     </View>
   );
 };
