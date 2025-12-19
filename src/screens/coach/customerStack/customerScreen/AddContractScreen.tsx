@@ -20,10 +20,12 @@ import {
   useCategories,
   useCreateContract,
 } from 'src/services/hooks';
+import { useSelectedClientIdFromClients } from 'src/hooks/useClientsWithRedux';
 
 const AddContractScreen = () => {
   const { data: categories } = useCategories();
   const createContract = useCreateContract();
+  const clientId = useSelectedClientIdFromClients(); // 從 Redux 取得當前選中的 client_id
   const [isSharedContract, setIsSharedContract] = useState(false);
   const [phone, setPhone] = useState('');
   const [name, setName] = useState('');
@@ -40,8 +42,11 @@ const AddContractScreen = () => {
       return;
     }
 
-    // TODO: 需要從 Redux 或其他地方獲取 client_id
-    const clientId = 677330; // 暫時使用固定值
+    // 驗證是否有 client_id
+    if (!clientId) {
+      Alert.alert('錯誤', '無法取得客戶資訊，請先選擇客戶');
+      return;
+    }
 
     createContract.mutate(
       {

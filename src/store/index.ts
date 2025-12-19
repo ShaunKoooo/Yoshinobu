@@ -1,6 +1,8 @@
 import { configureStore, Middleware } from '@reduxjs/toolkit';
 import authReducer from './slices/authSlice';
 import userReducer from './slices/userSlice';
+import visitsReducer from './slices/visitsSlice';
+import clientsReducer from './slices/clientsSlice';
 import Reactotron from '../../ReactotronConfig';
 
 // Custom middleware to log state changes to Reactotron
@@ -30,6 +32,8 @@ export const store = configureStore({
   reducer: {
     auth: authReducer,
     user: userReducer,
+    visits: visitsReducer,
+    clients: clientsReducer,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({

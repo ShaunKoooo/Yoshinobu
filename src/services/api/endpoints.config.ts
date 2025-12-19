@@ -31,7 +31,7 @@ const COACH_ENDPOINTS = {
   CLIENTS: '/api/spa/user/v1/clients',
   CLIENT_DETAIL: (id: number) => `/api/spa/user/v1/clients/${id}`,
 
-  // 類別管理
+  // 類別列表
   CATEGORIES: '/api/spa/user/v1/categories',
 
   // 合約管理

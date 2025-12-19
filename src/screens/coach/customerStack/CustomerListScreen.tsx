@@ -12,14 +12,18 @@ import {
 } from 'src/components';
 import { useNavigation } from '@react-navigation/native';
 import { Colors } from 'src/theme';
-import { useClients } from 'src/services/hooks';
+import { useClientsWithRedux } from 'src/hooks/useClientsWithRedux';
+import { useDispatch } from 'react-redux';
+import { setSelectedClient } from 'src/store/slices/clientsSlice';
 import type { Client } from 'src/services/api/types';
 
 
 const CustomerListScreen = () => {
   const navigation = useNavigation<any>();
+  const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState('');
-  const { data: clients = [], isLoading, error } = useClients();
+  // 使用 useClientsWithRedux 會自動將資料同步到 Redux
+  const { data: clients = [], isLoading, error } = useClientsWithRedux();
 
   // 根據 searchQuery 過濾客戶
   const filteredClients = React.useMemo(() => {
@@ -34,11 +38,25 @@ const CustomerListScreen = () => {
     });
   }, [clients, searchQuery]);
 
+  const handleClientPress = (item: Client) => {
+    // 將選中的客戶存到 Redux
+    dispatch(setSelectedClient(item));
+    // 導航到客戶詳細頁面
+    navigation.navigate('CustomerDetail', { id: item?.client?.id });
+  };
+
+  const handleAddBookingPress = (item: Client) => {
+    // 將選中的客戶存到 Redux
+    dispatch(setSelectedClient(item));
+    // 導航到新增預約頁面
+    navigation.navigate('AddBooking');
+  };
+
   const renderCustomerItem = ({ item }: { item: Client }) => {
     const { name, id } = item?.client || {};
     return (
       <TouchableOpacity
-        onPress={() => navigation.navigate('CustomerDetail', { id })}
+        onPress={() => handleClientPress(item)}
         style={styles.customerCard}
       >
         <View style={styles.customerInfo}>
@@ -48,7 +66,10 @@ const CustomerListScreen = () => {
         </View>
         <View style={styles.addButtonContainer}>
           <TouchableOpacity
-            onPress={() => navigation.navigate('AddBooking')}
+            onPress={(e) => {
+              e.stopPropagation();
+              handleAddBookingPress(item);
+            }}
           >
             <Text style={styles.addButtonText}>新增預約</Text>
           </TouchableOpacity>
