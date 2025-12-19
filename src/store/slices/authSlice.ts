@@ -9,6 +9,7 @@ type User = UserData;
 interface AuthState {
   user: User | null;
   token: string | null;
+  userRole: 'coach' | 'client' | null; // 用戶角色：教練或客戶
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
@@ -17,6 +18,7 @@ interface AuthState {
 const initialState: AuthState = {
   user: null,
   token: null,
+  userRole: null,
   isAuthenticated: false,
   isLoading: true,
   error: null,
@@ -86,6 +88,7 @@ export const loginWithAccount = createAsyncThunk(
       return {
         token: response.access_token,
         user: userData,
+        userRole: 'coach' as const, // 帳號密碼登入的是教練
       };
     } catch (error: any) {
       return rejectWithValue(error.message || '登入失敗');
@@ -128,6 +131,7 @@ export const loginWithPhone = createAsyncThunk(
       return {
         token: response.access_token,
         user: userData,
+        userRole: 'client' as const, // 手機登入的是客戶
       };
     } catch (error: any) {
       console.error('❌ 手機登入失敗:', error);
@@ -209,6 +213,7 @@ const authSlice = createSlice({
         state.isAuthenticated = true;
         state.token = action.payload.token;
         state.user = action.payload.user;
+        state.userRole = action.payload.userRole;
         state.error = null;
       })
       .addCase(loginWithAccount.rejected, (state, action) => {
@@ -227,6 +232,7 @@ const authSlice = createSlice({
         state.isAuthenticated = true;
         state.token = action.payload.token;
         state.user = action.payload.user;
+        state.userRole = action.payload.userRole;
         state.error = null;
       })
       .addCase(loginWithPhone.rejected, (state, action) => {

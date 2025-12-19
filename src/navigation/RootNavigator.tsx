@@ -6,6 +6,7 @@ import { Icon } from 'src/components';
 import { useAppSelector } from 'src/store/hooks';
 import { useInitializeUser } from 'src/hooks/useInitializeUser';
 import AdminTabNavigator from './AdminTabNavigator';
+import ClientTabNavigator from './ClientTabNavigator';
 import { Colors } from 'src/theme';
 
 // Screens
@@ -20,6 +21,7 @@ import { LoginPage } from 'src/screens/shared';
 export type RootStackParamList = {
   Login: undefined;
   AdminTabs: undefined;
+  ClientTabs: undefined;
   AddCustomer: undefined;
   AddBooking: undefined;
   AddContract: undefined;
@@ -29,7 +31,7 @@ export type RootStackParamList = {
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const RootNavigator = () => {
-  const { isAuthenticated, isLoading } = useAppSelector((state) => state.auth);
+  const { isAuthenticated, isLoading, userRole } = useAppSelector((state) => state.auth);
 
   // 自動載入使用者資料（當為教練身份時）
   const { isLoading: isUserLoading } = useInitializeUser();
@@ -83,13 +85,21 @@ const RootNavigator = () => {
           options={{ headerShown: false }}
         />
       ) : (
-        // 已登入 - 顯示主應用
+        // 已登入 - 根據 userRole 顯示對應的界面
         <>
-          <Stack.Screen
-            name="AdminTabs"
-            component={AdminTabNavigator}
-            options={{ headerShown: false }}
-          />
+          {userRole === 'client' ? (
+            <Stack.Screen
+              name="ClientTabs"
+              component={ClientTabNavigator}
+              options={{ headerShown: false }}
+            />
+          ) : (
+            <Stack.Screen
+              name="AdminTabs"
+              component={AdminTabNavigator}
+              options={{ headerShown: false }}
+            />
+          )}
           <Stack.Screen
             name="AddCustomer"
             component={AddCustomerScreen}

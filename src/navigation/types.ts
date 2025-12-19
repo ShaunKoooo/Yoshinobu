@@ -3,8 +3,10 @@
 // Root Stack (包含 Tab Navigator 和獨立畫面)
 export type RootStackParamList = {
   AdminTabs: undefined;
+  ClientTabs: undefined;
   AddCustomer: undefined;
   AddContract: undefined;
+  AddBooking: undefined;
   CustomerDetail: { customerId?: string };
 };
 
@@ -16,11 +18,10 @@ export type AdminTabParamList = {
   Profile: undefined;             // 我的 (shared with User)
 };
 
-// 使用者端 Tabs
-export type UserTabParamList = {
+// 客戶端 Tabs (Client)
+export type ClientTabParamList = {
   Home: undefined;                // 首頁
   Courses: undefined;             // 課程
-  Shop: undefined;                // 商城
-  Notifications: undefined;       // 通知 (shared with Admin)
-  Profile: undefined;             // 我的 (shared with Admin)
+  Notifications: undefined;       // 通知
+  Profile: undefined;             // 我的
 };
