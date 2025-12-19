@@ -11,6 +11,7 @@ import { useInitializeUser } from 'src/hooks/useInitializeUser';
 import {
   useVisits,
   useProviders,
+  useCancelVisit,
 } from 'src/services/hooks';
 import {
   Icon,
@@ -51,6 +52,7 @@ const STATUS_TABS = [
 const CourseManagementScreen = () => {
   const { profile } = useInitializeUser();
   const { data: providers, isLoading: providersLoading } = useProviders();
+  const cancelVisitMutation = useCancelVisit();
 
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
@@ -115,12 +117,21 @@ const CourseManagementScreen = () => {
   };
 
   const handleConfirmCancel = () => {
+    console.log(bookingToCancel?.id)
     if (bookingToCancel) {
-      // TODO: 實際取消預約的 API 調用
-      console.log('取消預約:', bookingToCancel);
+      cancelVisitMutation.mutate(bookingToCancel.id, {
+        onSuccess: () => {
+          console.log('成功取消預約:', bookingToCancel);
+          setAlertVisible(false);
+          setBookingToCancel(null);
+        },
+        onError: (error) => {
+          console.error('取消預約失敗:', error);
+          setAlertVisible(false);
+          setBookingToCancel(null);
+        },
+      });
     }
-    setAlertVisible(false);
-    setBookingToCancel(null);
   };
 
   const handleCancelAlert = () => {
