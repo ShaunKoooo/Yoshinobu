@@ -12,10 +12,11 @@ export const meKeys = {
 /**
  * 取得使用者資訊
  */
-export const useMe = () => {
+export const useMe = (enabled: boolean = true) => {
   return useQuery({
     queryKey: meKeys.details(),
     queryFn: () => meApi.getMe(),
     staleTime: 5 * 60 * 1000, // 5 minutes
+    enabled, // 只有在 enabled 為 true 時才會執行 query
   });
 };

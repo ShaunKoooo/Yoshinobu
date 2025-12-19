@@ -19,7 +19,7 @@ export const useInitializeUser = () => {
   // 只有在登入且為教練時才呼叫 useMe
   const shouldFetchUser = isAuthenticated && isCoach && !profile;
 
-  const { data: userData, isLoading, error } = useMe();
+  const { data: userData, isLoading, error } = useMe(shouldFetchUser);
 
   useEffect(() => {
     if (!shouldFetchUser) {

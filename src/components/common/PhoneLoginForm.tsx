@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { Colors } from 'src/theme';
 import { MyButton } from 'src/components';
+import { authApi } from 'src/services/api/auth.api';
 
 interface PhoneLoginFormProps {
   onLogin: (phone: string, verificationCode: string) => void;
@@ -13,6 +14,7 @@ const PhoneLoginForm = ({ onLogin }: PhoneLoginFormProps) => {
   const [verificationCode, setVerificationCode] = useState('');
   const [codeSent, setCodeSent] = useState(false);
   const [countdown, setCountdown] = useState(0);
+  const [isSending, setIsSending] = useState(false);
 
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout>;
@@ -22,15 +24,32 @@ const PhoneLoginForm = ({ onLogin }: PhoneLoginFormProps) => {
     return () => clearTimeout(timer);
   }, [countdown]);
 
-  const handleSendCode = () => {
-    // TODO: 打 API 發送驗證碼
-    console.log('發送驗證碼到手機:', phone);
-    setCodeSent(true);
-    setCountdown(60);
+  const handleSendCode = async () => {
+    if (isSending) return;
+
+    try {
+      setIsSending(true);
+      const mobile = `${countryCode}${phone}`;
+      console.log('發送驗證碼到手機:', mobile);
+
+      const result = await authApi.sendVerificationCode(mobile);
+
+      if (result.ok) {
+        Alert.alert('成功', '驗證碼已發送');
+        setCodeSent(true);
+        setCountdown(60);
+      }
+    } catch (error: any) {
+      console.error('發送驗證碼失敗:', error);
+      Alert.alert('發送失敗', error.message || '請稍後再試');
+    } finally {
+      setIsSending(false);
+    }
   };
 
   const handleLogin = () => {
-    onLogin(phone, verificationCode);
+    const mobile = `${countryCode}${phone}`;
+    onLogin(mobile, verificationCode);
   };
 
   const isPhoneComplete = phone.length >= 10;

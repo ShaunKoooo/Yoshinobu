@@ -20,8 +20,8 @@ const AUTH_ENDPOINTS = {
   COACH_SIGN_IN: '/api/v4/users/sign_in',
 
   // Client 登入
-  CLIENT_SEND_CODE: '/api/v4/users/send_verification_code',
-  CLIENT_VERIFY_CODE: '/api/v4/users/verify_code', // 假設需要驗證端點
+  CLIENT_SEND_CODE: '/api/v4/clients/mobile_sms_code',
+  CLIENT_VERIFY_CODE: '/api/v4/clients/register_mobile_with_code',
 };
 
 // 教練端專用端點

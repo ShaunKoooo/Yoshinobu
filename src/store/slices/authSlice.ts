@@ -101,28 +101,36 @@ export const loginWithPhone = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      // TODO: 替換成實際的 API 呼叫
-      // const response = await fetch('YOUR_API_URL/login/phone', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ phone, verificationCode }),
-      // });
-      // const data = await response.json();
+      console.log('🔐 手機驗證碼登入:', { phone, verificationCode });
 
-      // 模擬 API 回應
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      const mockToken = 'mock-jwt-token-' + Date.now();
-      const mockUserData = { phone, name: '測試用戶' };
+      // 調用 API
+      const response = await authApi.verifyCode(phone, verificationCode);
+
+      console.log('📱 手機登入成功，API 回應:', response);
+
+      // 構建用戶資料
+      const userData = {
+        phone,
+        name: response.nick_name || `${response.first_name} ${response.last_name}`.trim() || '用戶',
+        first_name: response.first_name,
+        last_name: response.last_name,
+        nick_name: response.nick_name,
+        avatar_thumbnail_url: response.avatar_thumbnail_url,
+        hasura_token: response.hasura_token,
+      };
 
       // 儲存到 Storage
-      await storageService.setAuthToken(mockToken);
-      await storageService.setUserData(mockUserData);
+      await storageService.setAuthToken(response.access_token);
+      await storageService.setUserData(userData);
+
+      console.log('✅ 手機登入成功，已儲存 token 和用戶資料');
 
       return {
-        token: mockToken,
-        user: mockUserData,
+        token: response.access_token,
+        user: userData,
       };
     } catch (error: any) {
+      console.error('❌ 手機登入失敗:', error);
       return rejectWithValue(error.message || '登入失敗');
     }
   }

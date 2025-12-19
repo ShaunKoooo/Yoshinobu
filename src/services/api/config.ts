@@ -4,11 +4,14 @@ import { AppConfig } from 'src/config/AppConfig';
 // API 基礎配置
 export const API_CONFIG = {
   BASE_URL: 'https://ff-staging.cofit.me',
+  CLIENT_BASE_URL: 'https://ff-staging.cofit.me', // 客戶端 API（手機登入）
   TIMEOUT: 30000,
 
   // TODO 拆分 staging / production 環境
   // BASE_URL staging https://ff-staging.cofit.me
   // BASE_URL production https://ff.cofit.me
+  // Client API staging: https://ff-staging.cofit.me
+  // Client API production: https://pro.cofit.me
 } as const;
 
 // HTTP 請求工具

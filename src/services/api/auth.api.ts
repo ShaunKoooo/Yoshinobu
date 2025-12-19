@@ -1,5 +1,6 @@
 import { API_CONFIG } from './config';
 import { AUTH_ENDPOINTS } from './endpoints.config';
+import { AppConfig } from 'src/config/AppConfig';
 
 // 登入請求類型
 export interface SignInRequest {
@@ -22,7 +23,28 @@ export interface SignInResponse {
 
 // 發送驗證碼請求
 export interface SendVerificationCodeRequest {
-  phone: string;
+  app_name: 'spa' | 'buddy_body';
+  mobile: string;
+  type: 'mobile_login_verify_code';
+  t: number;
+}
+
+// 驗證碼登入請求
+export interface VerifyCodeRequest {
+  app_name: 'spa' | 'buddy_body';
+  mobile: string;
+  code: string;
+}
+
+// 驗證碼登入回應
+export interface VerifyCodeResponse {
+  access_token: string;
+  first_name: string;
+  last_name: string;
+  nick_name: string;
+  avatar_thumbnail_url: string | null;
+  terms_of_service_agreed: boolean | null;
+  hasura_token: string;
 }
 
 export const authApi = {
@@ -58,22 +80,83 @@ export const authApi = {
   },
 
   /**
-   * 發送手機驗證碼
+   * 發送手機驗證碼（客戶端使用）
    */
-  sendVerificationCode: async (phone: string): Promise<{ success: boolean }> => {
-    const response = await fetch('https://staging.cofit.me/api/v4/users/send_verification_code', {
+  sendVerificationCode: async (mobile: string): Promise<{ ok: boolean }> => {
+    console.log('📱 發送驗證碼 API 請求:', mobile);
+
+    const app_name = AppConfig.APP_TYPE === 'spa' ? 'spa' : 'buddy_body';
+    const data: SendVerificationCodeRequest = {
+      app_name,
+      mobile,
+      type: 'mobile_login_verify_code',
+      t: 1,
+    };
+
+    const url = `https://staging.cofit.me${AUTH_ENDPOINTS.CLIENT_SEND_CODE}`;
+
+    const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'authorization': 'Bearer',
+        'token': '',
       },
-      body: JSON.stringify({ phone }),
+      body: JSON.stringify(data),
     });
+
+    console.log('📡 API 回應狀態:', response.status);
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({}));
-      throw new Error(error.message || '發送驗證碼失敗');
+      console.error('❌ 發送驗證碼失敗:', error);
+      const errorMessage = error.errors || error.message || '發送驗證碼失敗';
+      throw new Error(errorMessage);
     }
 
-    return await response.json();
+    const result = await response.json();
+    console.log('✅ 發送驗證碼成功，API 回應:', result);
+
+    return result;
+  },
+
+  /**
+   * 驗證碼登入（客戶端使用）
+   */
+  verifyCode: async (mobile: string, code: string): Promise<VerifyCodeResponse> => {
+    console.log('🔐 驗證碼登入 API 請求:', { mobile, code });
+
+    const app_name = AppConfig.APP_TYPE === 'spa' ? 'spa' : 'buddy_body';
+    const data: VerifyCodeRequest = {
+      app_name,
+      mobile,
+      code,
+    };
+
+    const url = `https://staging.cofit.me${AUTH_ENDPOINTS.CLIENT_VERIFY_CODE}`;
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'authorization': 'Bearer',
+        'token': '',
+      },
+      body: JSON.stringify(data),
+    });
+
+    console.log('📡 API 回應狀態:', response.status);
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      console.error('❌ 驗證碼登入失敗:', error);
+      const errorMessage = error.errors || error.message || '驗證碼登入失敗';
+      throw new Error(errorMessage);
+    }
+
+    const result = await response.json();
+    console.log('✅ 驗證碼登入成功，API 回應:', result);
+
+    return result;
   },
 };
