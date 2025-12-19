@@ -1,5 +1,6 @@
 import { apiClient } from './config';
-import { API_ENDPOINTS } from './endpoints.config';
+import { COACH_ENDPOINTS, CLIENT_ENDPOINTS } from './endpoints.config';
+import { storageService } from '../storage.service';
 import type {
   Visit,
   GetVisitsRequest,
@@ -16,8 +17,16 @@ export const visitsApi = {
    * @param params - 查詢參數 (date, state, client_id, provider_id)
    */
   getVisits: async (params?: GetVisitsRequest): Promise<Visit[]> => {
+    // 從 storage 獲取用戶角色
+    const userRole = await storageService.getUserRole();
+    const endpoint = userRole === 'client'
+      ? CLIENT_ENDPOINTS.VISITS
+      : COACH_ENDPOINTS.VISITS;
+
+    console.log('📱 getVisits - userRole:', userRole, 'endpoint:', endpoint);
+
     const response = await apiClient.get<GetVisitsResponse>(
-      API_ENDPOINTS.VISITS,
+      endpoint,
       params
     );
     return response.visits || response as any;
@@ -28,8 +37,14 @@ export const visitsApi = {
    * @param id - 預約 ID
    */
   cancelVisit: async (id: number): Promise<CancelVisitResponse> => {
-    return await apiClient.post<CancelVisitResponse>(
-      API_ENDPOINTS.CANCEL_VISIT(id)
-    );
+    // 從 storage 獲取用戶角色
+    const userRole = await storageService.getUserRole();
+    const endpoint = userRole === 'client'
+      ? CLIENT_ENDPOINTS.CANCEL_VISIT(id)
+      : COACH_ENDPOINTS.CANCEL_VISIT(id);
+
+    console.log('📱 cancelVisit - userRole:', userRole, 'endpoint:', endpoint);
+
+    return await apiClient.post<CancelVisitResponse>(endpoint);
   },
 };

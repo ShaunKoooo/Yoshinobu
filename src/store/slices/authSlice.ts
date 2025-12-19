@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { storageService, UserData } from 'src/services/storage.service';
 import { authApi } from 'src/services/api';
 import { AppConfig } from 'src/config/AppConfig';
@@ -31,11 +31,13 @@ export const checkAuthStatus = createAsyncThunk(
     try {
       const token = await storageService.getAuthToken();
       const userData = await storageService.getUserData();
+      const userRole = await storageService.getUserRole();
 
       if (token && userData) {
         return {
           token,
           user: userData,
+          userRole: userRole || 'coach', // 預設為 coach 以向下相容
         };
       }
       return rejectWithValue('No auth data');
@@ -84,6 +86,7 @@ export const loginWithAccount = createAsyncThunk(
       // 儲存到 Storage
       await storageService.setAuthToken(response.access_token);
       await storageService.setUserData(userData);
+      await storageService.setUserRole('coach'); // 儲存用戶角色
 
       return {
         token: response.access_token,
@@ -125,6 +128,7 @@ export const loginWithPhone = createAsyncThunk(
       // 儲存到 Storage
       await storageService.setAuthToken(response.access_token);
       await storageService.setUserData(userData);
+      await storageService.setUserRole('client'); // 儲存用戶角色
 
       console.log('✅ 手機登入成功，已儲存 token 和用戶資料');
 
@@ -153,7 +157,7 @@ export const sendVerificationCode = createAsyncThunk(
       // });
 
       // 模擬 API 回應
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await new Promise<void>((resolve) => setTimeout(() => resolve(), 500));
       console.log('發送驗證碼到:', phone);
       return { success: true };
     } catch (error: any) {
@@ -196,6 +200,7 @@ const authSlice = createSlice({
         state.isAuthenticated = true;
         state.token = action.payload.token;
         state.user = action.payload.user;
+        state.userRole = action.payload.userRole;
       })
       .addCase(checkAuthStatus.rejected, (state) => {
         state.isLoading = false;
@@ -250,6 +255,7 @@ const authSlice = createSlice({
         state.isAuthenticated = false;
         state.token = null;
         state.user = null;
+        state.userRole = null;
         state.error = null;
       });
   },

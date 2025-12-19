@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const STORAGE_KEYS = {
   AUTH_TOKEN: 'authToken',
   USER_DATA: 'userData',
+  USER_ROLE: 'userRole',
   // 可以在這裡添加更多常用的 keys
 } as const;
 
@@ -79,11 +80,40 @@ class StorageService {
     }
   }
 
+  async getUserRole(): Promise<'coach' | 'client' | null> {
+    try {
+      const role = await AsyncStorage.getItem(STORAGE_KEYS.USER_ROLE);
+      return role as 'coach' | 'client' | null;
+    } catch (error) {
+      console.error('Failed to get user role:', error);
+      return null;
+    }
+  }
+
+  async setUserRole(role: 'coach' | 'client'): Promise<void> {
+    try {
+      await AsyncStorage.setItem(STORAGE_KEYS.USER_ROLE, role);
+    } catch (error) {
+      console.error('Failed to set user role:', error);
+      throw error;
+    }
+  }
+
+  async removeUserRole(): Promise<void> {
+    try {
+      await AsyncStorage.removeItem(STORAGE_KEYS.USER_ROLE);
+    } catch (error) {
+      console.error('Failed to remove user role:', error);
+      throw error;
+    }
+  }
+
   async clearAuthData(): Promise<void> {
     try {
       await AsyncStorage.multiRemove([
         STORAGE_KEYS.AUTH_TOKEN,
         STORAGE_KEYS.USER_DATA,
+        STORAGE_KEYS.USER_ROLE,
       ]);
     } catch (error) {
       console.error('Failed to clear auth data:', error);

@@ -1,18 +1,30 @@
 import { apiClient } from './config';
-import { API_ENDPOINTS } from './endpoints.config';
+import { COACH_ENDPOINTS, CLIENT_ENDPOINTS } from './endpoints.config';
+import { storageService } from '../storage.service';
 import type {
   Client,
 } from './types';
 
 /**
- * 客戶管理 API
+ * 用戶資料 API
  */
 export const meApi = {
   /**
    * 取得使用者資料
+   * 根據用戶角色調用不同的端點
    */
   getMe: async (): Promise<any> => {
-    const response = await apiClient.get<any>(API_ENDPOINTS.USER_ME);
+    // 從 storage 獲取用戶角色
+    const userRole = await storageService.getUserRole();
+
+    // 根據角色使用不同的端點
+    const endpoint = userRole === 'client'
+      ? CLIENT_ENDPOINTS.CLIENT_ME
+      : COACH_ENDPOINTS.USER_ME;
+
+    console.log('📱 getMe - userRole:', userRole, 'endpoint:', endpoint);
+
+    const response = await apiClient.get<any>(endpoint);
     return response || ({} as any);
   },
 };

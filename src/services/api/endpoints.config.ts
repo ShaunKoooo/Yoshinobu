@@ -53,23 +53,35 @@ const COACH_ENDPOINTS = {
   BOOKINGS: '/api/spa/user/v1/simply_book/bookings',
 };
 
-// 客戶端專用端點（未來擴充）
+// 客戶端專用端點
 const CLIENT_ENDPOINTS = {
-  // 客戶端的 API 端點
-  // 例如：
-  // MY_PROFILE: '/api/v4/client/profile',
-  // MY_BOOKINGS: '/api/v4/client/bookings',
-  // ...
+  CLIENT_ME: '/api/v4/clients/me',
+
+  // // 預約管理（客戶端視角）
+  // VISITS: '/api/v4/client/visits',
+  // CANCEL_VISIT: (id: number) => `/api/v4/client/visits/${id}/cancel`,
+
+  // // 預約系統
+  // SERVICES: '/api/v4/client/services',
+  // PROVIDERS: '/api/v4/client/providers',
+  // BOOKINGS: '/api/v4/client/bookings',
 };
 
 /**
  * 根據角色取得端點配置
  */
 export const getEndpoints = (role: UserRole = 'coach') => {
-  return {
-    ...AUTH_ENDPOINTS,
-    ...(role === 'coach' ? COACH_ENDPOINTS : CLIENT_ENDPOINTS),
-  };
+  if (role === 'coach') {
+    return {
+      ...AUTH_ENDPOINTS,
+      ...COACH_ENDPOINTS,
+    };
+  } else {
+    return {
+      ...AUTH_ENDPOINTS,
+      ...CLIENT_ENDPOINTS,
+    };
+  }
 };
 
 /**
