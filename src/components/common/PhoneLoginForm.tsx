@@ -93,7 +93,7 @@ const PhoneLoginForm = ({ onLogin }: PhoneLoginFormProps) => {
               value={verificationCode}
               onChangeText={setVerificationCode}
               keyboardType="number-pad"
-              maxLength={6}
+              maxLength={8}
             />
           </View>
           <View style={styles.codeButtonContainer}>
