@@ -10,8 +10,10 @@ import {
 } from 'react-native';
 import { MyButton, Icon } from 'src/components';
 import { Colors } from 'src/theme';
+import { useCategories } from 'src/services/hooks';
 
 const AddContractScreen = () => {
+  const { data: categories } = useCategories();
   const [isSharedContract, setIsSharedContract] = useState(false);
   const [phone, setPhone] = useState('');
   const [name, setName] = useState('');
@@ -79,17 +81,14 @@ const AddContractScreen = () => {
         {/* 合約號碼 */}
         <TouchableOpacity style={styles.row}>
           <Text style={styles.label}>合約號碼</Text>
-          <View style={styles.selectorContainer}>
-            <Text
-              style={[
-                styles.selectorText,
-                !contractNumber && styles.placeholderText,
-              ]}
-            >
-              {contractNumber || '請選擇'}
-            </Text>
-            <Icon name="right-open-big" size={16} />
-          </View>
+          <TextInput
+            style={styles.input}
+            placeholder="請輸入"
+            placeholderTextColor={Colors.text.placeholder}
+            value={contractNumber}
+            onChangeText={setContractNumber}
+            keyboardType="default"
+          />
         </TouchableOpacity>
 
         {/* 合約類別 */}
