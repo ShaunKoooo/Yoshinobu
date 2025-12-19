@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   StyleSheet,
@@ -7,6 +7,8 @@ import {
   Platform,
   ScrollView,
   Alert,
+  TouchableOpacity,
+  Text,
 } from 'react-native';
 import {
   AccountLoginForm,
@@ -21,10 +23,15 @@ const isSPAApp = AppConfig.APP_TYPE === 'spa';
 
 const LoginPage = () => {
   const dispatch = useAppDispatch();
+  const [loginType, setLoginType] = useState<'account' | 'phone'>('account');
 
   const handleForgotPassword = () => {
     // TODO: 導航到忘記密碼頁面
     console.log('忘記密碼');
+  };
+
+  const toggleLoginType = () => {
+    setLoginType(prev => prev === 'account' ? 'phone' : 'account');
   };
 
   const handleLogin = async (account: string, password: string) => {
@@ -65,12 +72,24 @@ const LoginPage = () => {
         </View>
 
         {/* 登入表單 */}
-        <AccountLoginForm
-          onLogin={handleLogin}
-          onForgotPassword={handleForgotPassword}
-        />
+        {loginType === 'account' ? (
+          <AccountLoginForm
+            onLogin={handleLogin}
+            onForgotPassword={handleForgotPassword}
+          />
+        ) : (
+          <PhoneLoginForm onLogin={handlePhoneLogin} />
+        )}
 
-        {/* <PhoneLoginForm onLogin={handlePhoneLogin} /> */}
+        {/* 切換登入方式按鈕 */}
+        <TouchableOpacity
+          style={styles.switchButton}
+          onPress={toggleLoginType}
+        >
+          <Text style={styles.switchButtonText}>
+            {loginType === 'account' ? '使用者登入' : '教練登入'}
+          </Text>
+        </TouchableOpacity>
 
         {/* 底部文字 */}
         <LoginFooter />
@@ -99,6 +118,17 @@ const styles = StyleSheet.create({
   logoImage: {
     width: 243,
     height: 117,
+  },
+  // 切換按鈕
+  switchButton: {
+    alignItems: 'center',
+    paddingVertical: 16,
+    marginTop: 20,
+  },
+  switchButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    textDecorationLine: 'underline',
   },
 });
 
