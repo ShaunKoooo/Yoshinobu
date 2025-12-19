@@ -10,11 +10,13 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppConfig } from 'src/config/AppConfig';
 import { Colors } from 'src/theme';
+import { useNavigation } from '@react-navigation/native';
 
 const { width, height } = Dimensions.get('window');
 const isSPAApp = AppConfig.APP_TYPE === 'spa';
 
 const HomeScreen = () => {
+  const navigation = useNavigation<any>();
   const insets = useSafeAreaInsets();
 
   // 根據 APP_TYPE 選擇對應的圖片
@@ -24,7 +26,7 @@ const HomeScreen = () => {
 
   const handleBooking = () => {
     console.log('立即預約');
-    // TODO: 導航到預約頁面
+    navigation.navigate('AddBooking');
   };
 
   return (
