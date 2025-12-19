@@ -204,8 +204,8 @@ export interface FirstAvailableSlot {
 export interface CreateBookingRequest {
   service_id: number;
   provider_id: number;
-  date: string; // "YYYY-MM-DD"
-  time: string; // "HH:MM"
+  start_datetime: string; // "YYYY-MM-DD"
+  contract_id: number; // "HH:MM"
   client_id: number;
 }
 

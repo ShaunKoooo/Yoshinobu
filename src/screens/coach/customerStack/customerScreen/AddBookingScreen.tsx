@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Dimensions,
+  Alert,
 } from 'react-native';
 import {
   MyButton,
@@ -21,12 +22,19 @@ import {
   useServices,
   useProviders,
   useSlots,
+  useCreateBooking,
 } from 'src/services/hooks';
+import { useSelectedClientIdFromClients } from 'src/hooks/useClientsWithRedux';
 import { Calendar } from 'react-native-calendars';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
+const formatBookingTime = (time: string) => {
+  return time.replace(':00', '');
+}
+
 const AddBookingScreen = () => {
+  const clientId = useSelectedClientIdFromClients(); // 從 Redux 取得當前選中的 client_id
   const [serviceId, setServiceId] = useState<number | null>(null);
   const [activeModal, setActiveModal] = useState<'service' | 'therapist' | 'time' | null>(null);
   const [providerId, setProviderId] = useState<number | null>(null);
@@ -39,6 +47,7 @@ const AddBookingScreen = () => {
 
   const { data: services, isLoading: servicesLoading } = useServices();
   const { data: providers, isLoading: providersLoading } = useProviders();
+  const createBooking = useCreateBooking();
 
   // 根據選擇的日期、provider、service 動態查詢可用時段
   const { data: slots, isLoading: slotsLoading } = useSlots(
@@ -49,21 +58,52 @@ const AddBookingScreen = () => {
     },
     !!bookingDate && !!providerId && !!serviceId // 只有全部都選了才執行
   )
-  console.log(slots, 'shaunslots')
 
   const handleSubmit = () => {
-    // TODO: 處理表單提交到 API
-    console.log('Booking data:', {
-      serviceId,
-      providerId,
-      bookingTime,
-      contractNumber,
-      contractType,
-      duration,
-      isSharedContract,
-    });
+    if (!serviceId || !providerId || !bookingDate || !bookingTime) {
+      Alert.alert('錯誤', '請填寫所有必填欄位');
+      return;
+    }
+
+    // 驗證是否有 client_id
+    if (!clientId) {
+      Alert.alert('錯誤', '無法取得客戶資訊，請先選擇客戶');
+      return;
+    }
+
+    createBooking.mutate(
+      {
+        service_id: serviceId,
+        provider_id: providerId,
+        start_datetime: bookingDate + ' ' + formatBookingTime(bookingTime), // YYYY-MM-DD 格式
+        client_id: clientId,
+        contract_id: 1005,
+      },
+      {
+        onSuccess: (data) => {
+          Alert.alert(
+            '預約成功',
+            '您的預約已建立成功！',
+            [
+              {
+                text: '確定',
+                onPress: () => {
+                  // TODO: 導航回上一頁或其他頁面
+                  console.log('預約成功:', data);
+                },
+              },
+            ]
+          );
+        },
+        onError: (error: any) => {
+          Alert.alert(
+            '預約失敗',
+            error?.message || '建立預約時發生錯誤，請稍後再試'
+          );
+        },
+      }
+    );
   };
-  console.log(services, providers, 'shaunservices')
 
   const serviceItems = services?.services?.map(service => ({
     label: service.name,
@@ -136,7 +176,7 @@ const AddBookingScreen = () => {
                       styles.slotText,
                       isSelected && styles.slotTextSelected,
                     ]}>
-                      {item.time}
+                      {formatBookingTime(item.time)}
                     </Text>
                   </TouchableOpacity>
                 )
@@ -222,32 +262,32 @@ const AddBookingScreen = () => {
         <View style={styles.divider} />
 
         {/* 合約號碼 */}
-        <View style={styles.row}>
+        {/* <View style={styles.row}>
           <Text style={styles.label}>合約號碼</Text>
           <View style={styles.contractContainer}>
             <Text style={styles.contractNumber}>{contractNumber}</Text>
             {isSharedContract && <Badge variant="shared" text="共用" />}
           </View>
-        </View>
+        </View> */}
 
         {/* 合約類別 */}
-        <View style={styles.row}>
+        {/* <View style={styles.row}>
           <Text style={styles.label}>合約類別</Text>
           <Text style={styles.valueText}>{contractType}</Text>
-        </View>
+        </View> */}
 
         {/* 時間 */}
-        <View style={styles.row}>
+        {/* <View style={styles.row}>
           <Text style={styles.label}>時間</Text>
           <Text style={styles.valueText}>{duration}</Text>
-        </View>
+        </View> */}
       </ScrollView>
 
       {/* 底部確認按鈕 */}
       <View style={styles.buttonContainer}>
         <MyButton
-          isActive={!!isFormValid}
-          title="確認"
+          isActive={!!isFormValid && !createBooking.isPending}
+          title={createBooking.isPending ? "預約中..." : "確認"}
           onPress={handleSubmit}
         />
       </View>
