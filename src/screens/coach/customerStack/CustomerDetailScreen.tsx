@@ -155,6 +155,7 @@ const CustomerDetailScreen = ({ route }: any) => {
         <Tab.Screen
           name="ContractManagement"
           component={ContractManagementTab}
+          initialParams={{ id }}
           options={{
             tabBarLabel: '合約管理',
           }}

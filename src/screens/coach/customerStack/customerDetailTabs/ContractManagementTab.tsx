@@ -7,22 +7,19 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import {
-  Badge,
   Accordion,
 } from 'src/components';
 import { useContracts } from 'src/services/hooks';
 import { Colors } from 'src/theme';
 import { formatDate } from 'src/utils';
 import type { Contract as ApiContract } from 'src/services/api/types';
-import { useInitializeUser } from 'src/hooks';
 
-const ContractManagementTab = () => {
-  const { profile } = useInitializeUser()
-  const clientId = profile?.id; // TODO 使用固定的 client_id
+const ContractManagementTab = ({ route }: any) => {
+  const { id } = route.params || {};
 
   // 使用 useContracts 取得合約列表
   const { data: contractsData, isLoading, error } = useContracts({
-    client_id: clientId,
+    client_id: id,
   });
 
   const [expandedContracts, setExpandedContracts] = useState<Set<string>>(new Set());
