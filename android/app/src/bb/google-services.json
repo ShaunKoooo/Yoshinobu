@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "429563969534",
+    "project_id": "bbapp-f3348",
+    "storage_bucket": "bbapp-f3348.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:429563969534:android:a22d1189f74d8deb200aaf",
+        "android_client_info": {
+          "package_name": "me.bbapp.yoshinobu"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA4DfpNIdWXNLERcg91dQuKHYNP5OcoN9w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

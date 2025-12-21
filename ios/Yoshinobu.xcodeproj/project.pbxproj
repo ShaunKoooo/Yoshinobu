@@ -17,6 +17,7 @@
 		E42E43F02EE7F6EA0061089A /* config.json in Resources */ = {isa = PBXBuildFile; fileRef = 953C09B3534E47B59C9943B4 /* config.json */; };
 		E42E43F12EE7F6EA0061089A /* fontello.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0F2C4339F50B4895B2DE9587 /* fontello.ttf */; };
 		E4A63F7B2EF7C8EE00311450 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = E4A63F7A2EF7C8EE00311450 /* GoogleService-Info.plist */; };
+		E4A63F7D2EF7DA3400311450 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = E4A63F7C2EF7DA3400311450 /* GoogleService-Info.plist */; };
 		E4AA0A912EE801F30067A761 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E4AA0A8E2EE801F30067A761 /* Images.xcassets */; };
 		E4AA0A922EE801F30067A761 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E4AA0A8F2EE801F30067A761 /* LaunchScreen.storyboard */; };
 		E4AA0A982EE802150067A761 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E4AA0A952EE802150067A761 /* Images.xcassets */; };
@@ -48,6 +49,7 @@
 		CF5A8D51163C973029FD96E0 /* Pods-bbClient.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-bbClient.debug.xcconfig"; path = "Target Support Files/Pods-bbClient/Pods-bbClient.debug.xcconfig"; sourceTree = "<group>"; };
 		E42E43F82EE7F6EA0061089A /* bb.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = bb.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E4A63F7A2EF7C8EE00311450 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		E4A63F7C2EF7DA3400311450 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		E4AA0A8E2EE801F30067A761 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		E4AA0A8F2EE801F30067A761 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		E4AA0A952EE802150067A761 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
@@ -162,6 +164,7 @@
 		E4AA0A902EE801F30067A761 /* bb */ = {
 			isa = PBXGroup;
 			children = (
+				E4A63F7C2EF7DA3400311450 /* GoogleService-Info.plist */,
 				E4AA0A9A2EE802570067A761 /* bb_Info.plist */,
 				E4AA0A8E2EE801F30067A761 /* Images.xcassets */,
 				E4AA0A8F2EE801F30067A761 /* LaunchScreen.storyboard */,
@@ -284,6 +287,7 @@
 				E42E43EF2EE7F6EA0061089A /* PrivacyInfo.xcprivacy in Resources */,
 				E42E43F02EE7F6EA0061089A /* config.json in Resources */,
 				E42E43F12EE7F6EA0061089A /* fontello.ttf in Resources */,
+				E4A63F7D2EF7DA3400311450 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
