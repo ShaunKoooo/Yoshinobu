@@ -50,6 +50,8 @@
 		E42E43F82EE7F6EA0061089A /* bb.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = bb.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E4A63F7A2EF7C8EE00311450 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		E4A63F7C2EF7DA3400311450 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		E4A63F7E2EF7E1D900311450 /* spa.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = spa.entitlements; sourceTree = "<group>"; };
+		E4A63F7F2EF7E1E300311450 /* bb.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = bb.entitlements; sourceTree = "<group>"; };
 		E4AA0A8E2EE801F30067A761 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		E4AA0A8F2EE801F30067A761 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		E4AA0A952EE802150067A761 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
@@ -164,6 +166,7 @@
 		E4AA0A902EE801F30067A761 /* bb */ = {
 			isa = PBXGroup;
 			children = (
+				E4A63F7F2EF7E1E300311450 /* bb.entitlements */,
 				E4A63F7C2EF7DA3400311450 /* GoogleService-Info.plist */,
 				E4AA0A9A2EE802570067A761 /* bb_Info.plist */,
 				E4AA0A8E2EE801F30067A761 /* Images.xcassets */,
@@ -175,6 +178,7 @@
 		E4AA0A972EE802150067A761 /* spa */ = {
 			isa = PBXGroup;
 			children = (
+				E4A63F7E2EF7E1D900311450 /* spa.entitlements */,
 				E4A63F7A2EF7C8EE00311450 /* GoogleService-Info.plist */,
 				E4AA0A9C2EE802640067A761 /* spa_Info.plist */,
 				E4AA0A952EE802150067A761 /* Images.xcassets */,
@@ -492,6 +496,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = spa/spa.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -524,6 +529,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = spa/spa.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -726,6 +732,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = bb/bb.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 9C96LPD3M9;
 				ENABLE_BITCODE = NO;
@@ -755,6 +762,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = bb/bb.entitlements;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 9C96LPD3M9;
 				INFOPLIST_FILE = bb_Info.plist;
