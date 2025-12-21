@@ -7,6 +7,7 @@ import {
   ScrollView,
   Image,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { useInitializeUser } from 'src/hooks/useInitializeUser';
 import {
   useVisits,
@@ -50,6 +51,7 @@ const STATUS_TABS = [
 ] as const;
 
 const CourseManagementScreen = () => {
+  const navigation = useNavigation<any>();
   const { profile } = useInitializeUser();
   const { data: providers, isLoading: providersLoading } = useProviders();
   const cancelVisitMutation = useCancelVisit();
@@ -143,6 +145,7 @@ const CourseManagementScreen = () => {
     setStartDate(start);
     setEndDate(end);
   };
+
   return (
     <View style={styles.container}>
       {/* 日期範圍選擇器 */}
@@ -219,7 +222,14 @@ const CourseManagementScreen = () => {
               </View>
 
               {/* 客戶姓名 */}
-              <Text style={styles.customerName}>{booking.data.real_name}</Text>
+              <TouchableOpacity
+                onPress={() => {
+                  console.log(booking)
+                  navigation.navigate('CustomerDetail', { id: booking.client_id });
+                }}
+              >
+                <Text style={styles.customerName}>{booking.data.real_name}</Text>
+              </TouchableOpacity>
 
               {/* 服務項目 */}
               <Text style={styles.serviceText}>{booking.service_name}</Text>
