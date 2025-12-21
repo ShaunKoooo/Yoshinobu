@@ -1,5 +1,6 @@
 import React, {
   useState,
+  useEffect,
 } from 'react';
 import {
   View,
@@ -48,6 +49,20 @@ const AddBookingScreen = () => {
   const { data: services, isLoading: servicesLoading } = useServices();
   const { data: providers, isLoading: providersLoading } = useProviders();
   const createBooking = useCreateBooking();
+
+  // 當 services 載入後，自動設定第一個為預設值
+  useEffect(() => {
+    if (services?.services && services?.services?.length > 0 && serviceId === null) {
+      setServiceId(services?.services[0].id);
+    }
+  }, [services, serviceId]);
+
+  // 當 providers 載入後，自動設定第一個為預設值
+  useEffect(() => {
+    if (providers?.providers && providers?.providers?.length > 0 && providerId === null) {
+      setProviderId(providers?.providers?.[0].id);
+    }
+  }, [providers, providerId]);
 
   // 根據選擇的日期、provider、service 動態查詢可用時段
   const { data: slots, isLoading: slotsLoading } = useSlots(
