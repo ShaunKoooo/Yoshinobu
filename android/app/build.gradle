@@ -146,6 +146,9 @@ dependencies {
     // Firebase Analytics
     implementation 'com.google.firebase:firebase-analytics'
 
+    // Firebase Cloud Messaging (Push Notifications)
+    implementation 'com.google.firebase:firebase-messaging'
+
     // Add other Firebase products as needed
     // https://firebase.google.com/docs/android/setup#available-libraries
 
