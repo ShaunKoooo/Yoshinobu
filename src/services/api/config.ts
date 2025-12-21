@@ -1,5 +1,7 @@
 import { storageService } from '../storage.service';
 import { AppConfig } from 'src/config/AppConfig';
+import { store } from 'src/store';
+import { logout } from 'src/store/slices/authSlice';
 
 // API 基礎配置
 export const API_CONFIG = {
@@ -50,6 +52,17 @@ export class ApiClient {
           ...options.headers,
         },
       });
+
+      // 處理 401 未授權錯誤
+      if (response.status === 401) {
+        console.error('收到 401 未授權錯誤，自動登出用戶');
+
+        // 執行登出
+        store.dispatch(logout());
+
+        const error = await response.json().catch(() => ({}));
+        throw new Error(error.message || '登入已過期，請重新登入');
+      }
 
       if (!response.ok) {
         const error = await response.json().catch(() => ({}));
