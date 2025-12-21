@@ -9,9 +9,11 @@ import { AuthProvider } from 'src/contexts/AuthContext';
 import RootNavigator from 'src/navigation/RootNavigator';
 import CodePush from "@code-push-next/react-native-code-push";
 import { queryClient } from 'src/services/queryClient';
+import { pushNotificationService } from 'src/services/pushNotification.service';
 
 function App() {
   useEffect(() => {
+    // CodePush 同步
     CodePush.sync(
       {
         installMode: CodePush.InstallMode.IMMEDIATE,
@@ -29,6 +31,21 @@ function App() {
         console.log(`Received ${progress.receivedBytes} of ${progress.totalBytes}`);
       }
     );
+
+    // 初始化 Push Notifications
+    const initPushNotifications = async () => {
+      // 設置通知監聽器
+      pushNotificationService.setupNotificationListeners();
+
+      // 請求通知權限並獲取 FCM token
+      const token = await pushNotificationService.requestPermission();
+      if (token) {
+        console.log('FCM Token:', token);
+        // TODO: token 發送到後端服務器
+      }
+    };
+
+    initPushNotifications();
   }, []);
 
   return (
