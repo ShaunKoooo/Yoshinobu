@@ -1,4 +1,7 @@
-import React, { useState } from 'react';
+import React, {
+  useState,
+  useEffect,
+} from 'react';
 import {
   View,
   Text,
@@ -34,6 +37,13 @@ const AddContractScreen = () => {
   const [contractType, setContractType] = useState('');
   const [time, setTime] = useState(60);
   const [activeModal, setActiveModal] = useState<'category' | 'time' | null>(null);
+
+  // 當 categories 載入後，自動設定第一個為預設值
+  useEffect(() => {
+    if (categories && categories.length > 0 && contractCategoryId === null) {
+      setContractCategoryId(categories[0].id);
+    }
+  }, [categories, contractCategoryId]);
 
   const handleSubmit = () => {
     // 驗證必填欄位
