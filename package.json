@@ -18,6 +18,7 @@
   "dependencies": {
     "@code-push-next/react-native-code-push": "^10.3.0",
     "@react-native-async-storage/async-storage": "^2.2.0",
+    "@react-native-firebase/app": "^23.7.0",
     "@react-native-masked-view/masked-view": "^0.3.2",
     "@react-native-picker/picker": "^2.11.4",
     "@react-native/new-app-screen": "0.82.1",
