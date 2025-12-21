@@ -2,6 +2,7 @@ import { storageService } from '../storage.service';
 import { AppConfig } from 'src/config/AppConfig';
 import { store } from 'src/store';
 import { logout } from 'src/store/slices/authSlice';
+import { Alert } from 'react-native';
 
 // API 基礎配置
 export const API_CONFIG = {
@@ -71,6 +72,15 @@ export class ApiClient {
 
       return await response.json();
     } catch (error: any) {
+      // 檢查是否為網路錯誤
+      if (error.message === 'Network request failed' ||
+          error.message?.includes('Failed to fetch') ||
+          error.message?.includes('Network Error') ||
+          error.name === 'TypeError') {
+        console.error('🌐 網路異常:', error);
+        Alert.alert('網路異常', '請檢查您的網路連線');
+      }
+
       console.error('API Request Error:', error);
       throw error;
     }
