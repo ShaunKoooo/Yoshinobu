@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "556360376910",
+    "project_id": "spaapp-18366",
+    "storage_bucket": "spaapp-18366.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:556360376910:android:68dcb080ff337075f0591f",
+        "android_client_info": {
+          "package_name": "me.spaapp.yamamoto"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAyWErSn9oyVGHZAF-SHFt3MUeLWlbt3g0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
