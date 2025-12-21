@@ -57,20 +57,20 @@ const COACH_ENDPOINTS = {
 const CLIENT_ENDPOINTS = {
   CLIENT_ME: '/api/v4/clients/me',
 
-  // // 預約管理（客戶端視角）
-  // VISITS: '/api/v4/client/visits',
-  // CANCEL_VISIT: (id: number) => `/api/v4/client/visits/${id}/cancel`,
-
-  // // 預約系統
-  // SERVICES: '/api/v4/client/services',
-  // PROVIDERS: '/api/v4/client/providers',
-  // BOOKINGS: '/api/v4/client/bookings',
+  // 預約系統 (SimplyBook)
+  SERVICES: '/api/spa/client/v1/simply_book/services',
+  PROVIDERS: '/api/spa/client/v1/simply_book/providers',
+  SCHEDULES: '/api/spa/client/v1/simply_book/schedules',
+  SLOTS: '/api/spa/client/v1/simply_book/slots',
+  FIRST_AVAILABLE_SLOT: '/api/spa/client/v1/simply_book/slots/first_available_slot',
+  BOOKINGS: '/api/spa/client/v1/simply_book/bookings',
 };
 
 /**
  * 根據角色取得端點配置
  */
 export const getEndpoints = (role: UserRole = 'coach') => {
+  console.log(role, 'shaunrole')
   if (role === 'coach') {
     return {
       ...AUTH_ENDPOINTS,

@@ -2,22 +2,23 @@ import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import { useMe } from 'src/services/hooks';
 import { setUserProfile, setUserLoading, setUserError } from 'src/store/slices/userSlice';
-import { AppConfig } from 'src/config/AppConfig';
 
 /**
  * 自動初始化使用者資料的 Hook
- * 當使用者登入且為教練身份時，自動呼叫 useMe API 並儲存到 Redux
+ * 根據用戶角色自動呼叫對應的 API 並儲存到 Redux
+ * - Coach: 調用 /api/v4.1/users/me
+ * - Client: 調用 /api/v4/clients/me
  */
 export const useInitializeUser = () => {
   const dispatch = useAppDispatch();
-  const { isAuthenticated } = useAppSelector((state) => state.auth);
+  const { isAuthenticated, userRole } = useAppSelector((state) => state.auth);
   const { profile } = useAppSelector((state) => state.user);
 
-  // 判斷是否為教練（根據 APP_TYPE）
-  const isCoach = AppConfig.APP_TYPE === 'spa' || AppConfig.APP_TYPE === 'bb';
+  // 只有在登入且沒有 profile 時才呼叫 useMe
+  // useMe 內部會根據 userRole 調用不同的端點
+  const shouldFetchUser = isAuthenticated && !profile;
 
-  // 只有在登入且為教練時才呼叫 useMe
-  const shouldFetchUser = isAuthenticated && isCoach && !profile;
+  console.log('🔍 useInitializeUser - isAuthenticated:', isAuthenticated, 'userRole:', userRole, 'shouldFetchUser:', shouldFetchUser);
 
   const { data: userData, isLoading, error } = useMe(shouldFetchUser);
 
@@ -31,7 +32,7 @@ export const useInitializeUser = () => {
 
     // 如果成功取得資料，儲存到 Redux
     if (userData && !isLoading) {
-      console.log('✅ User data loaded:', userData);
+      console.log('✅ User data loaded:', userData, 'userRole:', userRole);
       dispatch(setUserProfile(userData));
     }
 
@@ -40,10 +41,10 @@ export const useInitializeUser = () => {
       console.error('❌ Failed to load user data:', error);
       dispatch(setUserError(error.message || 'Failed to load user data'));
     }
-  }, [userData, isLoading, error, shouldFetchUser, dispatch]);
+  }, [userData, isLoading, error, shouldFetchUser, dispatch, userRole]);
 
   return {
-    isLoading,
+    isLoading: shouldFetchUser ? isLoading : false, // 只有在應該 fetch 時才返回 loading 狀態
     error,
     profile,
   };

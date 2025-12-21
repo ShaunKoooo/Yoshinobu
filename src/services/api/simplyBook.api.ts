@@ -1,5 +1,6 @@
 import { apiClient } from './config';
-import { API_ENDPOINTS } from './endpoints.config';
+import { COACH_ENDPOINTS, CLIENT_ENDPOINTS } from './endpoints.config';
+import { storageService } from '../storage.service';
 import type {
   Service,
   Provider,
@@ -21,14 +22,24 @@ export const simplyBookApi = {
    * 取得服務項目列表
    */
   getServices: async (): Promise<Service[]> => {
-    return await apiClient.get<Service[]>(API_ENDPOINTS.SERVICES);
+    const userRole = await storageService.getUserRole();
+    const endpoint = userRole === 'client'
+      ? CLIENT_ENDPOINTS.SERVICES
+      : COACH_ENDPOINTS.SERVICES;
+    console.log('📱 getServices - userRole:', userRole, 'endpoint:', endpoint);
+    return await apiClient.get<Service[]>(endpoint);
   },
 
   /**
    * 取得服務提供者列表 (教練/治療師)
    */
   getProviders: async (): Promise<Provider[]> => {
-    return await apiClient.get<Provider[]>(API_ENDPOINTS.PROVIDERS);
+    const userRole = await storageService.getUserRole();
+    const endpoint = userRole === 'client'
+      ? CLIENT_ENDPOINTS.PROVIDERS
+      : COACH_ENDPOINTS.PROVIDERS;
+    console.log('📱 getProviders - userRole:', userRole, 'endpoint:', endpoint);
+    return await apiClient.get<Provider[]>(endpoint);
   },
 
   /**
@@ -36,7 +47,12 @@ export const simplyBookApi = {
    * @param params - { date_from, date_to, provider_id?, service_id? }
    */
   getSchedules: async (params: GetSchedulesRequest): Promise<Schedule[]> => {
-    return await apiClient.get<Schedule[]>(API_ENDPOINTS.SCHEDULES, params);
+    const userRole = await storageService.getUserRole();
+    const endpoint = userRole === 'client'
+      ? CLIENT_ENDPOINTS.SCHEDULES
+      : COACH_ENDPOINTS.SCHEDULES;
+    console.log('📱 getSchedules - userRole:', userRole, 'endpoint:', endpoint);
+    return await apiClient.get<Schedule[]>(endpoint, params);
   },
 
   /**
@@ -44,7 +60,12 @@ export const simplyBookApi = {
    * @param params - { date, provider_id, service_id }
    */
   getSlots: async (params: GetSlotsRequest): Promise<GetSlotsResponse> => {
-    return await apiClient.get<GetSlotsResponse>(API_ENDPOINTS.SLOTS, params);
+    const userRole = await storageService.getUserRole();
+    const endpoint = userRole === 'client'
+      ? CLIENT_ENDPOINTS.SLOTS
+      : COACH_ENDPOINTS.SLOTS;
+    console.log('📱 getSlots - userRole:', userRole, 'endpoint:', endpoint);
+    return await apiClient.get<GetSlotsResponse>(endpoint, params);
   },
 
   /**
@@ -54,10 +75,12 @@ export const simplyBookApi = {
   getFirstAvailableSlot: async (
     params: FirstAvailableSlotRequest
   ): Promise<FirstAvailableSlot> => {
-    return await apiClient.get<FirstAvailableSlot>(
-      API_ENDPOINTS.FIRST_AVAILABLE_SLOT,
-      params
-    );
+    const userRole = await storageService.getUserRole();
+    const endpoint = userRole === 'client'
+      ? CLIENT_ENDPOINTS.FIRST_AVAILABLE_SLOT
+      : COACH_ENDPOINTS.FIRST_AVAILABLE_SLOT;
+    console.log('📱 getFirstAvailableSlot - userRole:', userRole, 'endpoint:', endpoint);
+    return await apiClient.get<FirstAvailableSlot>(endpoint, params);
   },
 
   /**
@@ -65,9 +88,11 @@ export const simplyBookApi = {
    * @param data - 預約資料
    */
   createBooking: async (data: CreateBookingRequest): Promise<CreateBookingResponse> => {
-    return await apiClient.post<CreateBookingResponse>(
-      API_ENDPOINTS.BOOKINGS,
-      data
-    );
+    const userRole = await storageService.getUserRole();
+    const endpoint = userRole === 'client'
+      ? CLIENT_ENDPOINTS.BOOKINGS
+      : COACH_ENDPOINTS.BOOKINGS;
+    console.log('📱 createBooking - userRole:', userRole, 'endpoint:', endpoint);
+    return await apiClient.post<CreateBookingResponse>(endpoint, data);
   },
 };
