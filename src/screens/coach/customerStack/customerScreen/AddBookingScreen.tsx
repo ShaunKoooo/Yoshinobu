@@ -39,7 +39,7 @@ const AddBookingScreen = () => {
   const navigation = useNavigation<any>();
   const clientId = useSelectedClientIdFromClients(); // 從 Redux 取得當前選中的 client_id
   const [serviceId, setServiceId] = useState<number | null>(null);
-  const [activeModal, setActiveModal] = useState<'service' | 'therapist' | 'time' | null>(null);
+  const [activeModal, setActiveModal] = useState<'service' | 'therapist' | 'time' | 'yearMonth' | null>(null);
   const [providerId, setProviderId] = useState<number | null>(null);
   const [bookingDate, setBookingDate] = useState('');
   const [bookingTime, setBookingTime] = useState('');
@@ -47,6 +47,12 @@ const AddBookingScreen = () => {
   const [contractType, setContractType] = useState('專業徒手');
   const [duration, setDuration] = useState('180分鐘');
   const [isSharedContract, setIsSharedContract] = useState(true);
+
+  // 年份/月份選擇
+  const currentDate = new Date();
+  const [currentYear, setCurrentYear] = useState(currentDate.getFullYear());
+  const [currentMonth, setCurrentMonth] = useState(currentDate.getMonth() + 1);
+  const [calendarKey, setCalendarKey] = useState(0);
 
   const { data: services, isLoading: servicesLoading } = useServices();
   const { data: providers, isLoading: providersLoading } = useProviders();
@@ -132,6 +138,22 @@ const AddBookingScreen = () => {
     value: provider.id,
   })) || [];
 
+  const yearItems = Array.from({ length: 21 }, (_, i) => {
+    const year = currentDate.getFullYear() - 5 + i;
+    return { label: `${year}年`, value: year };
+  });
+
+  const monthItems = Array.from({ length: 12 }, (_, i) => {
+    const month = i + 1;
+    return { label: `${month}月`, value: month };
+  });
+
+  const handleYearMonthConfirm = () => {
+    // 更新 Calendar 顯示的月份
+    setCalendarKey(prev => prev + 1);
+    setActiveModal('time');
+  };
+
   const modalContent = () => {
     switch (activeModal) {
       case 'service':
@@ -150,20 +172,59 @@ const AddBookingScreen = () => {
             onValueChange={(value) => { setProviderId(Number(value)); }}
           />
         );
+      case 'yearMonth':
+        return (
+          <View>
+            <View style={styles.pickerRow}>
+              <View style={styles.pickerWrapper}>
+                <Text style={styles.pickerLabel}>年份</Text>
+                <MyPicker
+                  items={yearItems}
+                  selectedValue={currentYear}
+                  onValueChange={(value) => { setCurrentYear(Number(value)); }}
+                />
+              </View>
+              <View style={styles.pickerWrapper}>
+                <Text style={styles.pickerLabel}>月份</Text>
+                <MyPicker
+                  items={monthItems}
+                  selectedValue={currentMonth}
+                  onValueChange={(value) => { setCurrentMonth(Number(value)); }}
+                />
+              </View>
+            </View>
+          </View>
+        );
       case 'time':
         return (
           <View>
+            <TouchableOpacity
+              style={styles.yearMonthSelector}
+              onPress={() => setActiveModal('yearMonth')}
+            >
+              <Text style={styles.yearMonthText}>
+                {currentYear}年 {currentMonth}月
+              </Text>
+              <Icon name="down-dir" size={16} color={Colors.primary} />
+            </TouchableOpacity>
             <Calendar
+              key={calendarKey}
+              current={`${currentYear}-${String(currentMonth).padStart(2, '0')}-01`}
               markedDates={{
                 [bookingDate]: {
                   selected: true,
                   disableTouchEvent: true,
                 },
               }}
-              onDayPress={(day) => {
+              onDayPress={(day: any) => {
                 setBookingDate(day.dateString);
               }}
-              disableArrowLeft={true}
+              onMonthChange={(month: any) => {
+                setCurrentYear(month.year);
+                setCurrentMonth(month.month);
+              }}
+              hideArrows={true}
+              renderHeader={() => null}
               theme={{
                 backgroundColor: 'white',
                 calendarBackground: 'white',
@@ -312,7 +373,13 @@ const AddBookingScreen = () => {
       <BottomSheetModal
         visible={activeModal != null}
         onClose={() => { setActiveModal(null); }}
-        onConfirm={() => { setActiveModal(null); }}
+        onConfirm={() => {
+          if (activeModal === 'yearMonth') {
+            handleYearMonthConfirm();
+          } else {
+            setActiveModal(null);
+          }
+        }}
         children={modalContent()}
       />
     </View>
@@ -405,6 +472,37 @@ const styles = StyleSheet.create({
   },
   slotTextSelected: {
     color: '#FFFFFF',
+  },
+  yearMonthSelector: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    backgroundColor: '#F8F9FA',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E5E5',
+    gap: 8,
+  },
+  yearMonthText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: Colors.primary,
+  },
+  pickerRow: {
+    flexDirection: 'row',
+    gap: 16,
+    paddingHorizontal: 16,
+  },
+  pickerWrapper: {
+    flex: 1,
+  },
+  pickerLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.text.primary,
+    marginBottom: 8,
+    textAlign: 'center',
   },
 });
 
