@@ -41,10 +41,10 @@ export const visitsApi = {
     // 從 storage 獲取用戶角色
     const userRole = await storageService.getUserRole();
     const endpoint = userRole === 'client'
-      ? CLIENT_ENDPOINTS.CANCEL_VISIT(id)
-      : COACH_ENDPOINTS.CANCEL_VISIT(id);
+      ? CLIENT_ENDPOINTS.CANCEL_CONTRACT_VISIT(id)
+      : COACH_ENDPOINTS.CANCEL_CONTRACT_VISIT(id);
 
-    console.log('📱 cancelVisit - userRole:', userRole, 'endpoint:', endpoint);
+    console.log('cancelVisit - userRole:', userRole, 'endpoint:', endpoint);
 
     return await apiClient.post<CancelVisitResponse>(endpoint);
   },
