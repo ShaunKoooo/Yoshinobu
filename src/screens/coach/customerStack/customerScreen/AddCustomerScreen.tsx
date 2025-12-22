@@ -10,8 +10,10 @@ import {
 import { useCreateClient } from 'src/services/hooks';
 import { CUSTOMER_FIELDS } from 'src/components/customerForm/constants';
 import { useCustomerFormModal } from 'src/components/customerForm/useCustomerFormModal';
+import { useNavigation } from '@react-navigation/native';
 
 const AddCustomerScreen = () => {
+  const navigation = useNavigation<any>();
   const { mutate } = useCreateClient();
   const [formValues, setFormValues] = useState<Record<string, string>>({
     name: '',
@@ -65,6 +67,7 @@ const AddCustomerScreen = () => {
       note: formValues.note,
       gender: formValues.gender as 'male' | 'female',
     });
+    navigation.goBack();
   }, [formValues, mutate]);
 
   return (
