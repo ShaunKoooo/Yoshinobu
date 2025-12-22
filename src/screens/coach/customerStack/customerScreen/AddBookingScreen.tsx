@@ -29,6 +29,8 @@ import {
 import { useSelectedClientIdFromClients } from 'src/hooks/useClientsWithRedux';
 import { Calendar } from 'react-native-calendars';
 import { useNavigation } from '@react-navigation/native';
+import { useInitializeUser } from 'src/hooks/useInitializeUser';
+import { useAppSelector } from 'src/store/hooks';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -38,6 +40,8 @@ const formatBookingTime = (time: string) => {
 
 const AddBookingScreen = () => {
   const navigation = useNavigation<any>();
+  const { profile } = useInitializeUser();
+  const { userRole } = useAppSelector((state) => state.auth);
   const clientId = useSelectedClientIdFromClients(); // 從 Redux 取得當前選中的 client_id
   const [serviceId, setServiceId] = useState<number | null>(null);
   const [activeModal, setActiveModal] = useState<'service' | 'therapist' | 'time' | 'yearMonth' | null>(null);
@@ -89,10 +93,23 @@ const AddBookingScreen = () => {
       return;
     }
 
-    // 驗證是否有 client_id
-    if (!clientId) {
-      Alert.alert('錯誤', '無法取得客戶資訊，請先選擇客戶');
-      return;
+    // 根據 user role 決定使用哪個 client_id
+    let finalClientId: number;
+
+    if (userRole === 'coach') {
+      // Coach: 使用從 Redux 選中的 clientId
+      if (!clientId) {
+        Alert.alert('錯誤', '無法取得客戶資訊，請先選擇客戶');
+        return;
+      }
+      finalClientId = clientId;
+    } else {
+      // Client: 使用 profile.id
+      if (!profile?.id) {
+        Alert.alert('錯誤', '無法取得您的帳戶資訊');
+        return;
+      }
+      finalClientId = profile.id;
     }
 
     createBooking.mutate(
@@ -100,7 +117,7 @@ const AddBookingScreen = () => {
         service_id: serviceId,
         provider_id: providerId,
         start_datetime: bookingDate + ' ' + formatBookingTime(bookingTime), // YYYY-MM-DD 格式
-        client_id: clientId,
+        client_id: finalClientId,
         contract_id: 1005,
       },
       {
