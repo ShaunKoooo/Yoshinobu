@@ -10,6 +10,7 @@ import {
   ScrollView,
   Dimensions,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import {
   MyButton,
@@ -236,29 +237,40 @@ const AddBookingScreen = () => {
               }}
             />
             <View style={styles.slotsContainer}>
-              {slots?.slots?.map((item, index) => {
-                const itemWidth = (SCREEN_WIDTH - 32 - 30) / 4; // 32 = container padding, 30 = gaps (3 gaps of 10px)
-                const isSelected = bookingTime === item.time;
-                return (
-                  <TouchableOpacity
-                    key={index}
-                    onPress={() => setBookingTime(item.time)}
-                    style={[
-                      styles.slotButton,
-                      { width: itemWidth },
-                      isSelected && styles.slotButtonSelected,
-                      (index + 1) % 4 === 0 && styles.slotButtonLast,
-                    ]}
-                  >
-                    <Text style={[
-                      styles.slotText,
-                      isSelected && styles.slotTextSelected,
-                    ]}>
-                      {formatBookingTime(item.time)}
-                    </Text>
-                  </TouchableOpacity>
-                )
-              })}
+              {slotsLoading ? (
+                <View style={styles.loadingContainer}>
+                  <ActivityIndicator size="large" color={Colors.primary} />
+                  <Text style={styles.loadingText}>載入時間段中...</Text>
+                </View>
+              ) : slots?.slots && slots.slots.length > 0 ? (
+                slots.slots.map((item, index) => {
+                  const itemWidth = (SCREEN_WIDTH - 32 - 30) / 4; // 32 = container padding, 30 = gaps (3 gaps of 10px)
+                  const isSelected = bookingTime === item.time;
+                  return (
+                    <TouchableOpacity
+                      key={index}
+                      onPress={() => setBookingTime(item.time)}
+                      style={[
+                        styles.slotButton,
+                        { width: itemWidth },
+                        isSelected && styles.slotButtonSelected,
+                        (index + 1) % 4 === 0 && styles.slotButtonLast,
+                      ]}
+                    >
+                      <Text style={[
+                        styles.slotText,
+                        isSelected && styles.slotTextSelected,
+                      ]}>
+                        {formatBookingTime(item.time)}
+                      </Text>
+                    </TouchableOpacity>
+                  )
+                })
+              ) : (
+                <View style={styles.emptyContainer}>
+                  <Text style={styles.emptyText}>請選擇日期以查看可用時間段</Text>
+                </View>
+              )}
             </View>
           </View>
         );
@@ -503,6 +515,29 @@ const styles = StyleSheet.create({
     color: Colors.text.primary,
     marginBottom: 8,
     textAlign: 'center',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 40,
+    width: '100%',
+  },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 14,
+    color: Colors.text.secondary,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 40,
+    width: '100%',
+  },
+  emptyText: {
+    fontSize: 14,
+    color: Colors.text.secondary,
   },
 });
 
