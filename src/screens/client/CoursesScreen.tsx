@@ -8,9 +8,10 @@ import {
   Alert,
 } from 'react-native';
 import { Colors } from 'src/theme';
-import { useVisits, useCancelVisit } from 'src/services/hooks';
+import { useContractVisits, useCancelContractVisit } from 'src/services/hooks';
 import { MyAlert } from 'src/components';
-import type { Visit } from 'src/services/api/types';
+import type { ContractVisit } from 'src/services/api/types';
+import { useInitializeUser } from 'src/hooks/useInitializeUser';
 
 type BookingStatus = 'reserved' | 'completed' | 'cancelled';
 
@@ -21,15 +22,16 @@ const STATUS_TABS = [
 ] as const;
 
 const CoursesScreen = () => {
+  const { profile } = useInitializeUser();
   const [selectedStatus, setSelectedStatus] = useState<BookingStatus>('reserved');
   const [alertVisible, setAlertVisible] = useState(false);
-  const [bookingToCancel, setBookingToCancel] = useState<Visit | null>(null);
+  const [bookingToCancel, setBookingToCancel] = useState<ContractVisit | null>(null);
 
-  const { data: visits = [], isLoading } = useVisits({
-    state: selectedStatus,
+  const { data: contractVisits = [], isLoading } = useContractVisits({
+    status: selectedStatus,
   });
 
-  const cancelVisitMutation = useCancelVisit();
+  const cancelVisitMutation = useCancelContractVisit();
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -43,8 +45,8 @@ const CoursesScreen = () => {
     return `${year}-${month}-${day}(${weekday}) ${hours}:${minutes}`;
   };
 
-  const handleCancelPress = (visit: Visit) => {
-    setBookingToCancel(visit);
+  const handleCancelPress = (contractVisit: ContractVisit) => {
+    setBookingToCancel(contractVisit);
     setAlertVisible(true);
   };
 
@@ -73,7 +75,7 @@ const CoursesScreen = () => {
   };
 
   const getReservedCount = () => {
-    const reservedVisits = visits.filter((v) => v.state === 'reserved');
+    const reservedVisits = contractVisits.filter((cv) => cv.status === 'reserved');
     return reservedVisits.length;
   };
 
@@ -105,28 +107,28 @@ const CoursesScreen = () => {
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyText}>載入中...</Text>
           </View>
-        ) : visits.length === 0 ? (
+        ) : contractVisits.length === 0 ? (
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyText}>暫無課程</Text>
           </View>
         ) : (
-          visits.map((visit) => (
-            <View key={visit.id} style={styles.courseCard}>
-              <Text style={styles.dateTime}>{formatDate(visit.start_datetime)}</Text>
-              <Text style={styles.courseName}>{visit.service_name}</Text>
+          contractVisits.map((contractVisit) => (
+            <View key={contractVisit.id} style={styles.courseCard}>
+              <Text style={styles.dateTime}>{formatDate(contractVisit.date)}</Text>
+              <Text style={styles.courseName}>{contractVisit.visit.service_name || '未命名課程'}</Text>
               <View style={styles.courseInfo}>
                 <View style={styles.providerInfo}>
-                  <Text style={styles.sessionInfo}>1堂(60分鐘)</Text>
+                  <Text style={styles.sessionInfo}>{contractVisit.consumed_time}分鐘</Text>
                   {/* <Image
-                    source={{ uri: visit.provider_avatar || 'https://via.placeholder.com/32' }}
+                    source={{ uri: contractVisit.visit.provider_avatar || 'https://via.placeholder.com/32' }}
                     style={styles.avatar}
                   /> */}
-                  <Text style={styles.providerName}>{visit.provider_name}</Text>
+                  <Text style={styles.providerName}>{contractVisit.visit.provider_name || '未指定教練'}</Text>
                 </View>
                 {selectedStatus === 'reserved' && (
                   <TouchableOpacity
                     style={styles.cancelButton}
-                    onPress={() => handleCancelPress(visit)}
+                    onPress={() => handleCancelPress(contractVisit)}
                     activeOpacity={0.7}>
                     <Text style={styles.cancelButtonText}>取消預約</Text>
                   </TouchableOpacity>
@@ -142,7 +144,7 @@ const CoursesScreen = () => {
         <MyAlert
           visible={alertVisible}
           title="取消預約"
-          message={`確定要取消 ${bookingToCancel.service_name} 的預約嗎？`}
+          message={`確定要取消 ${bookingToCancel.visit.service_name || '此課程'} 的預約嗎？`}
           onCancel={handleCancelAlert}
           onConfirm={handleConfirmCancel}
           cancelText="否"

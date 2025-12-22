@@ -59,7 +59,8 @@ const CLIENT_ENDPOINTS = {
   CLIENT_ME: '/api/v4/clients/me',
 
   // 合約預約管理 (Contract Visits)
-  VISITS: '/api/spa/client/v1/contract_visits',
+  // TODO: 暫時改成 user 端點，待後端確認角色權限後再調整
+  VISITS: '/api/spa/user/v1/contract_visits',
   CANCEL_VISIT: (id: number) => `/api/spa/client/v1/contract_visits/${id}/complete`,
 
   // 預約系統 (SimplyBook)
