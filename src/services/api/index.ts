@@ -15,4 +15,5 @@ export { categoriesApi } from './categories.api';
 export { contractsApi } from './contracts.api';
 export { shareContractsApi } from './shareContracts.api';
 export { visitsApi } from './visits.api';
+export { contractVisitsApi } from './contractVisits.api';
 export { simplyBookApi } from './simplyBook.api';

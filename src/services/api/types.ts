@@ -73,6 +73,49 @@ export interface CancelVisitResponse {
   message?: string;
 }
 
+// ==================== 合約預約管理 ====================
+
+export type ContractVisitStatus = 'reserved' | 'pending_verification' | 'completed' | 'cancelled';
+
+export interface ContractVisit {
+  id: number;
+  contract_id: number;
+  client_id: number;
+  client_name: string;
+  service_id: number;
+  service_name: string;
+  provider_id: number;
+  provider_name: string;
+  start_datetime: string;
+  end_datetime: string;
+  status: ContractVisitStatus;
+  duration: number;
+  note?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface GetContractVisitsRequest {
+  status?: ContractVisitStatus;
+}
+
+export interface GetContractVisitsResponse {
+  contract_visits: ContractVisit[];
+  total?: number;
+}
+
+export interface SubmitContractVisitForVerificationResponse {
+  success: boolean;
+  message?: string;
+  contract_visit?: ContractVisit;
+}
+
+export interface CompleteContractVisitResponse {
+  success: boolean;
+  message?: string;
+  contract_visit?: ContractVisit;
+}
+
 // ==================== 類別管理 ====================
 
 export interface Category {
