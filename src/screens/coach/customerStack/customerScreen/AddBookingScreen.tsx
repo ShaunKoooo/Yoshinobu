@@ -27,6 +27,7 @@ import {
 } from 'src/services/hooks';
 import { useSelectedClientIdFromClients } from 'src/hooks/useClientsWithRedux';
 import { Calendar } from 'react-native-calendars';
+import { useNavigation } from '@react-navigation/native';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -35,6 +36,7 @@ const formatBookingTime = (time: string) => {
 }
 
 const AddBookingScreen = () => {
+  const navigation = useNavigation<any>();
   const clientId = useSelectedClientIdFromClients(); // 從 Redux 取得當前選中的 client_id
   const [serviceId, setServiceId] = useState<number | null>(null);
   const [activeModal, setActiveModal] = useState<'service' | 'therapist' | 'time' | null>(null);
@@ -103,7 +105,7 @@ const AddBookingScreen = () => {
               {
                 text: '確定',
                 onPress: () => {
-                  // TODO: 導航回上一頁或其他頁面
+                  navigation.navigate('AdminTabs', { screen: 'CourseManagement' })
                   console.log('預約成功:', data);
                 },
               },
