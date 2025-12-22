@@ -90,3 +90,4 @@ override func bundleURL() -> URL? {
     return CodePush.bundleURL()
   #endif
 }
+}
