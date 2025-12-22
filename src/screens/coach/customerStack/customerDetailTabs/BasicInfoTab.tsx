@@ -5,8 +5,10 @@ import { CUSTOMER_FIELDS } from 'src/components/customerForm/constants';
 import { useBasicInfoEdit } from '../CustomerDetailScreen';
 import { useClient, useUpdateClient } from 'src/services/hooks';
 import { useCustomerFormModal } from 'src/components/customerForm/useCustomerFormModal';
+import { useNavigation } from '@react-navigation/native';
 
 const BasicInfoTab = ({ route }: any) => {
+  const navigation = useNavigation<any>();
   const { isEditing, setSaveHandler, exitEditMode } = useBasicInfoEdit();
   const { id } = route.params || {};
   const { data, isLoading } = useClient(id);
@@ -112,6 +114,8 @@ const BasicInfoTab = ({ route }: any) => {
           });
           // 只有在儲存成功時才關閉編輯模式
           exitEditMode();
+          // 導航回到客戶列表頁面
+          navigation.goBack();
         },
         onError: (error) => {
           setAlertConfig({
