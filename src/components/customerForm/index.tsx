@@ -5,6 +5,7 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  Platform,
 } from 'react-native';
 import { MyListItem, Icon } from 'src/components';
 import { CustomerFormProps, CustomerFormField } from './types';
@@ -68,8 +69,8 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
                 ? getGenderLabel(value as 'male' | 'female')
                 : value
               : editable
-              ? item.placeholder
-              : item.nonEditPlaceholder}
+                ? item.placeholder
+                : item.nonEditPlaceholder}
           </Text>
           {editable && <Icon name="right-open-big" size={12} color="#4E5969" />}
         </View>
@@ -91,7 +92,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    height: 64,
+    minHeight: 64,
     paddingHorizontal: 16,
     paddingVertical: 16,
     borderBottomWidth: 1,
@@ -105,11 +106,14 @@ const styles = StyleSheet.create({
   rightContent: {
     flex: 1,
     alignItems: 'flex-end',
+    marginLeft: 8,
   },
   input: {
     fontSize: 16,
     color: '#333',
     textAlign: 'right',
+    width: '100%',
+    paddingVertical: Platform.OS === 'android' ? 0 : undefined,
   },
   button: {
     flexDirection: 'row',
