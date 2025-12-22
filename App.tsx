@@ -68,4 +68,10 @@ function App() {
   );
 }
 
-export default App;
+// 使用 CodePush 包裝 App
+const codePushOptions = {
+  checkFrequency: CodePush.CheckFrequency.ON_APP_RESUME,
+  installMode: CodePush.InstallMode.ON_NEXT_RESUME,
+};
+
+export default CodePush(codePushOptions)(App);
