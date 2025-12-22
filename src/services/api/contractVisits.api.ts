@@ -7,6 +7,7 @@ import type {
   GetContractVisitsResponse,
   SubmitContractVisitForVerificationResponse,
   CompleteContractVisitResponse,
+  CancelContractVisitResponse,
 } from './types';
 
 /**
@@ -65,5 +66,22 @@ export const contractVisitsApi = {
     console.log('completeVisit - endpoint:', endpoint);
 
     return await apiClient.post<CompleteContractVisitResponse>(endpoint);
+  },
+
+  /**
+   * 取消合約預約 (Coach only)
+   * @param id - 合約預約 ID
+   */
+  cancelContractVisit: async (id: number): Promise<CancelContractVisitResponse> => {
+    const userRole = await storageService.getUserRole();
+
+    if (userRole !== 'coach') {
+      throw new Error('Only coaches can cancel contract visits');
+    }
+
+    const endpoint = COACH_ENDPOINTS.CANCEL_CONTRACT_VISIT(id);
+    console.log('cancelContractVisit - endpoint:', endpoint);
+
+    return await apiClient.post<CancelContractVisitResponse>(endpoint);
   },
 };

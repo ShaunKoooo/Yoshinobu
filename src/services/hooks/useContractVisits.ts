@@ -53,3 +53,18 @@ export const useCompleteContractVisit = () => {
     },
   });
 };
+
+/**
+ * 取消合約預約 (Coach only)
+ */
+export const useCancelContractVisit = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: number) => contractVisitsApi.cancelContractVisit(id),
+    onSuccess: () => {
+      // 重新獲取合約預約列表
+      queryClient.invalidateQueries({ queryKey: contractVisitKeys.lists() });
+    },
+  });
+};

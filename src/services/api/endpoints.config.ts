@@ -47,6 +47,7 @@ const COACH_ENDPOINTS = {
   // 合約預約管理 (Contract Visits)
   CONTRACT_VISITS: '/api/spa/user/v1/contract_visits',
   SUBMIT_CONTRACT_VISIT_FOR_VERIFICATION: (id: number) => `/api/spa/user/v1/contract_visits/${id}/submit_for_verification`,
+  CANCEL_CONTRACT_VISIT: (id: number) => `/api/spa/user/v1/contract_visits/${id}/cancel`,
 
   // 預約系統 (SimplyBook)
   SERVICES: '/api/spa/user/v1/simply_book/services',

@@ -116,6 +116,12 @@ export interface CompleteContractVisitResponse {
   contract_visit?: ContractVisit;
 }
 
+export interface CancelContractVisitResponse {
+  success: boolean;
+  message?: string;
+  contract_visit?: ContractVisit;
+}
+
 // ==================== 類別管理 ====================
 
 export interface Category {
