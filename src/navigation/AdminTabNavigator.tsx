@@ -1,7 +1,7 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from './types';
@@ -29,6 +29,10 @@ const tabBarInactiveTintColor = '#D6D6D6';
 const AdminTabNavigator = () => {
   const insets = useSafeAreaInsets();
 
+  // Android 需要額外的底部 padding
+  const tabBarHeight = Platform.OS === 'android' ? 70 : 40 + insets.bottom;
+  const tabBarPaddingBottom = Platform.OS === 'android' ? 8 : insets.bottom;
+
   return (
     <Tab.Navigator
       screenOptions={{
@@ -43,8 +47,9 @@ const AdminTabNavigator = () => {
           fontWeight: 'bold',
         },
         tabBarStyle: {
-          height: 40 + insets.bottom,
+          height: tabBarHeight,
           paddingTop: 8,
+          paddingBottom: tabBarPaddingBottom,
         },
       }}>
       <Tab.Screen

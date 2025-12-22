@@ -1,6 +1,7 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Platform } from 'react-native';
 import { Icon } from 'src/components';
 import type { ClientTabParamList } from './types';
 import { Colors } from 'src/theme';
@@ -20,6 +21,10 @@ const tabBarInactiveTintColor = '#D6D6D6';
 const ClientTabNavigator = () => {
   const insets = useSafeAreaInsets();
 
+  // Android 需要額外的底部 padding
+  const tabBarHeight = Platform.OS === 'android' ? 70 : 40 + insets.bottom;
+  const tabBarPaddingBottom = Platform.OS === 'android' ? 8 : insets.bottom;
+
   return (
     <Tab.Navigator
       screenOptions={{
@@ -34,8 +39,9 @@ const ClientTabNavigator = () => {
           fontWeight: 'bold',
         },
         tabBarStyle: {
-          height: 40 + insets.bottom,
+          height: tabBarHeight,
           paddingTop: 8,
+          paddingBottom: tabBarPaddingBottom,
         },
       }}>
       <Tab.Screen
