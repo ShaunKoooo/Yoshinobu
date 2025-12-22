@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import DatePicker from 'react-native-date-picker';
 import BottomSheetModal from './BottomSheetModal';
 import { Colors } from 'src/theme';
@@ -42,6 +42,87 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
     return `${year}-${month}-${day}`;
   };
 
+  const [showDatePickerModal, setShowDatePickerModal] = useState(false);
+
+  if (Platform.OS === 'android') {
+    return (
+      <>
+        <BottomSheetModal
+          visible={visible}
+          onClose={handleCancel}
+          onConfirm={handleConfirm}
+        >
+          <View style={styles.container}>
+            {/* Date Selection Buttons */}
+            <View style={styles.dateButtonsContainer}>
+              <TouchableOpacity
+                style={[
+                  styles.dateButton,
+                  isSelectingStartDate && styles.dateButtonActive,
+                ]}
+                onPress={() => {
+                  setIsSelectingStartDate(true);
+                  setShowDatePickerModal(true);
+                }}
+              >
+                <Text
+                  style={[
+                    styles.dateButtonText,
+                    isSelectingStartDate && styles.dateButtonTextActive,
+                  ]}
+                >
+                  {formatDate(startDate)}
+                </Text>
+              </TouchableOpacity>
+              <View style={styles.dateSeparator} />
+              <TouchableOpacity
+                style={[
+                  styles.dateButton,
+                  !isSelectingStartDate && styles.dateButtonActive,
+                ]}
+                onPress={() => {
+                  setIsSelectingStartDate(false);
+                  setShowDatePickerModal(true);
+                }}
+              >
+                <Text
+                  style={[
+                    styles.dateButtonText,
+                    !isSelectingStartDate && styles.dateButtonTextActive,
+                  ]}
+                >
+                  {formatDate(endDate)}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </BottomSheetModal>
+
+        <DatePicker
+          modal
+          open={showDatePickerModal}
+          date={isSelectingStartDate ? startDate : endDate}
+          onConfirm={(date) => {
+            if (isSelectingStartDate) {
+              setStartDate(date);
+            } else {
+              setEndDate(date);
+            }
+            setShowDatePickerModal(false);
+          }}
+          onCancel={() => {
+            setShowDatePickerModal(false);
+          }}
+          mode="date"
+          locale='zh-TW'
+          minimumDate={isSelectingStartDate ? undefined : startDate}
+          maximumDate={isSelectingStartDate ? endDate : undefined}
+        />
+      </>
+    );
+  }
+
+  // iOS
   return (
     <BottomSheetModal
       visible={visible}
@@ -101,6 +182,7 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
             locale='zh-TW'
             minimumDate={isSelectingStartDate ? undefined : startDate}
             maximumDate={isSelectingStartDate ? endDate : undefined}
+            theme="light"
           />
         </View>
       </View>
@@ -151,6 +233,14 @@ const styles = StyleSheet.create({
   pickerContainer: {
     alignItems: 'center',
     paddingBottom: 16,
+  },
+  pickerContainerAndroid: {
+    minHeight: 300,
+    justifyContent: 'center',
+  },
+  datePickerAndroid: {
+    width: '100%',
+    height: 300,
   },
   dateSeparator: {
     width: 16,

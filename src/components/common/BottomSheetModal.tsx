@@ -49,7 +49,7 @@ const BottomSheetModal: React.FC<BottomSheetModalProps> = ({
               </View>
 
               {/* Content */}
-              <View style={styles.content}>
+              <View style={styles.content} pointerEvents="box-none">
                 {children}
               </View>
             </View>
