@@ -119,6 +119,14 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+
+        spaapp {
+            storeFile file('../../spa_prod.jks')
+            storePassword 'spaapp'
+            keyAlias 'spaapp'
+            keyPassword 'spaapp'
+        }
+
     }
     buildTypes {
         debug {
