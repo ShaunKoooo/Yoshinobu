@@ -40,9 +40,6 @@ const MyPicker: React.FC<MyPickerProps> = ({
           placeholder={placeholder ? { label: placeholder, value: null } : {}}
           style={pickerSelectStyles}
           useNativeAndroidPickerStyle={false}
-          Icon={() => (
-             <Icon name="down-dir" size={16} color={Colors.primary} />
-          )}
         />
       </View>
     );
@@ -106,6 +103,7 @@ const pickerSelectStyles = StyleSheet.create({
   iconContainer: {
     top: 15,
     right: 15,
+    pointerEvents: 'none',
   },
   placeholder: {
     color: Colors.text.secondary,
