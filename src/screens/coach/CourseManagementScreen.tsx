@@ -66,9 +66,17 @@ const CourseManagementScreen = () => {
   const [providerModalVisible, setProviderModalVisible] = useState(false);
   const [providerId, setProviderId] = useState<number | null>(null);
 
+  // Helper function to format date to YYYY-MM-DD using local timezone
+  const formatDateToString = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   const { data: visits = [], isLoading, error } = useVisits({
-    from_date: startDate.toISOString().split('T')[0],
-    to_date: endDate.toISOString().split('T')[0],
+    from_date: formatDateToString(startDate),
+    to_date: formatDateToString(endDate),
     state: 'reserved',
     client_id: profile?.id,
   });
@@ -82,8 +90,8 @@ const CourseManagementScreen = () => {
   const selectedProvider = providers?.providers?.find((p: { id: number; name: string }) => p.id === providerId);
 
   const formatDateRange = () => {
-    const start = startDate.toISOString().split('T')[0];
-    const end = endDate.toISOString().split('T')[0];
+    const start = formatDateToString(startDate);
+    const end = formatDateToString(endDate);
     return `${start} – ${end}`;
   };
 
