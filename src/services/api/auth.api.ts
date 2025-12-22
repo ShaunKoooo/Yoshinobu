@@ -49,7 +49,7 @@ export interface VerifyCodeResponse {
 
 export const authApi = {
   /**
-   * 教練登入（帳號密碼）
+   * 專家登入（帳號密碼）
    */
   signIn: async (data: SignInRequest): Promise<SignInResponse> => {
     console.log('🔐 登入 API 請求:', data);

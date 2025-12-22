@@ -87,7 +87,7 @@ const LoginPage = () => {
           onPress={toggleLoginType}
         >
           <Text style={styles.switchButtonText}>
-            {loginType === 'account' ? '使用者登入' : '教練登入'}
+            {loginType === 'account' ? '使用者登入' : '專家登入'}
           </Text>
         </TouchableOpacity>
 
