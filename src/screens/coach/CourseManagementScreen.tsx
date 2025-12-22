@@ -10,9 +10,10 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { useInitializeUser } from 'src/hooks/useInitializeUser';
 import {
-  useVisits,
+  useContractVisits,
   useProviders,
-  useCancelVisit,
+  useCancelContractVisit,
+  useSubmitContractVisitForVerification,
 } from 'src/services/hooks';
 import {
   Icon,
@@ -29,18 +30,8 @@ import type { BadgeVariant } from 'src/components/common/Badge';
 // 預約狀態類型
 type BookingStatus = 'reserved' | 'pending_verification' | 'completed' | 'cancelled';
 
-// 預約資料類型
-interface Booking {
-  id: number;
-  date: string;
-  time: string;
-  customerName: string;
-  service: string;
-  duration: string;
-  providerName: string;
-  providerAvatar?: string;
-  status: BookingStatus;
-}
+// Import ContractVisit type from the API types
+import type { ContractVisit } from 'src/services/api/types';
 
 // 狀態標籤配置
 const STATUS_TABS = [
@@ -54,14 +45,15 @@ const CourseManagementScreen = () => {
   const navigation = useNavigation<any>();
   const { profile } = useInitializeUser();
   const { data: providers, isLoading: providersLoading } = useProviders();
-  const cancelVisitMutation = useCancelVisit();
+  const cancelVisitMutation = useCancelContractVisit();
+  const submitVerificationMutation = useSubmitContractVisitForVerification();
 
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
   const [selectedStatus, setSelectedStatus] = useState<BookingStatus>('reserved');
   const [showAllStatuses, setShowAllStatuses] = useState(false);
   const [alertVisible, setAlertVisible] = useState(false);
-  const [bookingToCancel, setBookingToCancel] = useState<Booking | null>(null);
+  const [bookingToCancel, setBookingToCancel] = useState<ContractVisit | null>(null);
   const [datePickerVisible, setDatePickerVisible] = useState(false);
   const [providerModalVisible, setProviderModalVisible] = useState(false);
   const [providerId, setProviderId] = useState<number | null>(null);
@@ -74,11 +66,11 @@ const CourseManagementScreen = () => {
     return `${year}-${month}-${day}`;
   };
 
-  const { data: visits = [], isLoading, error } = useVisits({
+  const { data: contractVisits = [], isLoading, error } = useContractVisits({
     from_date: formatDateToString(startDate),
     to_date: formatDateToString(endDate),
-    state: 'reserved',
-    client_id: profile?.id,
+    status: selectedStatus,
+    provider_id: providerId || providers?.providers[0]?.id,
   });
 
   const providerItems = providers?.providers?.map((provider: { name: string; id: number }) => ({
@@ -121,8 +113,8 @@ const CourseManagementScreen = () => {
     }
   };
 
-  const handleCancelPress = (booking: Booking) => {
-    setBookingToCancel(booking);
+  const handleCancelPress = (contractVisit: ContractVisit) => {
+    setBookingToCancel(contractVisit);
     setAlertVisible(true);
   };
 
@@ -147,6 +139,17 @@ const CourseManagementScreen = () => {
   const handleCancelAlert = () => {
     setAlertVisible(false);
     setBookingToCancel(null);
+  };
+
+  const handleVerifyPress = (booking: any) => {
+    submitVerificationMutation.mutate(booking.id, {
+      onSuccess: () => {
+        console.log('成功提交核銷:', booking);
+      },
+      onError: (error) => {
+        console.error('提交核銷失敗:', error);
+      },
+    });
   };
 
   const handleDateRangeConfirm = (start: Date, end: Date) => {
@@ -204,7 +207,7 @@ const CourseManagementScreen = () => {
               ]}
             >
               {tab.label}
-              {visits?.filter((booking) => booking?.state === tab.key)?.length > 0 && `(${visits?.filter((booking) => booking?.state === tab.key)?.length})`}
+              {contractVisits?.filter((booking) => booking?.status === tab.key)?.length > 0 && `(${contractVisits?.filter((booking) => booking?.status === tab.key)?.length})`}
             </Text>
           </TouchableOpacity>
         ))}
@@ -213,61 +216,70 @@ const CourseManagementScreen = () => {
       {/* 預約列表 */}
       <View style={styles.listContainer}>
         <MyListItem
-          data={visits?.filter((booking) => booking.state === selectedStatus)}
+          data={contractVisits?.filter((booking) => booking.status === selectedStatus)}
           keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item: booking }) => (
-            <View style={styles.bookingCard}>
-              {/* 日期時間和狀態 */}
-              <View style={styles.cardHeader}>
-                <Text style={styles.dateTimeText}>
-                  {booking.date.replace(/-/g, '-')}
-                  {getWeekday(booking.date)} {formatTime(booking.time)}
-                </Text>
-                <Badge
-                  variant={getStatusBadge(booking.state).variant}
-                  text={getStatusBadge(booking.state).text}
-                />
-              </View>
+          renderItem={({ item: contractVisit }) => {
+            const visit = contractVisit.visit;
+            const clientName = visit.data?.real_name || visit.data?.name || '未命名';
 
-              {/* 客戶姓名 */}
-              <TouchableOpacity
-                onPress={() => {
-                  console.log(booking)
-                  navigation.navigate('CustomerDetail', { id: booking.client_id });
-                }}
-              >
-                <Text style={styles.customerName}>{booking.data.real_name}</Text>
-              </TouchableOpacity>
-
-              {/* 服務項目 */}
-              <Text style={styles.serviceText}>{booking.service_name}</Text>
-
-              {/* 時長和教練 */}
-              <View style={styles.providerRow}>
-                <Text style={styles.durationText}>{booking.duration} 分鐘</Text>
-                <View style={styles.providerInfo}>
-                  <Image
-                    source={{ uri: '' }}
-                    style={styles.providerAvatar}
+            return (
+              <View style={styles.bookingCard}>
+                {/* 日期時間和狀態 */}
+                <View style={styles.cardHeader}>
+                  <Text style={styles.dateTimeText}>
+                    {contractVisit.date.replace(/-/g, '-')}
+                    {getWeekday(contractVisit.date)}
+                    {visit.time && ` ${formatTime(visit.time)}`}
+                  </Text>
+                  <Badge
+                    variant={getStatusBadge(contractVisit.status).variant}
+                    text={getStatusBadge(contractVisit.status).text}
                   />
-                  <Text style={styles.providerName}>{booking.provider_name}</Text>
+                </View>
+
+                {/* 客戶姓名 */}
+                <TouchableOpacity
+                  onPress={() => {
+                    console.log(contractVisit);
+                    navigation.navigate('CustomerDetail', { id: visit.client_id });
+                  }}
+                >
+                  <Text style={styles.customerName}>{clientName}</Text>
+                </TouchableOpacity>
+
+                {/* 服務項目 */}
+                <Text style={styles.serviceText}>{visit.service_name || '未指定服務'}</Text>
+
+                {/* 時長和教練 */}
+                <View style={styles.providerRow}>
+                  <Text style={styles.durationText}>{contractVisit.consumed_time} 分鐘</Text>
+                  <View style={styles.providerInfo}>
+                    <Image
+                      source={{ uri: '' }}
+                      style={styles.providerAvatar}
+                    />
+                    <Text style={styles.providerName}>{visit.provider_name || '未指定教練'}</Text>
+                  </View>
+                </View>
+
+                {/* 操作按鈕 */}
+                <View style={styles.actionButtons}>
+                  <TouchableOpacity
+                    style={styles.cancelButton}
+                    onPress={() => handleCancelPress(contractVisit as any)}
+                  >
+                    <Text style={styles.cancelButtonText}>取消預約</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.verifyButton}
+                    onPress={() => handleVerifyPress(contractVisit)}
+                  >
+                    <Text style={styles.verifyButtonText}>員工核銷</Text>
+                  </TouchableOpacity>
                 </View>
               </View>
-
-              {/* 操作按鈕 */}
-              <View style={styles.actionButtons}>
-                <TouchableOpacity
-                  style={styles.cancelButton}
-                  onPress={() => handleCancelPress(booking)}
-                >
-                  <Text style={styles.cancelButtonText}>取消預約</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.verifyButton}>
-                  <Text style={styles.verifyButtonText}>員工核銷</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          )}
+            );
+          }}
         />
       </View>
 
@@ -276,7 +288,7 @@ const CourseManagementScreen = () => {
         <MyAlert
           visible={alertVisible}
           title="取消預約"
-          message={`取消 ${bookingToCancel.customerName} ${bookingToCancel.date}(${getWeekday(bookingToCancel.date)}) ${bookingToCancel.time} ${bookingToCancel.service} ${bookingToCancel.duration}?`}
+          message={`取消 ${bookingToCancel.visit.data?.real_name || '未命名'} ${bookingToCancel.date}(${getWeekday(bookingToCancel.date)}) ${bookingToCancel.visit.time || ''} ${bookingToCancel.visit.service_name || '未指定服務'} ${bookingToCancel.consumed_time}分鐘?`}
           onCancel={handleCancelAlert}
           onConfirm={handleConfirmCancel}
           cancelText="否"

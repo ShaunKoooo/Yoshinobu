@@ -49,7 +49,7 @@ export interface Visit {
   provider_name: string;
   start_datetime: string;
   end_datetime: string;
-  state: VisitState;
+  status: VisitState;
   duration: number;
   note?: string;
   created_at: string;
@@ -59,7 +59,7 @@ export interface Visit {
 export interface GetVisitsRequest {
   from_date?: string; // YYYY-MM-DD format
   to_date?: string; // YYYY-MM-DD format
-  state?: VisitState;
+  status?: VisitState;
   client_id?: number;
 }
 
@@ -77,26 +77,51 @@ export interface CancelVisitResponse {
 
 export type ContractVisitStatus = 'reserved' | 'pending_verification' | 'completed' | 'cancelled';
 
-export interface ContractVisit {
+export interface VisitDetail {
   id: number;
-  contract_id: number;
   client_id: number;
-  client_name: string;
-  service_id: number;
-  service_name: string;
-  provider_id: number;
-  provider_name: string;
-  start_datetime: string;
-  end_datetime: string;
-  status: ContractVisitStatus;
-  duration: number;
-  note?: string;
+  branch_id: number;
+  state: string;
+  booking_source_name: string;
+  booking_source_uid: string;
+  title: string | null;
+  provider_name: string | null;
+  service_name: string | null;
+  date: string | null;
+  time: string | null;
+  check_in_time: string | null;
+  finish_time: string | null;
   created_at: string;
   updated_at: string;
+  booking_source_service_id: string | null;
+  note: string | null;
+  data: Record<string, any>;
+  online: boolean;
+  online_url: string | null;
+  duration: number;
+  confirmed_at: string | null;
+}
+
+export interface ContractVisit {
+  id: number;
+  status: ContractVisitStatus;
+  contract_id: number;
+  visit_id: number;
+  user_id: number | null;
+  client_id: number | null;
+  consumed_time: number;
+  created_at: string;
+  updated_at: string;
+  date: string;
+  provider_id: number;
+  visit: VisitDetail;
 }
 
 export interface GetContractVisitsRequest {
+  from_date?: string;
+  to_date?: string;
   status?: ContractVisitStatus;
+  provider_id?: number;
 }
 
 export interface GetContractVisitsResponse {

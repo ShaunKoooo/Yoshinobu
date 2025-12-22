@@ -25,11 +25,12 @@ export const visitsApi = {
 
     console.log('📱 getVisits - userRole:', userRole, 'endpoint:', endpoint);
 
-    const response = await apiClient.get<GetVisitsResponse>(
+    const response = await apiClient.get<any>(
       endpoint,
       params
     );
-    return response.visits || response as any;
+    // 支援 visits 和 contract_visits 兩種回應格式
+    return response.visits || response.contract_visits || response as any;
   },
 
   /**

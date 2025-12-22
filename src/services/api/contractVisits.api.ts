@@ -16,16 +16,16 @@ import type {
 export const contractVisitsApi = {
   /**
    * 取得合約預約列表
-   * @param params - 查詢參數 (status)
+   * @param params - 查詢參數 (from_date, to_date, status, client_id)
    */
   getContractVisits: async (params?: GetContractVisitsRequest): Promise<ContractVisit[]> => {
     // 從 storage 獲取用戶角色
     const userRole = await storageService.getUserRole();
     const endpoint = userRole === 'client'
-      ? CLIENT_ENDPOINTS.CONTRACT_VISITS
-      : COACH_ENDPOINTS.CONTRACT_VISITS;
+      ? CLIENT_ENDPOINTS.VISITS
+      : COACH_ENDPOINTS.VISITS;
 
-    console.log('getContractVisits - userRole:', userRole, 'endpoint:', endpoint);
+    console.log('getContractVisits - userRole:', userRole, 'endpoint:', endpoint, 'params:', params);
 
     const response = await apiClient.get<GetContractVisitsResponse>(
       endpoint,
