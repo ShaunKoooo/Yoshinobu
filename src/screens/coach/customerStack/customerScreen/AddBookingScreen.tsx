@@ -15,7 +15,6 @@ import {
 import {
   MyButton,
   Icon,
-  Badge,
   BottomSheetModal,
   MyPicker,
 } from 'src/components';
@@ -25,6 +24,7 @@ import {
   useProviders,
   useSlots,
   useCreateBooking,
+  useAvailableContract,
 } from 'src/services/hooks';
 import { useSelectedClientIdFromClients } from 'src/hooks/useClientsWithRedux';
 import { Calendar } from 'react-native-calendars';
@@ -44,14 +44,10 @@ const AddBookingScreen = () => {
   const { userRole } = useAppSelector((state) => state.auth);
   const clientId = useSelectedClientIdFromClients(); // 從 Redux 取得當前選中的 client_id
   const [serviceId, setServiceId] = useState<number | null>(null);
-  const [activeModal, setActiveModal] = useState<'service' | 'therapist' | 'time' | 'yearMonth' | null>(null);
+  const [activeModal, setActiveModal] = useState<'service' | 'therapist' | 'time' | 'yearMonth' | 'contract' | null>(null);
   const [providerId, setProviderId] = useState<number | null>(null);
   const [bookingDate, setBookingDate] = useState('');
   const [bookingTime, setBookingTime] = useState('');
-  const [contractNumber, setContractNumber] = useState('C123456789');
-  const [contractType, setContractType] = useState('專業徒手');
-  const [duration, setDuration] = useState('180分鐘');
-  const [isSharedContract, setIsSharedContract] = useState(true);
 
   // 年份/月份選擇
   const currentDate = new Date();
@@ -62,6 +58,19 @@ const AddBookingScreen = () => {
   const { data: services, isLoading: servicesLoading } = useServices();
   const { data: providers, isLoading: providersLoading } = useProviders();
   const createBooking = useCreateBooking();
+
+  // 取得選中服務的資訊
+  const selectedService = services?.services?.find(s => s.id === serviceId);
+
+  // 取得可用的合約
+  const { data: availableContract, isLoading: contractLoading } = useAvailableContract(
+    {
+      service_id: serviceId || 0,
+      consumed_time: selectedService?.duration || 0,
+      client_id: clientId || undefined,
+    },
+    !!serviceId && !!selectedService?.duration && !!clientId
+  );
 
   // 當 services 載入後，自動設定第一個為預設值
   useEffect(() => {
@@ -93,6 +102,11 @@ const AddBookingScreen = () => {
       return;
     }
 
+    if (!availableContract) {
+      Alert.alert('錯誤', '沒有可用的合約，請確認客戶是否有足夠時間的合約');
+      return;
+    }
+
     // 根據 user role 決定使用哪個 client_id
     let finalClientId: number;
 
@@ -118,7 +132,7 @@ const AddBookingScreen = () => {
         provider_id: providerId,
         start_datetime: bookingDate + ' ' + formatBookingTime(bookingTime), // YYYY-MM-DD 格式
         client_id: finalClientId,
-        contract_id: 1005,
+        contract_id: availableContract.id,
       },
       {
         onSuccess: (data) => {
@@ -194,6 +208,64 @@ const AddBookingScreen = () => {
             selectedValue={providerId ?? undefined}
             onValueChange={(value) => { setProviderId(Number(value)); }}
           />
+        );
+      case 'contract':
+        return (
+          <View style={{ padding: 16 }}>
+            {contractLoading ? (
+              <View style={{ alignItems: 'center', paddingVertical: 20 }}>
+                <ActivityIndicator size="large" color={Colors.primary} />
+                <Text style={{ marginTop: 12, color: Colors.text.secondary }}>
+                  查詢可用合約中...
+                </Text>
+              </View>
+            ) : availableContract ? (
+              <View>
+                <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 16, textAlign: 'center' }}>
+                  可用合約
+                </Text>
+                <View style={{ backgroundColor: '#F8F9FA', padding: 16, borderRadius: 8 }}>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
+                    <Text style={{ fontSize: 14, color: Colors.text.secondary }}>合約編號</Text>
+                    <Text style={{ fontSize: 16, fontWeight: '500' }}>#{availableContract.id}</Text>
+                  </View>
+                  {availableContract.category && (
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
+                      <Text style={{ fontSize: 14, color: Colors.text.secondary }}>合約類別</Text>
+                      <Text style={{ fontSize: 16, fontWeight: '500' }}>{availableContract.category.name}</Text>
+                    </View>
+                  )}
+                  {availableContract.contract_number && (
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
+                      <Text style={{ fontSize: 14, color: Colors.text.secondary }}>合約號碼</Text>
+                      <Text style={{ fontSize: 16, fontWeight: '500' }}>{availableContract.contract_number}</Text>
+                    </View>
+                  )}
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
+                    <Text style={{ fontSize: 14, color: Colors.text.secondary }}>合約時間</Text>
+                    <Text style={{ fontSize: 16, fontWeight: '500' }}>{availableContract.contract_time} 分鐘</Text>
+                  </View>
+                  {availableContract.remaining_time !== undefined && (
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                      <Text style={{ fontSize: 14, color: Colors.text.secondary }}>剩餘時間</Text>
+                      <Text style={{ fontSize: 16, fontWeight: '500', color: Colors.primary }}>
+                        {availableContract.remaining_time} 分鐘
+                      </Text>
+                    </View>
+                  )}
+                </View>
+              </View>
+            ) : (
+              <View style={{ alignItems: 'center', paddingVertical: 20 }}>
+                <Text style={{ fontSize: 16, color: Colors.text.secondary }}>
+                  沒有可用的合約
+                </Text>
+                <Text style={{ fontSize: 14, color: Colors.text.secondary, marginTop: 8, textAlign: 'center' }}>
+                  請確認客戶是否有足夠時間的合約
+                </Text>
+              </View>
+            )}
+          </View>
         );
       case 'yearMonth':
         return (
@@ -303,10 +375,9 @@ const AddBookingScreen = () => {
 
 
   // 根據 ID 找出對應的 name 來顯示
-  const selectedService = services?.services?.find(s => s.id === serviceId);
   const selectedProvider = providers?.providers?.find(p => p.id === providerId);
 
-  const isFormValid = serviceId && providerId && bookingTime;
+  const isFormValid = serviceId && providerId && bookingTime && availableContract;
 
   return (
     <View style={styles.container}>
@@ -374,13 +445,23 @@ const AddBookingScreen = () => {
         <View style={styles.divider} />
 
         {/* 合約號碼 */}
-        {/* <View style={styles.row}>
+        <TouchableOpacity
+          style={styles.row}
+          onPress={() => setActiveModal('contract')}
+        >
           <Text style={styles.label}>合約號碼</Text>
-          <View style={styles.contractContainer}>
-            <Text style={styles.contractNumber}>{contractNumber}</Text>
-            {isSharedContract && <Badge variant="shared" text="共用" />}
+          <View style={styles.selectorContainer}>
+            <Text
+              style={[
+                styles.selectorText,
+                !availableContract && styles.placeholderText,
+              ]}
+            >
+              {availableContract ? `合約 #${availableContract.id}` : '請選擇服務後查看'}
+            </Text>
+            <Icon name="right-open-big" size={16} />
           </View>
-        </View> */}
+        </TouchableOpacity>
 
         {/* 合約類別 */}
         {/* <View style={styles.row}>

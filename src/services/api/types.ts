@@ -170,6 +170,8 @@ export interface Contract {
   remaining_time?: number; // 剩餘時間（分鐘）
   created_at: string;
   updated_at: string;
+  category?: Category; // 合約類別（API 回傳時會包含）
+  contract_number?: string; // 合約號碼
 }
 
 export interface GetContractsRequest {
