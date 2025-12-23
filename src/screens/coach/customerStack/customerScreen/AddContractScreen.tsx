@@ -23,9 +23,11 @@ import {
   useCategories,
   useCreateContract,
 } from 'src/services/hooks';
+import { useNavigation } from '@react-navigation/native';
 import { useSelectedClientIdFromClients } from 'src/hooks/useClientsWithRedux';
 
 const AddContractScreen = () => {
+  const navigation = useNavigation<any>();
   const { data: categories } = useCategories();
   const createContract = useCreateContract();
   const clientId = useSelectedClientIdFromClients(); // 從 Redux 取得當前選中的 client_id
@@ -74,7 +76,7 @@ const AddContractScreen = () => {
               {
                 text: '確定',
                 onPress: () => {
-                  // TODO: 導航回上一頁或其他頁面
+                  navigation.goBack();
                   console.log('合約建立成功:', data);
                 },
               },
