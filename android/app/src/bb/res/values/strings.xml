@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">人體工房教練</string>
+    <string name="app_name">Buddy Body</string>
     <string moduleConfig="true" name="CodePushDeploymentKey">jVWT79BcxceiiGQ91dpgJ-7k7aELfmFG8PB</string>
     <string moduleConfig="true" name="CodePushServerUrl">https://codepush.appsonair.com</string>
 </resources>
