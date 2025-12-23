@@ -129,7 +129,12 @@ const AddBookingScreen = () => {
               {
                 text: '確定',
                 onPress: () => {
-                  navigation.navigate('AdminTabs', { screen: 'CourseManagement' })
+                  // 根據 user role 導航到不同的頁面
+                  if (userRole === 'client') {
+                    navigation.navigate('ClientTabs', { screen: 'Courses' });
+                  } else {
+                    navigation.navigate('AdminTabs', { screen: 'CourseManagement' });
+                  }
                   console.log('預約成功:', data);
                 },
               },
