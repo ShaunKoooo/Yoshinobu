@@ -25,6 +25,7 @@ import {
 } from 'src/services/hooks';
 import { useNavigation } from '@react-navigation/native';
 import { useSelectedClientIdFromClients } from 'src/hooks/useClientsWithRedux';
+import { useConfirmableModal } from 'src/hooks/useConfirmableModal';
 
 const AddContractScreen = () => {
   const navigation = useNavigation<any>();
@@ -38,7 +39,10 @@ const AddContractScreen = () => {
   const [contractCategoryId, setContractCategoryId] = useState<number | null>(null);
   const [contractType, setContractType] = useState('');
   const [time, setTime] = useState(60);
-  const [activeModal, setActiveModal] = useState<'category' | 'time' | null>(null);
+
+  // 使用 useConfirmableModal 管理各個 modal
+  const categoryModal = useConfirmableModal(contractCategoryId, setContractCategoryId);
+  const timeModal = useConfirmableModal(time, setTime);
 
   // 當 categories 載入後，自動設定第一個為預設值
   useEffect(() => {
@@ -103,28 +107,6 @@ const AddContractScreen = () => {
     value: time,
   })) || [];
 
-  const modalContent = () => {
-    switch (activeModal) {
-      case 'category':
-        return (
-          <MyPicker
-            items={categoryItems}
-            selectedValue={contractCategoryId ?? undefined}
-            onValueChange={(value) => { setContractCategoryId(Number(value)); }}
-          />
-        );
-      case 'time':
-        return (
-          <MyPicker
-            items={timeItems}
-            selectedValue={time}
-            onValueChange={(value) => { setTime(Number(value)); }}
-          />
-        );
-      default:
-        return null;
-    }
-  };
 
   // 根據 ID 找出對應的 name 來顯示
   const selectedCategory = categories?.find(c => c.id === contractCategoryId);
@@ -189,7 +171,7 @@ const AddContractScreen = () => {
         {/* 合約類別 */}
         <TouchableOpacity
           style={styles.row}
-          onPress={() => setActiveModal('category')}
+          onPress={categoryModal.handleOpen}
         >
           <Text style={styles.label}>合約類別</Text>
           <View style={styles.selectorContainer}>
@@ -208,7 +190,7 @@ const AddContractScreen = () => {
         {/* 時間 */}
         <TouchableOpacity
           style={styles.row}
-          onPress={() => setActiveModal('time')}
+          onPress={timeModal.handleOpen}
         >
           <Text style={styles.label}>時間</Text>
           <View style={styles.selectorContainer}>
@@ -243,12 +225,31 @@ const AddContractScreen = () => {
         />
       </View>
 
+      {/* Category Modal */}
       <BottomSheetModal
-        visible={activeModal != null}
-        onClose={() => { setActiveModal(null); }}
-        onConfirm={() => { setActiveModal(null); }}
-        children={modalContent()}
-      />
+        visible={categoryModal.isOpen}
+        onClose={categoryModal.handleCancel}
+        onConfirm={categoryModal.handleConfirm}
+      >
+        <MyPicker
+          items={categoryItems}
+          selectedValue={categoryModal.tempValue ?? undefined}
+          onValueChange={(value) => categoryModal.setTempValue(Number(value))}
+        />
+      </BottomSheetModal>
+
+      {/* Time Modal */}
+      <BottomSheetModal
+        visible={timeModal.isOpen}
+        onClose={timeModal.handleCancel}
+        onConfirm={timeModal.handleConfirm}
+      >
+        <MyPicker
+          items={timeItems}
+          selectedValue={timeModal.tempValue}
+          onValueChange={(value) => timeModal.setTempValue(Number(value))}
+        />
+      </BottomSheetModal>
     </View>
   );
 };
