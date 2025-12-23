@@ -31,6 +31,7 @@ import { Calendar } from 'react-native-calendars';
 import { useNavigation } from '@react-navigation/native';
 import { useInitializeUser } from 'src/hooks/useInitializeUser';
 import { useAppSelector } from 'src/store/hooks';
+import { useConfirmableModal } from 'src/hooks/useConfirmableModal';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -38,13 +39,34 @@ const formatBookingTime = (time: string) => {
   return time.replace(':00', '');
 }
 
+// Calendar 主題配置
+const CALENDAR_THEME = {
+  backgroundColor: 'white',
+  calendarBackground: 'white',
+  textSectionTitleColor: '#b6c1cd',
+  selectedDayBackgroundColor: Colors.primary,
+  selectedDayTextColor: '#E6DBCB',
+  todayTextColor: Colors.primary,
+  arrowColor: Colors.primary,
+};
+
+// 合約資訊行組件
+const ContractInfoRow: React.FC<{ label: string; value: string; isHighlight?: boolean }> = ({ label, value, isHighlight }) => (
+  <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
+    <Text style={{ fontSize: 14, color: Colors.text.secondary }}>{label}</Text>
+    <Text style={{ fontSize: 16, fontWeight: '500', color: isHighlight ? Colors.primary : Colors.text.primary }}>
+      {value}
+    </Text>
+  </View>
+);
+
 const AddBookingScreen = () => {
   const navigation = useNavigation<any>();
   const { profile } = useInitializeUser();
   const { userRole } = useAppSelector((state) => state.auth);
-  const clientId = useSelectedClientIdFromClients(); // 從 Redux 取得當前選中的 client_id
+  const clientId = useSelectedClientIdFromClients();
+
   const [serviceId, setServiceId] = useState<number | null>(null);
-  const [activeModal, setActiveModal] = useState<'service' | 'therapist' | 'time' | 'yearMonth' | 'contract' | null>(null);
   const [providerId, setProviderId] = useState<number | null>(null);
   const [bookingDate, setBookingDate] = useState('');
   const [bookingTime, setBookingTime] = useState('');
@@ -55,14 +77,25 @@ const AddBookingScreen = () => {
   const [currentMonth, setCurrentMonth] = useState(currentDate.getMonth() + 1);
   const [calendarKey, setCalendarKey] = useState(0);
 
+  // 使用 useConfirmableModal 管理各個 modal
+  const serviceModal = useConfirmableModal(serviceId, setServiceId);
+  const therapistModal = useConfirmableModal(providerId, setProviderId);
+  const timeModal = useConfirmableModal(
+    { date: bookingDate, time: bookingTime },
+    (values) => {
+      setBookingDate(values.date);
+      setBookingTime(values.time);
+    }
+  );
+  const [contractModalOpen, setContractModalOpen] = useState(false);
+  const [yearMonthModalOpen, setYearMonthModalOpen] = useState(false);
+
   const { data: services, isLoading: servicesLoading } = useServices();
   const { data: providers, isLoading: providersLoading } = useProviders();
   const createBooking = useCreateBooking();
 
-  // 取得選中服務的資訊
   const selectedService = services?.services?.find(s => s.id === serviceId);
 
-  // 取得可用的合約
   const { data: availableContract, isLoading: contractLoading } = useAvailableContract(
     {
       service_id: serviceId || 0,
@@ -87,14 +120,23 @@ const AddBookingScreen = () => {
   }, [providers, providerId]);
 
   // 根據選擇的日期、provider、service 動態查詢可用時段
+  const activeDateForSlots = timeModal.isOpen ? timeModal.tempValue.date : bookingDate;
+
   const { data: slots, isLoading: slotsLoading } = useSlots(
     {
-      date: bookingDate,
+      date: activeDateForSlots,
       provider_id: providerId || 0,
       service_id: serviceId || 0,
     },
-    !!bookingDate && !!providerId && !!serviceId // 只有全部都選了才執行
+    !!activeDateForSlots && !!providerId && !!serviceId
   )
+
+  const getFinalClientId = (): number | null => {
+    if (userRole === 'coach') {
+      return clientId || null;
+    }
+    return profile?.id || null;
+  };
 
   const handleSubmit = () => {
     if (!serviceId || !providerId || !bookingDate || !bookingTime) {
@@ -107,30 +149,17 @@ const AddBookingScreen = () => {
       return;
     }
 
-    // 根據 user role 決定使用哪個 client_id
-    let finalClientId: number;
-
-    if (userRole === 'coach') {
-      // Coach: 使用從 Redux 選中的 clientId
-      if (!clientId) {
-        Alert.alert('錯誤', '無法取得客戶資訊，請先選擇客戶');
-        return;
-      }
-      finalClientId = clientId;
-    } else {
-      // Client: 使用 profile.id
-      if (!profile?.id) {
-        Alert.alert('錯誤', '無法取得您的帳戶資訊');
-        return;
-      }
-      finalClientId = profile.id;
+    const finalClientId = getFinalClientId();
+    if (!finalClientId) {
+      Alert.alert('錯誤', userRole === 'coach' ? '無法取得客戶資訊，請先選擇客戶' : '無法取得您的帳戶資訊');
+      return;
     }
 
     createBooking.mutate(
       {
         service_id: serviceId,
         provider_id: providerId,
-        start_datetime: bookingDate + ' ' + formatBookingTime(bookingTime), // YYYY-MM-DD 格式
+        start_datetime: bookingDate + ' ' + formatBookingTime(bookingTime),
         client_id: finalClientId,
         contract_id: availableContract.id,
       },
@@ -143,7 +172,6 @@ const AddBookingScreen = () => {
               {
                 text: '確定',
                 onPress: () => {
-                  // 根據 user role 導航到不同的頁面
                   if (userRole === 'client') {
                     navigation.navigate('ClientTabs', { screen: 'Courses' });
                   } else {
@@ -186,195 +214,11 @@ const AddBookingScreen = () => {
   });
 
   const handleYearMonthConfirm = () => {
-    // 更新 Calendar 顯示的月份
     setCalendarKey(prev => prev + 1);
-    setActiveModal('time');
+    setYearMonthModalOpen(false);
+    setTimeout(() => timeModal.handleOpen(), 100);
   };
 
-  const modalContent = () => {
-    switch (activeModal) {
-      case 'service':
-        return (
-          <MyPicker
-            items={serviceItems}
-            selectedValue={serviceId ?? undefined}
-            onValueChange={(value) => { setServiceId(Number(value)); }}
-          />
-        );
-      case 'therapist':
-        return (
-          <MyPicker
-            items={providerItems}
-            selectedValue={providerId ?? undefined}
-            onValueChange={(value) => { setProviderId(Number(value)); }}
-          />
-        );
-      case 'contract':
-        return (
-          <View style={{ padding: 16 }}>
-            {contractLoading ? (
-              <View style={{ alignItems: 'center', paddingVertical: 20 }}>
-                <ActivityIndicator size="large" color={Colors.primary} />
-                <Text style={{ marginTop: 12, color: Colors.text.secondary }}>
-                  查詢可用合約中...
-                </Text>
-              </View>
-            ) : availableContract ? (
-              <View>
-                <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 16, textAlign: 'center' }}>
-                  可用合約
-                </Text>
-                <View style={{ backgroundColor: '#F8F9FA', padding: 16, borderRadius: 8 }}>
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
-                    <Text style={{ fontSize: 14, color: Colors.text.secondary }}>合約編號</Text>
-                    <Text style={{ fontSize: 16, fontWeight: '500' }}>#{availableContract.id}</Text>
-                  </View>
-                  {availableContract.category && (
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
-                      <Text style={{ fontSize: 14, color: Colors.text.secondary }}>合約類別</Text>
-                      <Text style={{ fontSize: 16, fontWeight: '500' }}>{availableContract.category.name}</Text>
-                    </View>
-                  )}
-                  {availableContract.contract_number && (
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
-                      <Text style={{ fontSize: 14, color: Colors.text.secondary }}>合約號碼</Text>
-                      <Text style={{ fontSize: 16, fontWeight: '500' }}>{availableContract.contract_number}</Text>
-                    </View>
-                  )}
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
-                    <Text style={{ fontSize: 14, color: Colors.text.secondary }}>合約時間</Text>
-                    <Text style={{ fontSize: 16, fontWeight: '500' }}>{availableContract.contract_time} 分鐘</Text>
-                  </View>
-                  {availableContract.remaining_time !== undefined && (
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                      <Text style={{ fontSize: 14, color: Colors.text.secondary }}>剩餘時間</Text>
-                      <Text style={{ fontSize: 16, fontWeight: '500', color: Colors.primary }}>
-                        {availableContract.remaining_time} 分鐘
-                      </Text>
-                    </View>
-                  )}
-                </View>
-              </View>
-            ) : (
-              <View style={{ alignItems: 'center', paddingVertical: 20 }}>
-                <Text style={{ fontSize: 16, color: Colors.text.secondary }}>
-                  沒有可用的合約
-                </Text>
-                <Text style={{ fontSize: 14, color: Colors.text.secondary, marginTop: 8, textAlign: 'center' }}>
-                  請確認客戶是否有足夠時間的合約
-                </Text>
-              </View>
-            )}
-          </View>
-        );
-      case 'yearMonth':
-        return (
-          <View>
-            <View style={styles.pickerRow}>
-              <View style={styles.pickerWrapper}>
-                <Text style={styles.pickerLabel}>年份</Text>
-                <MyPicker
-                  items={yearItems}
-                  selectedValue={currentYear}
-                  onValueChange={(value) => { setCurrentYear(Number(value)); }}
-                />
-              </View>
-              <View style={styles.pickerWrapper}>
-                <Text style={styles.pickerLabel}>月份</Text>
-                <MyPicker
-                  items={monthItems}
-                  selectedValue={currentMonth}
-                  onValueChange={(value) => { setCurrentMonth(Number(value)); }}
-                />
-              </View>
-            </View>
-          </View>
-        );
-      case 'time':
-        return (
-          <View>
-            <TouchableOpacity
-              style={styles.yearMonthSelector}
-              onPress={() => setActiveModal('yearMonth')}
-            >
-              <Text style={styles.yearMonthText}>
-                {currentYear}年 {currentMonth}月
-              </Text>
-              <Icon name="down-dir" size={16} color={Colors.primary} />
-            </TouchableOpacity>
-            <Calendar
-              key={calendarKey}
-              current={`${currentYear}-${String(currentMonth).padStart(2, '0')}-01`}
-              markedDates={{
-                [bookingDate]: {
-                  selected: true,
-                  disableTouchEvent: true,
-                },
-              }}
-              onDayPress={(day: any) => {
-                setBookingDate(day.dateString);
-              }}
-              onMonthChange={(month: any) => {
-                setCurrentYear(month.year);
-                setCurrentMonth(month.month);
-              }}
-              hideArrows={true}
-              renderHeader={() => null}
-              theme={{
-                backgroundColor: 'white',
-                calendarBackground: 'white',
-                textSectionTitleColor: '#b6c1cd',
-                selectedDayBackgroundColor: Colors.primary,
-                selectedDayTextColor: '#E6DBCB',
-                todayTextColor: Colors.primary,
-                arrowColor: Colors.primary,
-              }}
-            />
-            <View style={styles.slotsContainer}>
-              {slotsLoading ? (
-                <View style={styles.loadingContainer}>
-                  <ActivityIndicator size="large" color={Colors.primary} />
-                  <Text style={styles.loadingText}>載入時間段中...</Text>
-                </View>
-              ) : slots?.slots && slots.slots.length > 0 ? (
-                slots.slots.map((item, index) => {
-                  const itemWidth = (SCREEN_WIDTH - 32 - 30) / 4; // 32 = container padding, 30 = gaps (3 gaps of 10px)
-                  const isSelected = bookingTime === item.time;
-                  return (
-                    <TouchableOpacity
-                      key={index}
-                      onPress={() => setBookingTime(item.time)}
-                      style={[
-                        styles.slotButton,
-                        { width: itemWidth },
-                        isSelected && styles.slotButtonSelected,
-                        (index + 1) % 4 === 0 && styles.slotButtonLast,
-                      ]}
-                    >
-                      <Text style={[
-                        styles.slotText,
-                        isSelected && styles.slotTextSelected,
-                      ]}>
-                        {formatBookingTime(item.time)}
-                      </Text>
-                    </TouchableOpacity>
-                  )
-                })
-              ) : (
-                <View style={styles.emptyContainer}>
-                  <Text style={styles.emptyText}>請選擇日期以查看可用時間段</Text>
-                </View>
-              )}
-            </View>
-          </View>
-        );
-      default:
-        return null;
-    }
-  };
-
-
-  // 根據 ID 找出對應的 name 來顯示
   const selectedProvider = providers?.providers?.find(p => p.id === providerId);
 
   const isFormValid = serviceId && providerId && bookingTime && availableContract;
@@ -385,7 +229,7 @@ const AddBookingScreen = () => {
         {/* 服務項目 */}
         <TouchableOpacity
           style={styles.row}
-          onPress={() => setActiveModal('service')}
+          onPress={serviceModal.handleOpen}
         >
           <Text style={styles.label}>服務項目</Text>
           <View style={styles.selectorContainer}>
@@ -406,7 +250,7 @@ const AddBookingScreen = () => {
         {/* 選擇芳療師或按摩師 */}
         <TouchableOpacity
           style={styles.row}
-          onPress={() => setActiveModal('therapist')}
+          onPress={therapistModal.handleOpen}
         >
           <Text style={styles.label}>選擇芳療師或按摩師</Text>
           <View style={styles.selectorContainer}>
@@ -425,7 +269,7 @@ const AddBookingScreen = () => {
         {/* 預約時間 */}
         <TouchableOpacity
           style={styles.row}
-          onPress={() => { setActiveModal('time'); }}
+          onPress={timeModal.handleOpen}
           disabled={!serviceId && !providerId}
         >
           <Text style={[styles.label, !serviceId && !providerId && { color: 'gray' }]}>預約時間</Text>
@@ -447,7 +291,7 @@ const AddBookingScreen = () => {
         {/* 合約號碼 */}
         <TouchableOpacity
           style={styles.row}
-          onPress={() => setActiveModal('contract')}
+          onPress={() => setContractModalOpen(true)}
         >
           <Text style={styles.label}>合約號碼</Text>
           <View style={styles.selectorContainer}>
@@ -462,18 +306,6 @@ const AddBookingScreen = () => {
             <Icon name="right-open-big" size={16} />
           </View>
         </TouchableOpacity>
-
-        {/* 合約類別 */}
-        {/* <View style={styles.row}>
-          <Text style={styles.label}>合約類別</Text>
-          <Text style={styles.valueText}>{contractType}</Text>
-        </View> */}
-
-        {/* 時間 */}
-        {/* <View style={styles.row}>
-          <Text style={styles.label}>時間</Text>
-          <Text style={styles.valueText}>{duration}</Text>
-        </View> */}
       </ScrollView>
 
       {/* 底部確認按鈕 */}
@@ -485,18 +317,176 @@ const AddBookingScreen = () => {
         />
       </View>
 
+      {/* Service Modal */}
       <BottomSheetModal
-        visible={activeModal != null}
-        onClose={() => { setActiveModal(null); }}
-        onConfirm={() => {
-          if (activeModal === 'yearMonth') {
-            handleYearMonthConfirm();
-          } else {
-            setActiveModal(null);
-          }
-        }}
-        children={modalContent()}
-      />
+        visible={serviceModal.isOpen}
+        onClose={serviceModal.handleCancel}
+        onConfirm={serviceModal.handleConfirm}
+      >
+        <MyPicker
+          items={serviceItems}
+          selectedValue={serviceModal.tempValue ?? undefined}
+          onValueChange={(value) => serviceModal.setTempValue(Number(value))}
+        />
+      </BottomSheetModal>
+
+      {/* Therapist Modal */}
+      <BottomSheetModal
+        visible={therapistModal.isOpen}
+        onClose={therapistModal.handleCancel}
+        onConfirm={therapistModal.handleConfirm}
+      >
+        <MyPicker
+          items={providerItems}
+          selectedValue={therapistModal.tempValue ?? undefined}
+          onValueChange={(value) => therapistModal.setTempValue(Number(value))}
+        />
+      </BottomSheetModal>
+
+      {/* Time Modal */}
+      <BottomSheetModal
+        visible={timeModal.isOpen}
+        onClose={timeModal.handleCancel}
+        onConfirm={timeModal.handleConfirm}
+      >
+        <View>
+          <TouchableOpacity
+            style={styles.yearMonthSelector}
+            onPress={() => setYearMonthModalOpen(true)}
+          >
+            <Text style={styles.yearMonthText}>
+              {currentYear}年 {currentMonth}月
+            </Text>
+            <Icon name="down-dir" size={16} color={Colors.primary} />
+          </TouchableOpacity>
+          <Calendar
+            key={calendarKey}
+            current={`${currentYear}-${String(currentMonth).padStart(2, '0')}-01`}
+            markedDates={{
+              [timeModal.tempValue.date]: {
+                selected: true,
+                disableTouchEvent: true,
+              },
+            }}
+            onDayPress={(day: any) => {
+              timeModal.setTempValue({ ...timeModal.tempValue, date: day.dateString });
+            }}
+            onMonthChange={(month: any) => {
+              setCurrentYear(month.year);
+              setCurrentMonth(month.month);
+            }}
+            hideArrows={true}
+            renderHeader={() => null}
+            theme={CALENDAR_THEME}
+          />
+          <View style={styles.slotsContainer}>
+            {slotsLoading ? (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color={Colors.primary} />
+                <Text style={styles.loadingText}>載入時間段中...</Text>
+              </View>
+            ) : slots?.slots && slots.slots.length > 0 ? (
+              slots.slots.map((item, index) => {
+                const itemWidth = (SCREEN_WIDTH - 32 - 30) / 4;
+                const isSelected = timeModal.tempValue.time === item.time;
+                return (
+                  <TouchableOpacity
+                    key={index}
+                    onPress={() => timeModal.setTempValue({ ...timeModal.tempValue, time: item.time })}
+                    style={[
+                      styles.slotButton,
+                      { width: itemWidth },
+                      isSelected && styles.slotButtonSelected,
+                      (index + 1) % 4 === 0 && styles.slotButtonLast,
+                    ]}
+                  >
+                    <Text style={[
+                      styles.slotText,
+                      isSelected && styles.slotTextSelected,
+                    ]}>
+                      {formatBookingTime(item.time)}
+                    </Text>
+                  </TouchableOpacity>
+                )
+              })
+            ) : (
+              <View style={styles.emptyContainer}>
+                <Text style={styles.emptyText}>請選擇日期以查看可用時間段</Text>
+              </View>
+            )}
+          </View>
+        </View>
+      </BottomSheetModal>
+
+      {/* Year/Month Modal */}
+      <BottomSheetModal
+        visible={yearMonthModalOpen}
+        onClose={() => setYearMonthModalOpen(false)}
+        onConfirm={handleYearMonthConfirm}
+      >
+        <View>
+          <View style={styles.pickerRow}>
+            <View style={styles.pickerWrapper}>
+              <Text style={styles.pickerLabel}>年份</Text>
+              <MyPicker
+                items={yearItems}
+                selectedValue={currentYear}
+                onValueChange={(value) => setCurrentYear(Number(value))}
+              />
+            </View>
+            <View style={styles.pickerWrapper}>
+              <Text style={styles.pickerLabel}>月份</Text>
+              <MyPicker
+                items={monthItems}
+                selectedValue={currentMonth}
+                onValueChange={(value) => setCurrentMonth(Number(value))}
+              />
+            </View>
+          </View>
+        </View>
+      </BottomSheetModal>
+
+      {/* Contract Info Modal */}
+      <BottomSheetModal
+        visible={contractModalOpen}
+        onClose={() => setContractModalOpen(false)}
+        onConfirm={() => setContractModalOpen(false)}
+      >
+        <View style={styles.contractModalContent}>
+          {contractLoading ? (
+            <View style={styles.contractLoadingContainer}>
+              <ActivityIndicator size="large" color={Colors.primary} />
+              <Text style={styles.contractLoadingText}>查詢可用合約中...</Text>
+            </View>
+          ) : availableContract ? (
+            <View>
+              <Text style={styles.contractTitle}>可用合約</Text>
+              <View style={styles.contractInfoCard}>
+                <ContractInfoRow label="合約編號" value={`#${availableContract.id}`} />
+                {availableContract.category && (
+                  <ContractInfoRow label="合約類別" value={availableContract.category.name} />
+                )}
+                {availableContract.contract_number && (
+                  <ContractInfoRow label="合約號碼" value={availableContract.contract_number} />
+                )}
+                <ContractInfoRow label="合約時間" value={`${availableContract.contract_time} 分鐘`} />
+                {availableContract.remaining_time !== undefined && (
+                  <ContractInfoRow
+                    label="剩餘時間"
+                    value={`${availableContract.remaining_time} 分鐘`}
+                    isHighlight
+                  />
+                )}
+              </View>
+            </View>
+          ) : (
+            <View style={styles.contractEmptyContainer}>
+              <Text style={styles.contractEmptyTitle}>沒有可用的合約</Text>
+              <Text style={styles.contractEmptySubtitle}>請確認客戶是否有足夠時間的合約</Text>
+            </View>
+          )}
+        </View>
+      </BottomSheetModal>
     </View>
   );
 };
@@ -536,19 +526,6 @@ const styles = StyleSheet.create({
   },
   placeholderText: {
     color: Colors.text.placeholder,
-  },
-  contractContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  contractNumber: {
-    fontSize: 16,
-    color: Colors.text.primary,
-  },
-  valueText: {
-    fontSize: 16,
-    color: Colors.text.primary,
   },
   buttonContainer: {
     padding: 16,
@@ -641,6 +618,42 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 14,
     color: Colors.text.secondary,
+  },
+  contractTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  contractInfoCard: {
+    backgroundColor: '#F8F9FA',
+    padding: 16,
+    borderRadius: 8,
+  },
+  contractModalContent: {
+    padding: 16,
+  },
+  contractLoadingContainer: {
+    alignItems: 'center',
+    paddingVertical: 20,
+  },
+  contractLoadingText: {
+    marginTop: 12,
+    color: Colors.text.secondary,
+  },
+  contractEmptyContainer: {
+    alignItems: 'center',
+    paddingVertical: 20,
+  },
+  contractEmptyTitle: {
+    fontSize: 16,
+    color: Colors.text.secondary,
+  },
+  contractEmptySubtitle: {
+    fontSize: 14,
+    color: Colors.text.secondary,
+    marginTop: 8,
+    textAlign: 'center',
   },
 });
 
