@@ -263,20 +263,22 @@ const CourseManagementScreen = () => {
                 </View>
 
                 {/* 操作按鈕 */}
-                <View style={styles.actionButtons}>
-                  <TouchableOpacity
-                    style={styles.cancelButton}
-                    onPress={() => handleCancelPress(contractVisit as any)}
-                  >
-                    <Text style={styles.cancelButtonText}>取消預約</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.verifyButton}
-                    onPress={() => handleVerifyPress(contractVisit)}
-                  >
-                    <Text style={styles.verifyButtonText}>員工核銷</Text>
-                  </TouchableOpacity>
-                </View>
+                {contractVisit.status === 'reserved' && (
+                  <View style={styles.actionButtons}>
+                    <TouchableOpacity
+                      style={styles.cancelButton}
+                      onPress={() => handleCancelPress(contractVisit as any)}
+                    >
+                      <Text style={styles.cancelButtonText}>取消預約</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.verifyButton}
+                      onPress={() => handleVerifyPress(contractVisit)}
+                    >
+                      <Text style={styles.verifyButtonText}>員工核銷</Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
               </View>
             );
           }}
