@@ -73,9 +73,10 @@ export const contractVisitsApi = {
    * @param id - 合約預約 ID
    */
   cancelContractVisit: async (id: number): Promise<CancelContractVisitResponse> => {
-
-
-    const endpoint = COACH_ENDPOINTS.CANCEL_CONTRACT_VISIT(id);
+    const userRole = await storageService.getUserRole();
+    const endpoint = userRole === 'client'
+      ? CLIENT_ENDPOINTS.CANCEL_CONTRACT_VISIT(id)
+      : COACH_ENDPOINTS.CANCEL_CONTRACT_VISIT(id);
     console.log('cancelContractVisit - endpoint:', endpoint);
 
     return await apiClient.post<CancelContractVisitResponse>(endpoint);

@@ -64,7 +64,8 @@ const CLIENT_ENDPOINTS = {
 
   // 合約預約管理 (Contract Visits)
   VISITS: '/api/spa/client/v1/contract_visits',
-  CANCEL_CONTRACT_VISIT: (id: number) => `/api/spa/client/v1/contract_visits/${id}/complete`,
+  CANCEL_CONTRACT_VISIT: (id: number) => `/api/spa/client/v1/contract_visits/${id}/cancel`,
+  COMPLETE_CONTRACT_VISIT: (id: number) => `/api/spa/client/v1/contract_visits/${id}/complete`,
 
   // 預約系統 (SimplyBook)
   SERVICES: '/api/spa/client/v1/simply_book/services',
