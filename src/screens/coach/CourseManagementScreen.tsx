@@ -26,6 +26,7 @@ import {
 } from 'src/components';
 import { Colors } from 'src/theme';
 import type { BadgeVariant } from 'src/components/common/Badge';
+import { useConfirmableModal } from 'src/hooks/useConfirmableModal';
 
 // 預約狀態類型
 type BookingStatus = 'reserved' | 'pending_verification' | 'completed' | 'cancelled';
@@ -55,8 +56,10 @@ const CourseManagementScreen = () => {
   const [alertVisible, setAlertVisible] = useState(false);
   const [bookingToCancel, setBookingToCancel] = useState<ContractVisit | null>(null);
   const [datePickerVisible, setDatePickerVisible] = useState(false);
-  const [providerModalVisible, setProviderModalVisible] = useState(false);
   const [providerId, setProviderId] = useState<number | null>(null);
+
+  // 使用 useConfirmableModal 管理 provider 選擇
+  const providerModal = useConfirmableModal(providerId, setProviderId);
 
   // Helper function to format date to YYYY-MM-DD using local timezone
   const formatDateToString = (date: Date) => {
@@ -172,7 +175,7 @@ const CourseManagementScreen = () => {
         {/* Provider 下拉選單 */}
         <TouchableOpacity
           style={styles.dropdownButton}
-          onPress={() => setProviderModalVisible(true)}
+          onPress={providerModal.handleOpen}
         >
           <Icon name="down-dir" size={16} color={Colors.text.primary} />
           <Text style={styles.dropdownText}>
@@ -309,18 +312,14 @@ const CourseManagementScreen = () => {
 
       {/* Provider 選擇器 Modal */}
       <BottomSheetModal
-        visible={providerModalVisible}
-        onClose={() => setProviderModalVisible(false)}
-        onConfirm={() => {
-          setProviderModalVisible(false)
-        }}
+        visible={providerModal.isOpen}
+        onClose={providerModal.handleCancel}
+        onConfirm={providerModal.handleConfirm}
       >
         <MyPicker
           items={providerItems}
-          selectedValue={providerId ?? undefined}
-          onValueChange={(value) => {
-            setProviderId(Number(value));
-          }}
+          selectedValue={providerModal.tempValue ?? undefined}
+          onValueChange={(value) => providerModal.setTempValue(Number(value))}
         />
       </BottomSheetModal>
     </View>
