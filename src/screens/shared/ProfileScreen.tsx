@@ -16,7 +16,7 @@ import { useInitializeUser } from 'src/hooks';
 
 const PROFILE_FIELDS = [
   {
-    key: 'nick_name',
+    key: 'name',
     label: '姓名',
   },
   {
@@ -32,7 +32,7 @@ const PROFILE_FIELDS = [
 const ProfileScreen = () => {
   const dispatch = useAppDispatch();
   const { isLoading, error, profile } = useInitializeUser();
-
+  console.log(profile, 'shaunprofile')
   const renderProfileItem = ({ item }) => {
     const { label, key } = item || {};
     const value = profile?.[key] || '-';
