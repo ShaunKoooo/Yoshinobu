@@ -4,7 +4,10 @@
 <dict>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
-	<key>CFBundleDevelopmentRegion</key>
+	<key>CodePushDeploymentKey</key>
+  <string>_nquBoiG-n74V6fVHkRgXJ__29e0fmFG8PB</string>
+  <key>CodePushServerURL</key>
+  <string>https://codepush.appsonair.com</string>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
 	<string>人體工房</string>
