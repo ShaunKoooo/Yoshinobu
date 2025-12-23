@@ -4,6 +4,7 @@ import { Calendar } from 'react-native-calendars';
 import { BottomSheetModal, MyPicker, Icon } from 'src/components';
 import { Colors } from 'src/theme';
 import { CUSTOMER_FIELDS } from './constants';
+import { useConfirmableModal } from 'src/hooks/useConfirmableModal';
 
 interface UseCustomerFormModalProps {
   formValues: Record<string, string>;
@@ -25,9 +26,22 @@ export const useCustomerFormModal = ({
   const [currentMonth, setCurrentMonth] = useState(currentDate.getMonth() + 1);
   const [calendarKey, setCalendarKey] = useState(0);
 
+  // 使用 useConfirmableModal 管理暫存值
+  const [tempFieldKey, setTempFieldKey] = useState<string>('');
+  const fieldModal = useConfirmableModal(
+    formValues[tempFieldKey] || '',
+    (value) => {
+      if (tempFieldKey) {
+        onFieldChange(tempFieldKey, value);
+      }
+    }
+  );
+
   const handleButtonPress = useCallback((key: string) => {
     const field = CUSTOMER_FIELDS.find((f) => f.key === key);
     if (field?.modalType) {
+      setTempFieldKey(key);
+      fieldModal.setTempValue(formValues[key] || ''); // 初始化暫存值
       setActiveModal({ type: field.modalType, fieldKey: key });
       // 如果是生日欄位且沒有值，預設設為 1970 年
       if (key === 'birthday' && !formValues[key]) {
@@ -36,11 +50,12 @@ export const useCustomerFormModal = ({
         setCalendarKey(prev => prev + 1);
       }
     }
-  }, [formValues]);
+  }, [formValues, fieldModal]);
 
   const handleModalClose = useCallback(() => {
+    fieldModal.handleCancel(); // 取消時丟棄暫存值
     setActiveModal(null);
-  }, []);
+  }, [fieldModal]);
 
   const handleModalConfirm = useCallback(() => {
     if (activeModal?.type === 'yearMonth') {
@@ -48,9 +63,11 @@ export const useCustomerFormModal = ({
       setCalendarKey(prev => prev + 1);
       setActiveModal({ type: 'calendar', fieldKey: activeModal.fieldKey });
     } else {
+      // 套用暫存值
+      fieldModal.handleConfirm();
       setActiveModal(null);
     }
-  }, [activeModal]);
+  }, [activeModal, fieldModal]);
 
   // 生成年份選項（根據是否為生日欄位）
   const isBirthdayField = activeModal?.fieldKey === 'birthday';
@@ -78,7 +95,6 @@ export const useCustomerFormModal = ({
 
     switch (activeModal.type) {
       case 'calendar':
-        const currentValue = formValues[activeModal.fieldKey];
         const isBirthday = activeModal.fieldKey === 'birthday';
         const maxDate = isBirthday ? currentDate.toISOString().split('T')[0] : undefined;
         return (
@@ -95,16 +111,16 @@ export const useCustomerFormModal = ({
             <Calendar
               key={calendarKey}
               current={`${currentYear}-${String(currentMonth).padStart(2, '0')}-01`}
-              initialDate={currentValue || undefined}
+              initialDate={fieldModal.tempValue || undefined}
               maxDate={maxDate}
               markedDates={{
-                [currentValue]: {
+                [fieldModal.tempValue]: {
                   selected: true,
                   disableTouchEvent: true,
                 },
               }}
               onDayPress={(day) => {
-                onFieldChange(activeModal.fieldKey, day.dateString);
+                fieldModal.setTempValue(day.dateString);
               }}
               onMonthChange={(month: any) => {
                 setCurrentYear(month.year);
@@ -153,9 +169,9 @@ export const useCustomerFormModal = ({
         return (
           <MyPicker
             items={field?.pickerItems || []}
-            selectedValue={formValues[activeModal.fieldKey]}
+            selectedValue={fieldModal.tempValue}
             onValueChange={(value) => {
-              onFieldChange(activeModal.fieldKey, value as string);
+              fieldModal.setTempValue(value as string);
             }}
           />
         );
