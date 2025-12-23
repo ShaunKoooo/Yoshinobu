@@ -1,11 +1,14 @@
 import { apiClient } from './config';
-import { API_ENDPOINTS } from './endpoints.config';
+import { API_ENDPOINTS, COACH_ENDPOINTS, CLIENT_ENDPOINTS } from './endpoints.config';
+import { storageService } from '../storage.service';
 import type {
   Contract,
   GetContractsRequest,
   GetContractsResponse,
   CreateContractRequest,
   CreateContractResponse,
+  GetAvailableContractRequest,
+  GetAvailableContractResponse,
 } from './types';
 
 /**
@@ -32,5 +35,26 @@ export const contractsApi = {
       data
     );
     return response.contract || response as any;
+  },
+
+  /**
+   * 取得可用的合約
+   * 根據 service_id 和 consumed_time 找出最舊且剩餘時間足夠的合約
+   * @param params - 查詢參數 (service_id, consumed_time, client_id)
+   */
+  getAvailableContract: async (params: GetAvailableContractRequest): Promise<Contract | null> => {
+    // 從 storage 獲取用戶角色
+    const userRole = await storageService.getUserRole();
+    const endpoint = userRole === 'client'
+      ? CLIENT_ENDPOINTS.AVAILABLE_CONTRACT
+      : COACH_ENDPOINTS.AVAILABLE_CONTRACT;
+
+    console.log('getAvailableContract - userRole:', userRole, 'endpoint:', endpoint, 'params:', params);
+
+    const response = await apiClient.get<GetAvailableContractResponse>(
+      endpoint,
+      params
+    );
+    return response.contract || null;
   },
 };

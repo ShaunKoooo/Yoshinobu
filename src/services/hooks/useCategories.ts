@@ -4,6 +4,7 @@ import type {
   GetContractsRequest,
   CreateContractRequest,
   CreateShareContractRequest,
+  GetAvailableContractRequest,
 } from '../api/types';
 
 /**
@@ -19,7 +20,8 @@ export const categoryKeys = {
 export const contractKeys = {
   all: ['contracts'] as const,
   lists: () => [...contractKeys.all, 'list'] as const,
-  list: (clientId: number) => [...contractKeys.lists(), clientId] as const,
+  list: (clientId: number | undefined) => [...contractKeys.lists(), clientId] as const,
+  availableContract: (params: GetAvailableContractRequest) => [...contractKeys.all, 'available', params] as const,
 };
 
 export const shareContractKeys = {
@@ -62,6 +64,23 @@ export const useCreateContract = () => {
       queryClient.invalidateQueries({ queryKey: contractKeys.all });
       queryClient.invalidateQueries({ queryKey: ['clients'] });
     },
+  });
+};
+
+/**
+ * 取得可用的合約
+ * 根據 service_id 和 consumed_time 找出最舊且剩餘時間足夠的合約
+ * @param params - 查詢參數 (service_id, consumed_time, client_id)
+ * @param enabled - 是否啟用查詢
+ */
+export const useAvailableContract = (
+  params: GetAvailableContractRequest,
+  enabled: boolean = true
+) => {
+  return useQuery({
+    queryKey: contractKeys.availableContract(params),
+    queryFn: () => contractsApi.getAvailableContract(params),
+    enabled: enabled && !!params.service_id && !!params.consumed_time,
   });
 };
 

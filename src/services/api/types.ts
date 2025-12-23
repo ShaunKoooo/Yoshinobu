@@ -191,6 +191,16 @@ export interface CreateContractResponse {
   contract: Contract;
 }
 
+export interface GetAvailableContractRequest {
+  service_id: number;
+  consumed_time: number;
+  client_id?: number; // Optional for client endpoint (uses auth token)
+}
+
+export interface GetAvailableContractResponse {
+  contract: Contract | null;
+}
+
 // ==================== 共用合約管理 ====================
 
 export interface ShareContract {

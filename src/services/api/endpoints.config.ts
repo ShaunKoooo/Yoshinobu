@@ -36,6 +36,7 @@ const COACH_ENDPOINTS = {
 
   // 合約管理
   CONTRACTS: '/api/spa/user/v1/contracts',
+  AVAILABLE_CONTRACT: '/api/spa/user/v1/contracts/available_contract',
 
   // 共用合約管理
   SHARE_CONTRACTS: '/api/spa/user/v1/share_contracts',
@@ -57,6 +58,9 @@ const COACH_ENDPOINTS = {
 // 客戶端專用端點
 const CLIENT_ENDPOINTS = {
   CLIENT_ME: '/api/v4/clients/me',
+
+  // 合約管理
+  AVAILABLE_CONTRACT: '/api/spa/client/v1/contracts/available_contract',
 
   // 合約預約管理 (Contract Visits)
   // TODO: 暫時改成 user 端點，待後端確認角色權限後再調整
