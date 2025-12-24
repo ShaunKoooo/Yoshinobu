@@ -6773,6 +6773,11 @@ react-native-date-picker@^5.0.13:
   resolved "https://registry.npmjs.org/react-native-date-picker/-/react-native-date-picker-5.0.13.tgz"
   integrity sha512-qCLUODZVsJetO5zuoXjw1D39K527XWqBG8sOfhWdHyPzf13h8RXR1/RSKd1N0fdRDi5GdyizYmB0lPAK12/hbw==
 
+react-native-device-info@^15.0.1:
+  version "15.0.1"
+  resolved "https://registry.npmjs.org/react-native-device-info/-/react-native-device-info-15.0.1.tgz"
+  integrity sha512-U5waZRXtT3l1SgZpZMlIvMKPTkFZPH8W7Ks6GrJhdH723aUIPxjVer7cRSij1mvQdOAAYFJV/9BDzlC8apG89A==
+
 react-native-gesture-handler@^2.29.1:
   version "2.29.1"
   resolved "https://registry.npmjs.org/react-native-gesture-handler/-/react-native-gesture-handler-2.29.1.tgz"

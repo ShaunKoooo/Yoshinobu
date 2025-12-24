@@ -5,6 +5,7 @@ import {
   Text,
   ActivityIndicator,
 } from 'react-native';
+import DeviceInfo from 'react-native-device-info';
 import {
   MyButton,
   MyListItem,
@@ -16,6 +17,10 @@ import { useInitializeUser } from 'src/hooks';
 
 const PROFILE_FIELDS = [
   {
+    key: 'id',
+    label: 'ID',
+  },
+  {
     key: 'name',
     label: '姓名',
   },
@@ -24,8 +29,9 @@ const PROFILE_FIELDS = [
     label: '電子郵件',
   },
   {
-    key: 'id',
-    label: '用戶ID',
+    key: 'version',
+    label: '版本',
+    getValue: () => `${DeviceInfo.getVersion()} - ${DeviceInfo.getBuildNumber()}`,
   },
 ]
 
@@ -34,8 +40,8 @@ const ProfileScreen = () => {
   const { isLoading, error, profile } = useInitializeUser();
   console.log(profile, 'shaunprofile')
   const renderProfileItem = ({ item }) => {
-    const { label, key } = item || {};
-    const value = profile?.[key] || '-';
+    const { label, key, getValue } = item || {};
+    const value = getValue ? getValue() : profile?.[key] || '-';
 
     return (
       <View style={styles.profileItem}>
