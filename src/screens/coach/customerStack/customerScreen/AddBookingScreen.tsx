@@ -87,7 +87,6 @@ const AddBookingScreen = () => {
       setBookingTime(values.time);
     }
   );
-  const [contractModalOpen, setContractModalOpen] = useState(false);
   const [yearMonthModalOpen, setYearMonthModalOpen] = useState(false);
 
   const { data: services, isLoading: servicesLoading } = useServices();
@@ -289,10 +288,7 @@ const AddBookingScreen = () => {
         <View style={styles.divider} />
 
         {/* 合約號碼 */}
-        <TouchableOpacity
-          style={styles.row}
-          onPress={() => setContractModalOpen(true)}
-        >
+        <View style={styles.row}>
           <Text style={styles.label}>合約號碼</Text>
           <View style={styles.selectorContainer}>
             <Text
@@ -301,11 +297,38 @@ const AddBookingScreen = () => {
                 !availableContract && styles.placeholderText,
               ]}
             >
-              {availableContract ? `合約 #${availableContract.id}` : '請選擇服務後查看'}
+              {availableContract ? `${availableContract.contract_number}` : '請選擇服務後查看'}
             </Text>
-            <Icon name="right-open-big" size={16} />
           </View>
-        </TouchableOpacity>
+        </View>
+
+        <View style={styles.row}>
+          <Text style={styles.label}>合約類別</Text>
+          <View style={styles.selectorContainer}>
+            <Text
+              style={[
+                styles.selectorText,
+                !selectedProvider && styles.placeholderText,
+              ]}
+            >
+              {availableContract ? `${availableContract?.category?.name}` : '請選擇服務後查看'}
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.row}>
+          <Text style={styles.label}>時間</Text>
+          <View style={styles.selectorContainer}>
+            <Text
+              style={[
+                styles.selectorText,
+                !selectedProvider && styles.placeholderText,
+              ]}
+            >
+              {availableContract ? `${availableContract?.contract_time} 分鐘` : '請選擇服務後查看'}
+            </Text>
+          </View>
+        </View>
       </ScrollView>
 
       {/* 底部確認按鈕 */}
@@ -446,47 +469,6 @@ const AddBookingScreen = () => {
         </View>
       </BottomSheetModal>
 
-      {/* Contract Info Modal */}
-      <BottomSheetModal
-        visible={contractModalOpen}
-        onClose={() => setContractModalOpen(false)}
-        onConfirm={() => setContractModalOpen(false)}
-      >
-        <View style={styles.contractModalContent}>
-          {contractLoading ? (
-            <View style={styles.contractLoadingContainer}>
-              <ActivityIndicator size="large" color={Colors.primary} />
-              <Text style={styles.contractLoadingText}>查詢可用合約中...</Text>
-            </View>
-          ) : availableContract ? (
-            <View>
-              <Text style={styles.contractTitle}>可用合約</Text>
-              <View style={styles.contractInfoCard}>
-                <ContractInfoRow label="合約編號" value={`#${availableContract.id}`} />
-                {availableContract.category && (
-                  <ContractInfoRow label="合約類別" value={availableContract.category.name} />
-                )}
-                {availableContract.contract_number && (
-                  <ContractInfoRow label="合約號碼" value={availableContract.contract_number} />
-                )}
-                <ContractInfoRow label="合約時間" value={`${availableContract.contract_time} 分鐘`} />
-                {availableContract.remaining_time !== undefined && (
-                  <ContractInfoRow
-                    label="剩餘時間"
-                    value={`${availableContract.remaining_time} 分鐘`}
-                    isHighlight
-                  />
-                )}
-              </View>
-            </View>
-          ) : (
-            <View style={styles.contractEmptyContainer}>
-              <Text style={styles.contractEmptyTitle}>沒有可用的合約</Text>
-              <Text style={styles.contractEmptySubtitle}>請確認客戶是否有足夠時間的合約</Text>
-            </View>
-          )}
-        </View>
-      </BottomSheetModal>
     </View>
   );
 };
