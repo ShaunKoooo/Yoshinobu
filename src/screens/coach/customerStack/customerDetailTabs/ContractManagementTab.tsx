@@ -47,7 +47,7 @@ const ContractManagementTab = ({ route }: any) => {
         onToggle={() => toggleContract(contractId)}
         header={
           <>
-            <Text style={styles.contractCustomerId}>合約 #{contract.id}</Text>
+            <Text style={styles.contractCustomerId}>{contract.contract_number}</Text>
             <View style={styles.rightSection}>
               {/* TODO: 判斷是否為共用合約，目前先不顯示 */}
             </View>
