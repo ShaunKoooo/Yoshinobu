@@ -1,7 +1,7 @@
 export { default as CustomerListScreen } from './customerStack/CustomerListScreen';
 
 // 新增客戶
-export { default as AddCustomerScreen } from './customerStack/customerScreen/AddCustomerScreen';
+export { default as CreateCustomerScreen } from './customerStack/customerScreen/CreateCustomerScreen';
 
 // 新增合約
 export { default as CreateContractScreen } from './customerStack/customerScreen/CreateContractScreen';

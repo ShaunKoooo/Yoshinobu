@@ -12,7 +12,7 @@ import { CUSTOMER_FIELDS } from 'src/components/customerForm/constants';
 import { useCustomerFormModal } from 'src/components/customerForm/useCustomerFormModal';
 import { useNavigation } from '@react-navigation/native';
 
-const AddCustomerScreen = () => {
+const CreateCustomer = () => {
   const navigation = useNavigation<any>();
   const { mutate } = useCreateClient();
   const [formValues, setFormValues] = useState<Record<string, string>>({
@@ -125,4 +125,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AddCustomerScreen;
+export default CreateCustomer;

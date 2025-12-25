@@ -11,7 +11,7 @@ import { Colors } from 'src/theme';
 
 // Screens
 import {
-  AddCustomerScreen,
+  CreateCustomerScreen,
   CustomerDetailScreen,
   CreateContractScreen,
   CreateBookingScreen,
@@ -22,7 +22,7 @@ export type RootStackParamList = {
   Login: undefined;
   AdminTabs: undefined;
   ClientTabs: undefined;
-  AddCustomer: undefined;
+  CreateCustomer: undefined;
   CreateBooking: undefined;
   CreateContract: undefined;
   CustomerDetail: { customerId?: string };
@@ -101,8 +101,8 @@ const RootNavigator = () => {
             />
           )}
           <Stack.Screen
-            name="AddCustomer"
-            component={AddCustomerScreen}
+            name="CreateCustomer"
+            component={CreateCustomerScreen}
             options={({ navigation }) => ({
               title: '新增客戶',
               headerLeft: () => (

@@ -65,7 +65,7 @@ const AdminTabNavigator = () => {
             const rootNavigation = navigation.getParent() as NativeStackNavigationProp<RootStackParamList>;
             return (
               <TouchableOpacity
-                onPress={() => rootNavigation.navigate('AddCustomer')}
+                onPress={() => rootNavigation.navigate('CreateCustomer')}
                 style={styles.rightButtonContainer}>
                 <Text style={styles.rightButtonText}>+ 新增客戶</Text>
               </TouchableOpacity>
