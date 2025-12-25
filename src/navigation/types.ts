@@ -2,7 +2,7 @@
 
 // Root Stack (包含 Tab Navigator 和獨立畫面)
 export type RootStackParamList = {
-  AdminTabs: undefined;
+  CoachTabs: undefined;
   ClientTabs: undefined;
   CreateCustomer: undefined;
   CreateContract: undefined;

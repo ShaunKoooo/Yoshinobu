@@ -174,7 +174,7 @@ const CreateBookingScreen = () => {
                   if (userRole === 'client') {
                     navigation.navigate('ClientTabs', { screen: 'Courses' });
                   } else {
-                    navigation.navigate('AdminTabs', { screen: 'CourseManagement' });
+                    navigation.navigate('CoachTabs', { screen: 'CourseManagement' });
                   }
                   console.log('預約成功:', data);
                 },

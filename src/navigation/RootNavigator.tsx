@@ -5,7 +5,7 @@ import { AppConfig } from 'src/config/AppConfig';
 import { Icon } from 'src/components';
 import { useAppSelector } from 'src/store/hooks';
 import { useInitializeUser } from 'src/hooks/useInitializeUser';
-import AdminTabNavigator from './AdminTabNavigator';
+import CoachTabNavigator from './CoachTabNavigator';
 import ClientTabNavigator from './ClientTabNavigator';
 import { Colors } from 'src/theme';
 
@@ -20,7 +20,7 @@ import { LoginPage } from 'src/screens/shared';
 
 export type RootStackParamList = {
   Login: undefined;
-  AdminTabs: undefined;
+  CoachTabs: undefined;
   ClientTabs: undefined;
   CreateCustomer: undefined;
   CreateBooking: undefined;
@@ -95,8 +95,8 @@ const RootNavigator = () => {
             />
           ) : (
             <Stack.Screen
-              name="AdminTabs"
-              component={AdminTabNavigator}
+              name="CoachTabs"
+              component={CoachTabNavigator}
               options={{ headerShown: false }}
             />
           )}
