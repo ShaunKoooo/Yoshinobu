@@ -9,6 +9,8 @@ import type {
   CreateContractResponse,
   GetAvailableContractRequest,
   GetAvailableContractResponse,
+  FindContractsByMobileRequest,
+  FindContractsByMobileResponse,
 } from './types';
 
 /**
@@ -56,5 +58,24 @@ export const contractsApi = {
       params
     );
     return response.contract || null;
+  },
+
+  /**
+   * 根據手機號碼查詢客戶及其合約
+   * @param params - 包含 mobile 的參數
+   */
+  findContractsByMobile: async (params: FindContractsByMobileRequest): Promise<FindContractsByMobileResponse> => {
+    // 從 storage 獲取用戶角色
+    const userRole = await storageService.getUserRole();
+    const endpoint = userRole === 'client'
+      ? CLIENT_ENDPOINTS.FIND_CONTRACTS_BY_MOBILE
+      : COACH_ENDPOINTS.FIND_CONTRACTS_BY_MOBILE;
+
+    console.log('findContractsByMobile - userRole:', userRole, 'endpoint:', endpoint, 'params:', params);
+
+    return await apiClient.get<FindContractsByMobileResponse>(
+      endpoint,
+      params
+    );
   },
 };

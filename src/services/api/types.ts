@@ -203,6 +203,24 @@ export interface GetAvailableContractResponse {
   contract: Contract | null;
 }
 
+export interface FindContractsByMobileRequest {
+  mobile: string;
+}
+
+export interface FindContractsByMobileResponse {
+  client: {
+    id: number;
+    name: string;
+    email: string;
+    mobile: string;
+    gender: 'male' | 'female' | 'other';
+    birthday?: string;
+    address?: string;
+    note?: string;
+  };
+  contracts: Contract[];
+}
+
 // ==================== 共用合約管理 ====================
 
 export interface ShareContract {

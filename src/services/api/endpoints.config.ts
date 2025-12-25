@@ -37,6 +37,7 @@ const COACH_ENDPOINTS = {
   // 合約管理
   CONTRACTS: '/api/spa/user/v1/contracts',
   AVAILABLE_CONTRACT: '/api/spa/user/v1/contracts/available_contract',
+  FIND_CONTRACTS_BY_MOBILE: '/api/spa/user/v1/contracts/find_by_mobile',
 
   // 共用合約管理
   SHARE_CONTRACTS: '/api/spa/user/v1/share_contracts',
@@ -61,6 +62,7 @@ const CLIENT_ENDPOINTS = {
 
   // 合約管理
   AVAILABLE_CONTRACT: '/api/spa/client/v1/contracts/available_contract',
+  FIND_CONTRACTS_BY_MOBILE: '/api/spa/client/v1/contracts/find_by_mobile',
 
   // 合約預約管理 (Contract Visits)
   VISITS: '/api/spa/client/v1/contract_visits',

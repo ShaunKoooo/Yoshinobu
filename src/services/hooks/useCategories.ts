@@ -5,6 +5,7 @@ import type {
   CreateContractRequest,
   CreateShareContractRequest,
   GetAvailableContractRequest,
+  FindContractsByMobileRequest,
 } from '../api/types';
 
 /**
@@ -22,6 +23,7 @@ export const contractKeys = {
   lists: () => [...contractKeys.all, 'list'] as const,
   list: (clientId: number | undefined) => [...contractKeys.lists(), clientId] as const,
   availableContract: (params: GetAvailableContractRequest) => [...contractKeys.all, 'available', params] as const,
+  findByMobile: (mobile: string) => [...contractKeys.all, 'findByMobile', mobile] as const,
 };
 
 export const shareContractKeys = {
@@ -81,6 +83,22 @@ export const useAvailableContract = (
     queryKey: contractKeys.availableContract(params),
     queryFn: () => contractsApi.getAvailableContract(params),
     enabled: enabled && !!params.service_id && !!params.consumed_time,
+  });
+};
+
+/**
+ * 根據手機號碼查詢客戶及其合約
+ * @param params - 包含 mobile 的參數
+ * @param enabled - 是否啟用查詢
+ */
+export const useFindContractsByMobile = (
+  params: FindContractsByMobileRequest,
+  enabled: boolean = true
+) => {
+  return useQuery({
+    queryKey: contractKeys.findByMobile(params.mobile),
+    queryFn: () => contractsApi.findContractsByMobile(params),
+    enabled: enabled && !!params.mobile,
   });
 };
 
