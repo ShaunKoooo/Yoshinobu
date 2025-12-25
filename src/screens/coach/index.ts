@@ -6,7 +6,7 @@ export { default as AddCustomerScreen } from './customerStack/customerScreen/Add
 // 新增合約
 export { default as AddContractScreen } from './customerStack/customerScreen/AddContractScreen';
 
-export { default as AddBookingScreen } from './customerStack/customerScreen/AddBookingScreen';
+export { default as CreateBookingScreen } from './customerStack/customerScreen/CreateBookingScreen';
 
 export { default as CustomerDetailScreen } from './customerStack/CustomerDetailScreen';
 

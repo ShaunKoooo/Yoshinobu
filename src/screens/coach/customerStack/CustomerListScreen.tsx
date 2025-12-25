@@ -45,11 +45,11 @@ const CustomerListScreen = () => {
     navigation.navigate('CustomerDetail', { id: item?.client?.id });
   };
 
-  const handleAddBookingPress = (item: Client) => {
+  const handleCreateBookingPress = (item: Client) => {
     // 將選中的客戶存到 Redux
     dispatch(setSelectedClient(item));
     // 導航到新增預約頁面
-    navigation.navigate('AddBooking');
+    navigation.navigate('CreateBooking');
   };
 
   const renderCustomerItem = ({ item }: { item: Client }) => {
@@ -68,7 +68,7 @@ const CustomerListScreen = () => {
           <TouchableOpacity
             onPress={(e) => {
               e.stopPropagation();
-              handleAddBookingPress(item);
+              handleCreateBookingPress(item);
             }}
           >
             <Text style={styles.addButtonText}>新增預約</Text>

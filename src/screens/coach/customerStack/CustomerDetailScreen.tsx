@@ -93,7 +93,7 @@ const CustomerDetailScreen = ({ route }: any) => {
           return () => (
             <TouchableOpacity
               onPress={() => {
-                navigation.navigate('AddBooking');
+                navigation.navigate('CreateBooking');
               }}
               style={styles.rightButtonContainer}>
               <Text style={styles.rightButtonText}>+ 新增預約</Text>

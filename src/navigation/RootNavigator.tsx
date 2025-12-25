@@ -14,7 +14,7 @@ import {
   AddCustomerScreen,
   CustomerDetailScreen,
   AddContractScreen,
-  AddBookingScreen,
+  CreateBookingScreen,
 } from 'src/screens/coach';
 import { LoginPage } from 'src/screens/shared';
 
@@ -23,7 +23,7 @@ export type RootStackParamList = {
   AdminTabs: undefined;
   ClientTabs: undefined;
   AddCustomer: undefined;
-  AddBooking: undefined;
+  CreateBooking: undefined;
   AddContract: undefined;
   CustomerDetail: { customerId?: string };
 };
@@ -129,8 +129,8 @@ const RootNavigator = () => {
             })}
           />
           <Stack.Screen
-            name="AddBooking"
-            component={AddBookingScreen}
+            name="CreateBooking"
+            component={CreateBookingScreen}
             options={({ navigation }) => ({
               title: '新增預約',
               headerLeft: () => (

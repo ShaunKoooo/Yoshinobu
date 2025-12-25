@@ -60,7 +60,7 @@ const ContractInfoRow: React.FC<{ label: string; value: string; isHighlight?: bo
   </View>
 );
 
-const AddBookingScreen = () => {
+const CreateBookingScreen = () => {
   const navigation = useNavigation<any>();
   const { profile } = useInitializeUser();
   const { userRole } = useAppSelector((state) => state.auth);
@@ -639,4 +639,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AddBookingScreen;
+export default CreateBookingScreen;

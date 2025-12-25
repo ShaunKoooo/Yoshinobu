@@ -26,7 +26,7 @@ const HomeScreen = () => {
 
   const handleBooking = () => {
     console.log('立即預約');
-    navigation.navigate('AddBooking');
+    navigation.navigate('CreateBooking');
   };
 
   return (
