@@ -36,7 +36,6 @@ export const useBasicInfoEdit = () => {
 const Tab = createMaterialTopTabNavigator<CustomerDetailTabParamList>();
 
 const CustomerDetailScreen = ({ route }: any) => {
-  // Adjust the type to allow navigation to 'AddContract'
   const navigation = useNavigation<any>();
   const { id } = route.params || {};
   const [currentTab, setCurrentTab] = React.useState<keyof CustomerDetailTabParamList>('BasicInfo');
@@ -83,7 +82,7 @@ const CustomerDetailScreen = ({ route }: any) => {
           return () => (
             <TouchableOpacity
               onPress={() => {
-                navigation.navigate('AddContract');
+                navigation.navigate('CreateContract');
               }}
               style={styles.rightButtonContainer}>
               <Text style={styles.rightButtonText}>+ 新增合約</Text>

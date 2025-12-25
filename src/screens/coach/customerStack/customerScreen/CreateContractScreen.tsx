@@ -27,7 +27,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useSelectedClientIdFromClients } from 'src/hooks/useClientsWithRedux';
 import { useConfirmableModal } from 'src/hooks/useConfirmableModal';
 
-const AddContractScreen = () => {
+const CreateContractScreen = () => {
   const navigation = useNavigation<any>();
   const { data: categories } = useCategories();
   const createContract = useCreateContract();
@@ -313,4 +313,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default AddContractScreen;
+export default CreateContractScreen;

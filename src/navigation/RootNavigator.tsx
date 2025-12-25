@@ -13,7 +13,7 @@ import { Colors } from 'src/theme';
 import {
   AddCustomerScreen,
   CustomerDetailScreen,
-  AddContractScreen,
+  CreateContractScreen,
   CreateBookingScreen,
 } from 'src/screens/coach';
 import { LoginPage } from 'src/screens/shared';
@@ -24,7 +24,7 @@ export type RootStackParamList = {
   ClientTabs: undefined;
   AddCustomer: undefined;
   CreateBooking: undefined;
-  AddContract: undefined;
+  CreateContract: undefined;
   CustomerDetail: { customerId?: string };
 };
 
@@ -115,8 +115,8 @@ const RootNavigator = () => {
             })}
           />
           <Stack.Screen
-            name="AddContract"
-            component={AddContractScreen}
+            name="CreateContract"
+            component={CreateContractScreen}
             options={({ navigation }) => ({
               title: '新增合約',
               headerLeft: () => (

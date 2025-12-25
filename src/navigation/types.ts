@@ -5,7 +5,7 @@ export type RootStackParamList = {
   AdminTabs: undefined;
   ClientTabs: undefined;
   AddCustomer: undefined;
-  AddContract: undefined;
+  CreateContract: undefined;
   CreateBooking: undefined;
   CustomerDetail: { customerId?: string };
 };
