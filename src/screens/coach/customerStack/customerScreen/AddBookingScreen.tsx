@@ -317,7 +317,7 @@ const AddBookingScreen = () => {
         </View>
 
         <View style={styles.row}>
-          <Text style={styles.label}>時間</Text>
+          <Text style={styles.label}>合約時間</Text>
           <View style={styles.selectorContainer}>
             <Text
               style={[
