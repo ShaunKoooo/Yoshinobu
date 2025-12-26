@@ -140,17 +140,17 @@ const CreateContractScreen = () => {
               />
             </View>
 
-            <View style={styles.row}>
-              <Text style={styles.label}>姓名</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="請輸入"
-                placeholderTextColor={Colors.text.placeholder}
-                value={name}
-                onChangeText={setName}
-                keyboardType="default"
-              />
+            <View style={styles.queryButtonContainer}>
+              <TouchableOpacity
+                style={styles.queryButton}
+                onPress={() => {
+                  // TODO: 實作查詢功能
+                }}
+              >
+                <Text style={styles.queryButtonText}>查詢</Text>
+              </TouchableOpacity>
             </View>
+
             <View style={styles.divider} />
           </View>
         }
@@ -310,7 +310,24 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 8,
-  }
+  },
+  queryButtonContainer: {
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  queryButton: {
+    backgroundColor: Colors.primary || '#007AFF',
+    borderRadius: 8,
+    paddingVertical: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  queryButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
 });
 
 export default CreateContractScreen;
