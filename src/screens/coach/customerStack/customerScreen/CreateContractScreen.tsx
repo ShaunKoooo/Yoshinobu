@@ -22,6 +22,7 @@ import { Colors } from 'src/theme';
 import {
   useCategories,
   useCreateContract,
+  useFindContractsByMobile,
 } from 'src/services/hooks';
 import { useNavigation } from '@react-navigation/native';
 import { useSelectedClientIdFromClients } from 'src/hooks/useClientsWithRedux';
@@ -39,10 +40,19 @@ const CreateContractScreen = () => {
   const [contractCategoryId, setContractCategoryId] = useState<number | null>(null);
   const [contractType, setContractType] = useState('');
   const [time, setTime] = useState(60);
+  const [showContractFields, setShowContractFields] = useState(false);
+  const [selectedContractId, setSelectedContractId] = useState<number | null>(null);
+
+  // 查詢合約的 hook，預設不啟用
+  const { data: contractsData, refetch: searchContracts, isFetching: isSearching } = useFindContractsByMobile(
+    { mobile: phone },
+    false // 預設不自動查詢
+  );
 
   // 使用 useConfirmableModal 管理各個 modal
   const categoryModal = useConfirmableModal(contractCategoryId, setContractCategoryId);
   const timeModal = useConfirmableModal(time, setTime);
+  const contractModal = useConfirmableModal(selectedContractId, setSelectedContractId);
 
   // 當 categories 載入後，自動設定第一個為預設值
   useEffect(() => {
@@ -50,6 +60,25 @@ const CreateContractScreen = () => {
       setContractCategoryId(categories[0].id);
     }
   }, [categories, contractCategoryId]);
+
+  // 當切換回非共用合約時，重置顯示狀態
+  useEffect(() => {
+    if (!isSharedContract) {
+      setShowContractFields(false);
+    }
+  }, [isSharedContract]);
+
+  // 當選擇合約後，自動填入合約資料
+  useEffect(() => {
+    if (selectedContractId && contractsData?.contracts) {
+      const selectedContract = contractsData.contracts.find(c => c.id === selectedContractId);
+      if (selectedContract) {
+        setContractNumber(selectedContract.contract_number || '');
+        setContractCategoryId(selectedContract.category_id);
+        setTime(selectedContract.contract_time);
+      }
+    }
+  }, [selectedContractId, contractsData]);
 
   const handleSubmit = () => {
     // 驗證必填欄位
@@ -107,6 +136,11 @@ const CreateContractScreen = () => {
     value: time,
   })) || [];
 
+  // 準備合約選項列表
+  const contractItems = contractsData?.contracts?.map(contract => ({
+    label: contract.contract_number || `合約 ${contract.id}`,
+    value: contract.id,
+  })) || [];
 
   // 根據 ID 找出對應的 name 來顯示
   const selectedCategory = categories?.find(c => c.id === contractCategoryId);
@@ -143,11 +177,41 @@ const CreateContractScreen = () => {
             <View style={styles.queryButtonContainer}>
               <TouchableOpacity
                 style={styles.queryButton}
-                onPress={() => {
-                  // TODO: 實作查詢功能
+                onPress={async () => {
+                  if (!phone) {
+                    Alert.alert('提示', '請先輸入手機號碼');
+                    return;
+                  }
+
+                  try {
+                    const result = await searchContracts();
+                    if (result.data) {
+                      // 查詢成功，顯示合約欄位
+                      setShowContractFields(true);
+
+                      // 如果有合約資料
+                      if (result.data.contracts && result.data.contracts.length > 0) {
+                        // 自動選擇第一筆合約
+                        const firstContract = result.data.contracts[0];
+                        setSelectedContractId(firstContract.id);
+                        setContractNumber(firstContract.contract_number || '');
+                        setContractCategoryId(firstContract.category_id);
+                        setTime(firstContract.contract_time);
+
+                        Alert.alert('查詢成功', `找到 ${result.data.contracts.length} 筆合約資料`);
+                      } else {
+                        Alert.alert('查詢結果', '此手機號碼無合約資料');
+                      }
+                    }
+                  } catch (error) {
+                    Alert.alert('查詢失敗', '查詢合約時發生錯誤');
+                  }
                 }}
+                disabled={isSearching}
               >
-                <Text style={styles.queryButtonText}>查詢</Text>
+                <Text style={styles.queryButtonText}>
+                  {isSearching ? '查詢中...' : '查詢'}
+                </Text>
               </TouchableOpacity>
             </View>
 
@@ -155,26 +219,67 @@ const CreateContractScreen = () => {
           </View>
         }
 
-        {/* 合約號碼 */}
-        <TouchableOpacity style={styles.row}>
-          <Text style={styles.label}>合約號碼</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="請輸入"
-            placeholderTextColor={Colors.text.placeholder}
-            value={contractNumber}
-            onChangeText={setContractNumber}
-            keyboardType="default"
-          />
-        </TouchableOpacity>
+        {/* 合約號碼 - 當 isSharedContract 為 false 時顯示輸入框，為 true 時顯示選擇器 */}
+        {!isSharedContract && (
+          <TouchableOpacity style={styles.row}>
+            <Text style={styles.label}>合約號碼</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="請輸入"
+              placeholderTextColor={Colors.text.placeholder}
+              value={contractNumber}
+              onChangeText={setContractNumber}
+              keyboardType="default"
+            />
+          </TouchableOpacity>
+        )}
 
-        {/* 合約類別 */}
-        <TouchableOpacity
-          style={styles.row}
-          onPress={categoryModal.handleOpen}
-        >
-          <Text style={styles.label}>合約類別</Text>
-          <View style={styles.selectorContainer}>
+        {/* 合約號碼選擇器 - 當 isSharedContract 為 true 且查詢後顯示 */}
+        {isSharedContract && showContractFields && (
+          <TouchableOpacity
+            style={styles.row}
+            onPress={contractModal.handleOpen}
+          >
+            <Text style={styles.label}>合約號碼</Text>
+            <View style={styles.selectorContainer}>
+              <Text
+                style={[
+                  styles.selectorText,
+                  !contractNumber && styles.placeholderText,
+                ]}
+              >
+                {contractNumber || '請選擇'}
+              </Text>
+              <Icon name="right-open-big" size={16} />
+            </View>
+          </TouchableOpacity>
+        )}
+
+        {/* 合約類別 - 當 isSharedContract 為 false 時可選擇，為 true 時只讀顯示 */}
+        {!isSharedContract && (
+          <TouchableOpacity
+            style={styles.row}
+            onPress={categoryModal.handleOpen}
+          >
+            <Text style={styles.label}>合約類別</Text>
+            <View style={styles.selectorContainer}>
+              <Text
+                style={[
+                  styles.selectorText,
+                  !selectedCategory && styles.placeholderText,
+                ]}
+              >
+                {selectedCategory?.name || '請選擇'}
+              </Text>
+              <Icon name="right-open-big" size={16} />
+            </View>
+          </TouchableOpacity>
+        )}
+
+        {/* 合約類別只讀顯示 - 當 isSharedContract 為 true 且查詢後顯示 */}
+        {isSharedContract && showContractFields && (
+          <View style={styles.row}>
+            <Text style={styles.label}>合約類別</Text>
             <Text
               style={[
                 styles.selectorText,
@@ -183,17 +288,34 @@ const CreateContractScreen = () => {
             >
               {selectedCategory?.name || '請選擇'}
             </Text>
-            <Icon name="right-open-big" size={16} />
           </View>
-        </TouchableOpacity>
+        )}
 
-        {/* 時間 */}
-        <TouchableOpacity
-          style={styles.row}
-          onPress={timeModal.handleOpen}
-        >
-          <Text style={styles.label}>時間</Text>
-          <View style={styles.selectorContainer}>
+        {/* 時間 - 當 isSharedContract 為 false 時可選擇，為 true 時只讀顯示 */}
+        {!isSharedContract && (
+          <TouchableOpacity
+            style={styles.row}
+            onPress={timeModal.handleOpen}
+          >
+            <Text style={styles.label}>時間</Text>
+            <View style={styles.selectorContainer}>
+              <Text
+                style={[
+                  styles.selectorText,
+                  !time && styles.placeholderText,
+                ]}
+              >
+                {time || '請選擇'}
+              </Text>
+              <Icon name="right-open-big" size={16} />
+            </View>
+          </TouchableOpacity>
+        )}
+
+        {/* 時間只讀顯示 - 當 isSharedContract 為 true 且查詢後顯示 */}
+        {isSharedContract && showContractFields && (
+          <View style={styles.row}>
+            <Text style={styles.label}>時間</Text>
             <Text
               style={[
                 styles.selectorText,
@@ -202,9 +324,8 @@ const CreateContractScreen = () => {
             >
               {time || '請選擇'}
             </Text>
-            <Icon name="right-open-big" size={16} />
           </View>
-        </TouchableOpacity>
+        )}
 
         {!isSharedContract && <View style={styles.column}>
           <Text style={styles.label}>上傳照片</Text>
@@ -248,6 +369,19 @@ const CreateContractScreen = () => {
           items={timeItems}
           selectedValue={timeModal.tempValue}
           onValueChange={(value) => timeModal.setTempValue(Number(value))}
+        />
+      </BottomSheetModal>
+
+      {/* Contract Modal - 合約選擇 */}
+      <BottomSheetModal
+        visible={contractModal.isOpen}
+        onClose={contractModal.handleCancel}
+        onConfirm={contractModal.handleConfirm}
+      >
+        <MyPicker
+          items={contractItems}
+          selectedValue={contractModal.tempValue ?? undefined}
+          onValueChange={(value) => contractModal.setTempValue(Number(value))}
         />
       </BottomSheetModal>
     </View>
