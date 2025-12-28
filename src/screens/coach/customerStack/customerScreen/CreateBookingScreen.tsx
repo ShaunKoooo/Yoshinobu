@@ -279,7 +279,7 @@ const CreateBookingScreen = () => {
                 !bookingTime && styles.placeholderText,
               ]}
             >
-              {bookingTime || '請選擇'}
+              {bookingDate + ' ' + formatBookingTime(bookingTime) || '請選擇'}
             </Text>
             <Icon name="right-open-big" size={16} />
           </View>
