@@ -23,6 +23,7 @@ import {
   useCategories,
   useCreateContract,
   useFindContractsByMobile,
+  useCreateShareContract,
 } from 'src/services/hooks';
 import { useNavigation } from '@react-navigation/native';
 import { useSelectedClientIdFromClients } from 'src/hooks/useClientsWithRedux';
@@ -32,6 +33,7 @@ const CreateContractScreen = () => {
   const navigation = useNavigation<any>();
   const { data: categories } = useCategories();
   const createContract = useCreateContract();
+  const createShareContract = useCreateShareContract();
   const clientId = useSelectedClientIdFromClients(); // 從 Redux 取得當前選中的 client_id
   const [isSharedContract, setIsSharedContract] = useState(false);
   const [phone, setPhone] = useState('');
@@ -101,37 +103,79 @@ const CreateContractScreen = () => {
       return;
     }
 
-    createContract.mutate(
-      {
-        client_id: clientId,
-        category_id: contractCategoryId,
-        contract_time: time,
-        contract_number: contractNumber,
-      },
-      {
-        onSuccess: (data) => {
-          Alert.alert(
-            '建立成功',
-            '合約已成功建立！',
-            [
-              {
-                text: '確定',
-                onPress: () => {
-                  navigation.goBack();
-                  console.log('合約建立成功:', data);
+    // 如果是共用合約，需要驗證是否有選擇合約
+    if (isSharedContract && !selectedContractId) {
+      Alert.alert('錯誤', '請先選擇合約');
+      return;
+    }
+
+    // 根據是否為共用合約，呼叫不同的 API
+    if (isSharedContract) {
+      // 建立共用合約
+      createShareContract.mutate(
+        {
+          client_id: clientId,
+          contract_id: selectedContractId!,
+          contract_time: time,
+        },
+        {
+          onSuccess: (data) => {
+            Alert.alert(
+              '建立成功',
+              '共用合約已成功建立！',
+              [
+                {
+                  text: '確定',
+                  onPress: () => {
+                    navigation.goBack();
+                    console.log('共用合約建立成功:', data);
+                  },
                 },
-              },
-            ]
-          );
+              ]
+            );
+          },
+          onError: (error: any) => {
+            Alert.alert(
+              '建立失敗',
+              error?.message || '建立共用合約時發生錯誤，請稍後再試'
+            );
+          },
+        }
+      );
+    } else {
+      // 建立一般合約
+      createContract.mutate(
+        {
+          client_id: clientId,
+          category_id: contractCategoryId,
+          contract_time: time,
+          contract_number: contractNumber,
         },
-        onError: (error: any) => {
-          Alert.alert(
-            '建立失敗',
-            error?.message || '建立合約時發生錯誤，請稍後再試'
-          );
-        },
-      }
-    );
+        {
+          onSuccess: (data) => {
+            Alert.alert(
+              '建立成功',
+              '合約已成功建立！',
+              [
+                {
+                  text: '確定',
+                  onPress: () => {
+                    navigation.goBack();
+                    console.log('合約建立成功:', data);
+                  },
+                },
+              ]
+            );
+          },
+          onError: (error: any) => {
+            Alert.alert(
+              '建立失敗',
+              error?.message || '建立合約時發生錯誤，請稍後再試'
+            );
+          },
+        }
+      );
+    }
   };
 
   const categoryItems = categories?.map(category => ({
@@ -348,8 +392,19 @@ const CreateContractScreen = () => {
       {/* 底部確認按鈕 */}
       <View style={styles.buttonContainer}>
         <MyButton
-          isActive={!!contractNumber && !!contractCategoryId && !!time && !createContract.isPending}
-          title={createContract.isPending ? "建立中..." : "確認"}
+          isActive={
+            !!contractNumber &&
+            !!contractCategoryId &&
+            !!time &&
+            (isSharedContract ? !!selectedContractId : true) &&
+            !createContract.isPending &&
+            !createShareContract.isPending
+          }
+          title={
+            (createContract.isPending || createShareContract.isPending)
+              ? "建立中..."
+              : "確認"
+          }
           onPress={handleSubmit}
         />
       </View>
