@@ -61,12 +61,20 @@ const CreateContractScreen = () => {
     }
   }, [categories, contractCategoryId]);
 
-  // 當切換回非共用合約時，重置顯示狀態
+  // 當切換回非共用合約時，重置顯示狀態和清空查詢資料
   useEffect(() => {
     if (!isSharedContract) {
       setShowContractFields(false);
+      setSelectedContractId(null);
+      setPhone('');
+      setContractNumber('');
+      // 重置合約類別為預設值
+      if (categories && categories.length > 0) {
+        setContractCategoryId(categories[0].id);
+      }
+      setTime(60);
     }
-  }, [isSharedContract]);
+  }, [isSharedContract, categories]);
 
   // 當選擇合約後，自動填入合約資料
   useEffect(() => {
