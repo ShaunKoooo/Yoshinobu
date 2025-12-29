@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Image,
+  RefreshControl,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useInitializeUser } from 'src/hooks/useInitializeUser';
@@ -66,12 +67,17 @@ const CourseManagementScreen = () => {
   // 使用 useConfirmableModal 管理 provider 選擇
   const providerModal = useConfirmableModal(providerId, setProviderId);
 
-  const { data: contractVisits = [], isLoading, error } = useContractVisits({
+  const { data: contractVisits = [], isLoading, error, refetch, isRefetching } = useContractVisits({
     from_date: formatDate(startDate),
     to_date: formatDate(endDate),
     status: selectedStatus,
     provider_id: providerId || providers?.providers[0]?.id,
   });
+
+  // Pull to refresh handler
+  const handleRefresh = () => {
+    refetch();
+  };
 
   const providerItems = providers?.providers?.map((provider: { name: string; id: number }) => ({
     label: provider.name,
@@ -218,6 +224,12 @@ const CourseManagementScreen = () => {
               return timeA.localeCompare(timeB);
             })}
           keyExtractor={(item) => item.id.toString()}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefetching}
+              onRefresh={handleRefresh}
+            />
+          }
           renderItem={({ item: contractVisit }) => {
             const visit = contractVisit.visit;
             const clientName = visit.data?.real_name || visit.data?.name || '未命名';
