@@ -52,11 +52,15 @@ const BasicInfoTab = ({ route }: any) => {
   }, [data]);
 
   const handleFieldChange = useCallback((key: string, value: string) => {
+    // 編輯模式下不允許修改 mobile email
+    if (isEditing && (key === 'mobile' || key === 'email')) {
+      return;
+    }
     setFormValues((prev) => ({
       ...prev,
       [key]: value,
     }));
-  }, []);
+  }, [isEditing]);
 
   const { handleButtonPress, ModalComponent } = useCustomerFormModal({
     formValues,
