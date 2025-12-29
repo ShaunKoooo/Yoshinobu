@@ -33,9 +33,52 @@ const CoursesScreen = () => {
   const [alertVisible, setAlertVisible] = useState(false);
   const [bookingToCancel, setBookingToCancel] = useState<ContractVisit | null>(null);
 
-  const { data: contractVisits = [], isLoading, refetch, isRefetching } = useContractVisits({
-    status: selectedStatus,
+  // 為每個狀態分別查詢資料
+  const reservedQuery = useContractVisits({
+    status: 'reserved',
   });
+
+  const completedQuery = useContractVisits({
+    status: 'completed',
+  });
+
+  const cancelledQuery = useContractVisits({
+    status: 'cancelled',
+  });
+
+  // 根據當前選中的狀態取得對應的查詢結果
+  const getCurrentQuery = () => {
+    switch (selectedStatus) {
+      case 'reserved':
+        return reservedQuery;
+      case 'completed':
+        return completedQuery;
+      case 'cancelled':
+        return cancelledQuery;
+      default:
+        return reservedQuery;
+    }
+  };
+
+  const currentQuery = getCurrentQuery();
+  const contractVisits = currentQuery.data || [];
+  const isLoading = currentQuery.isLoading;
+  const refetch = currentQuery.refetch;
+  const isRefetching = currentQuery.isRefetching;
+
+  // 取得各狀態的數量
+  const getStatusCount = (status: BookingStatus) => {
+    switch (status) {
+      case 'reserved':
+        return reservedQuery.data?.length || 0;
+      case 'completed':
+        return completedQuery.data?.length || 0;
+      case 'cancelled':
+        return cancelledQuery.data?.length || 0;
+      default:
+        return 0;
+    }
+  };
 
   const cancelVisitMutation = useCancelContractVisit();
 
@@ -74,18 +117,13 @@ const CoursesScreen = () => {
     setBookingToCancel(null);
   };
 
-  const getReservedCount = () => {
-    const reservedVisits = contractVisits.filter((cv) => cv.status === 'reserved');
-    return reservedVisits.length;
-  };
-
   return (
     <View style={styles.container}>
       {/* 狀態篩選器 */}
       <View style={styles.tabContainer}>
         {STATUS_TABS.map((tab) => {
           const isSelected = selectedStatus === tab.key;
-          const count = tab.key === 'reserved' ? getReservedCount() : 0;
+          const count = getStatusCount(tab.key as BookingStatus);
           return (
             <TouchableOpacity
               key={tab.key}
@@ -94,7 +132,7 @@ const CoursesScreen = () => {
               activeOpacity={0.7}>
               <Text style={[styles.tabText, isSelected && styles.tabTextActive]}>
                 {tab.label}
-                {tab.key === 'reserved' && count > 0 && `(${count})`}
+                {count > 0 && ` (${count})`}
               </Text>
             </TouchableOpacity>
           );

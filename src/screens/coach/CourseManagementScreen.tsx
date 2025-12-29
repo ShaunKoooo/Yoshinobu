@@ -67,12 +67,73 @@ const CourseManagementScreen = () => {
   // 使用 useConfirmableModal 管理 provider 選擇
   const providerModal = useConfirmableModal(providerId, setProviderId);
 
-  const { data: contractVisits = [], isLoading, error, refetch, isRefetching } = useContractVisits({
+  // 為每個狀態分別查詢資料
+  const reservedQuery = useContractVisits({
     from_date: formatDate(startDate),
     to_date: formatDate(endDate),
-    status: selectedStatus,
+    status: 'reserved',
     provider_id: providerId || providers?.providers[0]?.id,
   });
+
+  const pendingQuery = useContractVisits({
+    from_date: formatDate(startDate),
+    to_date: formatDate(endDate),
+    status: 'pending_verification',
+    provider_id: providerId || providers?.providers[0]?.id,
+  });
+
+  const completedQuery = useContractVisits({
+    from_date: formatDate(startDate),
+    to_date: formatDate(endDate),
+    status: 'completed',
+    provider_id: providerId || providers?.providers[0]?.id,
+  });
+
+  const cancelledQuery = useContractVisits({
+    from_date: formatDate(startDate),
+    to_date: formatDate(endDate),
+    status: 'cancelled',
+    provider_id: providerId || providers?.providers[0]?.id,
+  });
+
+  // 根據當前選中的狀態取得對應的查詢結果
+  const getCurrentQuery = () => {
+    switch (selectedStatus) {
+      case 'reserved':
+        return reservedQuery;
+      case 'pending_verification':
+        return pendingQuery;
+      case 'completed':
+        return completedQuery;
+      case 'cancelled':
+        return cancelledQuery;
+      default:
+        return reservedQuery;
+    }
+  };
+
+  const currentQuery = getCurrentQuery();
+  const contractVisits = currentQuery.data || [];
+  const isLoading = currentQuery.isLoading;
+  const error = currentQuery.error;
+  const refetch = currentQuery.refetch;
+  const isRefetching = currentQuery.isRefetching;
+
+  // 取得各狀態的數量
+  const getStatusCount = (status: BookingStatus) => {
+    switch (status) {
+      case 'reserved':
+        return reservedQuery.data?.length || 0;
+      case 'pending_verification':
+        return pendingQuery.data?.length || 0;
+      case 'completed':
+        return completedQuery.data?.length || 0;
+      case 'cancelled':
+        return cancelledQuery.data?.length || 0;
+      default:
+        return 0;
+    }
+  };
 
   // Pull to refresh handler
   const handleRefresh = () => {
@@ -200,7 +261,7 @@ const CourseManagementScreen = () => {
               ]}
             >
               {tab.label}
-              {contractVisits?.filter((booking) => booking?.status === tab.key)?.length > 0 && `(${contractVisits?.filter((booking) => booking?.status === tab.key)?.length})`}
+              {getStatusCount(tab.key as BookingStatus) > 0 && ` (${getStatusCount(tab.key as BookingStatus)})`}
             </Text>
           </TouchableOpacity>
         ))}
