@@ -203,7 +203,20 @@ const CourseManagementScreen = () => {
       {/* 預約列表 */}
       <View style={styles.listContainer}>
         <MyListItem
-          data={contractVisits?.filter((booking) => booking.status === selectedStatus)}
+          data={contractVisits
+            ?.filter((booking) => booking.status === selectedStatus)
+            .sort((a, b) => {
+              const timeA = a.visit.time;
+              const timeB = b.visit.time;
+
+              // 處理 null 值：沒有時間的排在最後
+              if (!timeA && !timeB) return 0;
+              if (!timeA) return 1;
+              if (!timeB) return -1;
+
+              // ISO 8601 格式直接比較
+              return timeA.localeCompare(timeB);
+            })}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item: contractVisit }) => {
             const visit = contractVisit.visit;

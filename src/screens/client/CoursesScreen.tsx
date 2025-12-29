@@ -106,7 +106,18 @@ const CoursesScreen = () => {
             <Text style={styles.emptyText}>暫無課程</Text>
           </View>
         ) : (
-          contractVisits.map((contractVisit) => (
+          contractVisits.sort((a, b) => {
+            const timeA = a.visit.time;
+            const timeB = b.visit.time;
+
+            // 處理 null 值：沒有時間的排在最後
+            if (!timeA && !timeB) return 0;
+            if (!timeA) return 1;
+            if (!timeB) return -1;
+
+            // ISO 8601 格式直接比較
+            return timeA.localeCompare(timeB);
+          }).map((contractVisit) => (
             <View key={contractVisit.id} style={styles.courseCard}>
               <Text style={styles.dateTime}>{
                 formatDate(new Date(contractVisit.visit.date ?? '')) + ' ' +
