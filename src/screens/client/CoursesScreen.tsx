@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
+  RefreshControl,
 } from 'react-native';
 import { Colors } from 'src/theme';
 import { useContractVisits, useCancelContractVisit } from 'src/services/hooks';
@@ -32,11 +33,16 @@ const CoursesScreen = () => {
   const [alertVisible, setAlertVisible] = useState(false);
   const [bookingToCancel, setBookingToCancel] = useState<ContractVisit | null>(null);
 
-  const { data: contractVisits = [], isLoading } = useContractVisits({
+  const { data: contractVisits = [], isLoading, refetch, isRefetching } = useContractVisits({
     status: selectedStatus,
   });
 
   const cancelVisitMutation = useCancelContractVisit();
+
+  // Pull to refresh handler
+  const handleRefresh = () => {
+    refetch();
+  };
 
 
   const handleCancelPress = (contractVisit: ContractVisit) => {
@@ -96,7 +102,16 @@ const CoursesScreen = () => {
       </View>
 
       {/* 課程列表 */}
-      <ScrollView style={styles.listContainer} contentContainerStyle={styles.listContent}>
+      <ScrollView
+        style={styles.listContainer}
+        contentContainerStyle={styles.listContent}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefetching}
+            onRefresh={handleRefresh}
+          />
+        }
+      >
         {isLoading ? (
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyText}>載入中...</Text>
