@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import DatePicker from 'react-native-date-picker';
 import BottomSheetModal from './BottomSheetModal';
@@ -22,6 +22,12 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
   const [startDate, setStartDate] = useState(initialStartDate);
   const [endDate, setEndDate] = useState(initialEndDate);
   const [isSelectingStartDate, setIsSelectingStartDate] = useState(true);
+
+  // 當 initialStartDate 或 initialEndDate 變化時，更新內部 state
+  useEffect(() => {
+    setStartDate(initialStartDate);
+    setEndDate(initialEndDate);
+  }, [initialStartDate, initialEndDate]);
 
   const handleConfirm = () => {
     onConfirm(startDate, endDate);

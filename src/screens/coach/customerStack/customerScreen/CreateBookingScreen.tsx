@@ -172,9 +172,9 @@ const CreateBookingScreen = () => {
                 text: '確定',
                 onPress: () => {
                   if (userRole === 'client') {
-                    navigation.navigate('ClientTabs', { screen: 'Courses' });
+                    navigation.navigate('ClientTabs', { screen: 'Courses', params: { bookingDate } });
                   } else {
-                    navigation.navigate('CoachTabs', { screen: 'CourseManagement' });
+                    navigation.navigate('CoachTabs', { screen: 'CourseManagement', params: { bookingDate } });
                   }
                   console.log('預約成功:', data);
                 },
@@ -213,6 +213,12 @@ const CreateBookingScreen = () => {
   });
 
   const handleYearMonthConfirm = () => {
+    // 清空已選擇的日期和時間
+    setBookingDate('');
+    setBookingTime('');
+    // 清空 timeModal 的 tempValue
+    timeModal.setTempValue({ date: '', time: '' });
+    // 更新日曆
     setCalendarKey(prev => prev + 1);
     setYearMonthModalOpen(false);
     setTimeout(() => timeModal.handleOpen(), 100);
@@ -220,7 +226,7 @@ const CreateBookingScreen = () => {
 
   const selectedProvider = providers?.providers?.find(p => p.id === providerId);
 
-  const isFormValid = serviceId && providerId && bookingTime && availableContract;
+  const isFormValid = !!(serviceId && providerId && bookingTime && bookingDate && availableContract);
 
   return (
     <View style={styles.container}>
@@ -375,7 +381,10 @@ const CreateBookingScreen = () => {
         <View>
           <TouchableOpacity
             style={styles.yearMonthSelector}
-            onPress={() => setYearMonthModalOpen(true)}
+            onPress={() => {
+              timeModal.handleCancel();
+              setTimeout(() => setYearMonthModalOpen(true), 100);
+            }}
           >
             <Text style={styles.yearMonthText}>
               {currentYear}年 {currentMonth}月

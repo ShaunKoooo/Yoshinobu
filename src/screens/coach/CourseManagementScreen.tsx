@@ -8,13 +8,15 @@ import {
   Image,
   RefreshControl,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { useQueryClient } from '@tanstack/react-query';
 import { useInitializeUser } from 'src/hooks/useInitializeUser';
 import {
   useContractVisits,
   useProviders,
   useCancelContractVisit,
   useSubmitContractVisitForVerification,
+  contractVisitKeys,
 } from 'src/services/hooks';
 import {
   Icon,
@@ -50,13 +52,17 @@ const STATUS_TABS = [
 
 const CourseManagementScreen = () => {
   const navigation = useNavigation<any>();
+  const route = useRoute<any>();
+  const queryClient = useQueryClient();
   const { profile } = useInitializeUser();
   const { data: providers, isLoading: providersLoading } = useProviders();
   const cancelVisitMutation = useCancelContractVisit();
   const submitVerificationMutation = useSubmitContractVisitForVerification();
 
-  const [startDate, setStartDate] = useState(new Date());
-  const [endDate, setEndDate] = useState(new Date());
+  // 從 route params 取得日期，如果沒有則使用當前日期
+  const initialDate = route.params?.bookingDate ? new Date(route.params.bookingDate) : new Date();
+  const [startDate, setStartDate] = useState(initialDate);
+  const [endDate, setEndDate] = useState(initialDate);
   const [selectedStatus, setSelectedStatus] = useState<BookingStatus>('reserved');
   const [showAllStatuses, setShowAllStatuses] = useState(false);
   const [alertVisible, setAlertVisible] = useState(false);
@@ -67,72 +73,25 @@ const CourseManagementScreen = () => {
   // 使用 useConfirmableModal 管理 provider 選擇
   const providerModal = useConfirmableModal(providerId, setProviderId);
 
-  // 為每個狀態分別查詢資料
-  const reservedQuery = useContractVisits({
+  // 只查詢當前選中的狀態
+  const { data: contractVisits = [], isLoading, error, refetch, isRefetching } = useContractVisits({
     from_date: formatDate(startDate),
     to_date: formatDate(endDate),
-    status: 'reserved',
+    status: selectedStatus,
     provider_id: providerId || providers?.providers[0]?.id,
   });
 
-  const pendingQuery = useContractVisits({
-    from_date: formatDate(startDate),
-    to_date: formatDate(endDate),
-    status: 'pending_verification',
-    provider_id: providerId || providers?.providers[0]?.id,
-  });
-
-  const completedQuery = useContractVisits({
-    from_date: formatDate(startDate),
-    to_date: formatDate(endDate),
-    status: 'completed',
-    provider_id: providerId || providers?.providers[0]?.id,
-  });
-
-  const cancelledQuery = useContractVisits({
-    from_date: formatDate(startDate),
-    to_date: formatDate(endDate),
-    status: 'cancelled',
-    provider_id: providerId || providers?.providers[0]?.id,
-  });
-
-  // 根據當前選中的狀態取得對應的查詢結果
-  const getCurrentQuery = () => {
-    switch (selectedStatus) {
-      case 'reserved':
-        return reservedQuery;
-      case 'pending_verification':
-        return pendingQuery;
-      case 'completed':
-        return completedQuery;
-      case 'cancelled':
-        return cancelledQuery;
-      default:
-        return reservedQuery;
-    }
-  };
-
-  const currentQuery = getCurrentQuery();
-  const contractVisits = currentQuery.data || [];
-  const isLoading = currentQuery.isLoading;
-  const error = currentQuery.error;
-  const refetch = currentQuery.refetch;
-  const isRefetching = currentQuery.isRefetching;
-
-  // 取得各狀態的數量
+  // 從緩存中取得各狀態的數量
   const getStatusCount = (status: BookingStatus) => {
-    switch (status) {
-      case 'reserved':
-        return reservedQuery.data?.length || 0;
-      case 'pending_verification':
-        return pendingQuery.data?.length || 0;
-      case 'completed':
-        return completedQuery.data?.length || 0;
-      case 'cancelled':
-        return cancelledQuery.data?.length || 0;
-      default:
-        return 0;
-    }
+    const cachedData = queryClient.getQueryData<any[]>(
+      contractVisitKeys.list({
+        from_date: formatDate(startDate) as string,
+        to_date: formatDate(endDate) as string,
+        status,
+        provider_id: providerId || providers?.providers?.[0]?.id,
+      })
+    );
+    return cachedData?.length || 0;
   };
 
   // Pull to refresh handler
