@@ -231,7 +231,7 @@ const CourseManagementScreen = () => {
                 <View style={styles.cardHeader}>
                   <Text style={styles.dateTimeText}>
                     {contractVisit.date.replace(/-/g, '-')}
-                    {getWeekday(contractVisit.date)}
+                    ({getWeekday(contractVisit.date)})
                     {visit.time && ` ${formatTime(visit.time)}`}
                   </Text>
                   <Badge
