@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     paddingHorizontal: 6,
     paddingVertical: 4,
-    height: 20,
+    minHeight: 20,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -31,7 +31,9 @@ const styles = StyleSheet.create({
     fontFamily: 'Noto Sans TC',
     fontSize: 11,
     fontWeight: '400',
-    lineHeight: 11,
+    lineHeight: 14,
+    includeFontPadding: false,
+    textAlignVertical: 'center',
   },
   // 共用
   shared: {

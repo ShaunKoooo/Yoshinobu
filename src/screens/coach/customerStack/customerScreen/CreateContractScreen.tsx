@@ -489,6 +489,9 @@ const styles = StyleSheet.create({
     color: Colors.text.primary,
     textAlign: 'right',
     marginLeft: 16,
+    paddingVertical: 0,
+    includeFontPadding: false,
+    textAlignVertical: 'center',
   },
   selectorContainer: {
     flexDirection: 'row',
