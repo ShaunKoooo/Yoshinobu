@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   StyleSheet,
@@ -9,6 +9,7 @@ import {
   Alert,
   TouchableOpacity,
   Text,
+  Keyboard,
 } from 'react-native';
 import {
   AccountLoginForm,
@@ -24,6 +25,27 @@ const isSPAApp = AppConfig.APP_TYPE === 'spa';
 const LoginPage = () => {
   const dispatch = useAppDispatch();
   const [loginType, setLoginType] = useState<'account' | 'phone'>('account');
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      'keyboardDidShow',
+      () => {
+        setKeyboardVisible(true);
+      }
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      'keyboardDidHide',
+      () => {
+        setKeyboardVisible(false);
+      }
+    );
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
 
   const handleForgotPassword = () => {
     // TODO: 導航到忘記密碼頁面
@@ -57,10 +79,14 @@ const LoginPage = () => {
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
     >
       <ScrollView
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[
+          styles.scrollContent,
+          Platform.OS === 'android' && keyboardVisible && { paddingBottom: 0 }
+        ]}
         keyboardShouldPersistTaps="handled"
       >
         {/* Logo 圖片 */}
