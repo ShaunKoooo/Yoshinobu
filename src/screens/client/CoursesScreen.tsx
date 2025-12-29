@@ -12,6 +12,11 @@ import { useContractVisits, useCancelContractVisit } from 'src/services/hooks';
 import { MyAlert } from 'src/components';
 import type { ContractVisit } from 'src/services/api/types';
 import { useInitializeUser } from 'src/hooks/useInitializeUser';
+import {
+  formatDate,
+  getWeekday,
+  formatTime,
+} from 'src/utils';
 
 type BookingStatus = 'reserved' | 'completed' | 'cancelled';
 
@@ -33,17 +38,6 @@ const CoursesScreen = () => {
 
   const cancelVisitMutation = useCancelContractVisit();
 
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const weekdays = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
-    const weekday = weekdays[date.getDay()];
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    return `${year}-${month}-${day}(${weekday}) ${hours}:${minutes}`;
-  };
 
   const handleCancelPress = (contractVisit: ContractVisit) => {
     setBookingToCancel(contractVisit);
@@ -114,7 +108,11 @@ const CoursesScreen = () => {
         ) : (
           contractVisits.map((contractVisit) => (
             <View key={contractVisit.id} style={styles.courseCard}>
-              <Text style={styles.dateTime}>{formatDate(contractVisit.date)}</Text>
+              <Text style={styles.dateTime}>{
+                formatDate(new Date(contractVisit.visit.date ?? '')) + ' ' +
+                getWeekday(contractVisit.visit.date ?? '') + ' ' +
+                formatTime(contractVisit.visit.time ?? '')
+              }</Text>
               <Text style={styles.courseName}>{contractVisit.visit.service_name || '未命名課程'}</Text>
               <View style={styles.courseInfo}>
                 <View style={styles.providerInfo}>

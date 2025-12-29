@@ -24,6 +24,11 @@ import {
   BottomSheetModal,
   MyPicker,
 } from 'src/components';
+import {
+  getWeekday,
+  formatDate,
+  formatTime,
+} from 'src/utils';
 import { Colors } from 'src/theme';
 import type { BadgeVariant } from 'src/components/common/Badge';
 import { useConfirmableModal } from 'src/hooks/useConfirmableModal';
@@ -61,17 +66,9 @@ const CourseManagementScreen = () => {
   // 使用 useConfirmableModal 管理 provider 選擇
   const providerModal = useConfirmableModal(providerId, setProviderId);
 
-  // Helper function to format date to YYYY-MM-DD using local timezone
-  const formatDateToString = (date: Date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  };
-
   const { data: contractVisits = [], isLoading, error } = useContractVisits({
-    from_date: formatDateToString(startDate),
-    to_date: formatDateToString(endDate),
+    from_date: formatDate(startDate),
+    to_date: formatDate(endDate),
     status: selectedStatus,
     provider_id: providerId || providers?.providers[0]?.id,
   });
@@ -85,22 +82,9 @@ const CourseManagementScreen = () => {
   const selectedProvider = providers?.providers?.find((p: { id: number; name: string }) => p.id === providerId);
 
   const formatDateRange = () => {
-    const start = formatDateToString(startDate);
-    const end = formatDateToString(endDate);
+    const start = formatDate(startDate);
+    const end = formatDate(endDate);
     return `${start} – ${end}`;
-  };
-
-  const getWeekday = (dateStr: string) => {
-    const weekdays = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
-    const date = new Date(dateStr);
-    return weekdays[date.getDay()];
-  };
-
-  const formatTime = (timeStr: string) => {
-    const date = new Date(timeStr);
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    return `${hours}:${minutes}`;
   };
 
   const getStatusBadge = (status: BookingStatus): { variant: BadgeVariant; text: string } => {
