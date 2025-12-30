@@ -65,7 +65,7 @@ const CreateBookingScreen = () => {
   const navigation = useNavigation<any>();
   const { profile } = useInitializeUser();
   const { userRole } = useAppSelector((state) => state.auth);
-  const clientId = useSelectedClientIdFromClients();
+  const clientId = userRole == 'coach' ? useSelectedClientIdFromClients() : profile?.id;
 
   const [serviceId, setServiceId] = useState<number | null>(null);
   const [providerId, setProviderId] = useState<number | null>(null);
