@@ -13,7 +13,7 @@ interface MyAlertProps {
   visible: boolean;
   title: string;
   message: string;
-  onCancel: () => void;
+  onCancel?: () => void;
   onConfirm: () => void;
   cancelText?: string;
   confirmText?: string;
@@ -25,8 +25,8 @@ const MyAlert: React.FC<MyAlertProps> = ({
   message,
   onCancel,
   onConfirm,
-  cancelText = '&',
-  confirmText = '/',
+  cancelText,
+  confirmText,
 }) => {
   return (
     <Modal
@@ -51,14 +51,14 @@ const MyAlert: React.FC<MyAlertProps> = ({
 
               {/* Buttons */}
               <View style={styles.buttonContainer}>
-                <TouchableOpacity
+                {cancelText && <TouchableOpacity
                   style={[styles.button, styles.cancelButton]}
                   onPress={onCancel}
                 >
                   <Text style={styles.cancelButtonText}>{cancelText}</Text>
-                </TouchableOpacity>
+                </TouchableOpacity>}
 
-                <View style={styles.buttonDivider} />
+                {cancelText && <View style={styles.buttonDivider} />}
 
                 <TouchableOpacity
                   style={[styles.button, styles.confirmButton]}

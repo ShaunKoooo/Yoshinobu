@@ -17,6 +17,7 @@ import {
   Icon,
   BottomSheetModal,
   MyPicker,
+  MyAlert,
 } from 'src/components';
 import { Colors } from 'src/theme';
 import {
@@ -88,6 +89,7 @@ const CreateBookingScreen = () => {
     }
   );
   const [yearMonthModalOpen, setYearMonthModalOpen] = useState(false);
+  const [noContractAlertVisible, setNoContractAlertVisible] = useState(false);
 
   const { data: services, isLoading: servicesLoading } = useServices();
   const { data: providers, isLoading: providersLoading } = useProviders();
@@ -95,7 +97,7 @@ const CreateBookingScreen = () => {
 
   const selectedService = services?.services?.find(s => s.id === serviceId);
 
-  const { data: availableContract, isLoading: contractLoading } = useAvailableContract(
+  const { data: availableContract, isLoading: contractLoading, error: contractError } = useAvailableContract(
     {
       service_id: serviceId || 0,
       consumed_time: selectedService?.duration || 0,
@@ -103,6 +105,16 @@ const CreateBookingScreen = () => {
     },
     !!serviceId && !!selectedService?.duration && !!clientId
   );
+
+  // 檢查是否有 422 錯誤（沒有可用合約）
+  useEffect(() => {
+    if (contractError) {
+      const error = contractError as any;
+      if (error?.status === 422) {
+        setNoContractAlertVisible(true);
+      }
+    }
+  }, [contractError]);
 
   // 當 services 載入後，自動設定第一個為預設值
   useEffect(() => {
@@ -477,6 +489,15 @@ const CreateBookingScreen = () => {
           </View>
         </View>
       </BottomSheetModal>
+
+      {/* 沒有可用合約提示 */}
+      <MyAlert
+        visible={noContractAlertVisible}
+        title="新增預約"
+        message="請先新增合約後再新增預約"
+        confirmText="確定"
+        onConfirm={() => setNoContractAlertVisible(false)}
+      />
 
     </View>
   );
