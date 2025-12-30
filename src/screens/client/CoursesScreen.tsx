@@ -19,7 +19,7 @@ import {
   formatTime,
 } from 'src/utils';
 
-type BookingStatus = 'reserved' | 'completed' | 'cancelled';
+type BookingStatus = 'reserved' | 'completed' | 'cancelled' | 'pending_verification';
 
 const STATUS_TABS = [
   { key: 'reserved', label: '進行中' },
@@ -38,6 +38,10 @@ const CoursesScreen = () => {
     status: 'reserved',
   });
 
+  const pendingVerificationQuery = useContractVisits({
+    status: 'pending_verification',
+  });
+
   const completedQuery = useContractVisits({
     status: 'completed',
   });
@@ -46,31 +50,58 @@ const CoursesScreen = () => {
     status: 'cancelled',
   });
 
-  // 根據當前選中的狀態取得對應的查詢結果
-  const getCurrentQuery = () => {
+  // 根據當前選中的狀態取得對應的資料和狀態
+  const getCurrentData = () => {
     switch (selectedStatus) {
       case 'reserved':
-        return reservedQuery;
+        // 合併 reserved 和 pending_verification 的資料
+        const reservedData = reservedQuery.data || [];
+        const pendingData = pendingVerificationQuery.data || [];
+        return {
+          data: [...reservedData, ...pendingData],
+          isLoading: reservedQuery.isLoading || pendingVerificationQuery.isLoading,
+          isRefetching: reservedQuery.isRefetching || pendingVerificationQuery.isRefetching,
+          refetch: () => {
+            reservedQuery.refetch();
+            pendingVerificationQuery.refetch();
+          },
+        };
       case 'completed':
-        return completedQuery;
+        return {
+          data: completedQuery.data || [],
+          isLoading: completedQuery.isLoading,
+          isRefetching: completedQuery.isRefetching,
+          refetch: completedQuery.refetch,
+        };
       case 'cancelled':
-        return cancelledQuery;
+        return {
+          data: cancelledQuery.data || [],
+          isLoading: cancelledQuery.isLoading,
+          isRefetching: cancelledQuery.isRefetching,
+          refetch: cancelledQuery.refetch,
+        };
       default:
-        return reservedQuery;
+        return {
+          data: reservedQuery.data || [],
+          isLoading: reservedQuery.isLoading,
+          isRefetching: reservedQuery.isRefetching,
+          refetch: reservedQuery.refetch,
+        };
     }
   };
 
-  const currentQuery = getCurrentQuery();
-  const contractVisits = currentQuery.data || [];
-  const isLoading = currentQuery.isLoading;
-  const refetch = currentQuery.refetch;
-  const isRefetching = currentQuery.isRefetching;
+  const currentData = getCurrentData();
+  const contractVisits = currentData.data;
+  const isLoading = currentData.isLoading;
+  const refetch = currentData.refetch;
+  const isRefetching = currentData.isRefetching;
 
   // 取得各狀態的數量
   const getStatusCount = (status: BookingStatus) => {
     switch (status) {
       case 'reserved':
-        return reservedQuery.data?.length || 0;
+        // reserved tab 顯示 reserved + pending_verification 的總數
+        return (reservedQuery.data?.length || 0) + (pendingVerificationQuery.data?.length || 0);
       case 'completed':
         return completedQuery.data?.length || 0;
       case 'cancelled':
@@ -188,12 +219,23 @@ const CoursesScreen = () => {
                   <Text style={styles.providerName}>{contractVisit.visit.provider_name || '未指定教練'}</Text>
                 </View>
                 {selectedStatus === 'reserved' && (
-                  <TouchableOpacity
-                    style={styles.cancelButton}
-                    onPress={() => handleCancelPress(contractVisit)}
-                    activeOpacity={0.7}>
-                    <Text style={styles.cancelButtonText}>取消預約</Text>
-                  </TouchableOpacity>
+                  <>
+                    {contractVisit.status === 'reserved' ? (
+                      <TouchableOpacity
+                        style={styles.cancelButton}
+                        onPress={() => handleCancelPress(contractVisit)}
+                        activeOpacity={0.7}>
+                        <Text style={styles.cancelButtonText}>取消預約</Text>
+                      </TouchableOpacity>
+                    ) : contractVisit.status === 'pending_verification' ? (
+                      <TouchableOpacity
+                        style={{ backgroundColor: Colors.primary, borderRadius: 6, paddingHorizontal: 16, paddingVertical: 8 }}
+                        onPress={() => { }}
+                        activeOpacity={0.7}>
+                        <Text style={styles.cancelButtonText}>核銷課程</Text>
+                      </TouchableOpacity>
+                    ) : null}
+                  </>
                 )}
               </View>
             </View>
