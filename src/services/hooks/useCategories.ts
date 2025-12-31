@@ -83,6 +83,7 @@ export const useAvailableContract = (
     queryKey: contractKeys.availableContract(params),
     queryFn: () => contractsApi.getAvailableContract(params),
     enabled: enabled && !!params.service_id && !!params.consumed_time,
+    retry: false, // 禁用重試，讓錯誤立即顯示
   });
 };
 

@@ -1,6 +1,7 @@
 import React, {
   useState,
   useEffect,
+  useRef,
 } from 'react';
 import {
   View,
@@ -90,6 +91,7 @@ const CreateBookingScreen = () => {
   );
   const [yearMonthModalOpen, setYearMonthModalOpen] = useState(false);
   const [noContractAlertVisible, setNoContractAlertVisible] = useState(false);
+  const hasShownAlertRef = useRef(false);
 
   const { data: services, isLoading: servicesLoading } = useServices();
   const { data: providers, isLoading: providersLoading } = useProviders();
@@ -106,12 +108,19 @@ const CreateBookingScreen = () => {
     !!serviceId && !!selectedService?.duration && !!clientId
   );
 
+  // 當 service, client, duration 改變時，重置 Alert 顯示狀態
+  useEffect(() => {
+    hasShownAlertRef.current = false;
+    setNoContractAlertVisible(false);
+  }, [serviceId, clientId, selectedService?.duration]);
+
   // 檢查是否有 422 錯誤（沒有可用合約）
   useEffect(() => {
-    if (contractError) {
+    if (contractError && !hasShownAlertRef.current) {
       const error = contractError as any;
       if (error?.status === 422) {
         setNoContractAlertVisible(true);
+        hasShownAlertRef.current = true;
       }
     }
   }, [contractError]);
