@@ -180,6 +180,25 @@ const CoursesScreen = () => {
     setBookingToComplete(null);
   };
 
+  // 檢查是否在預約時間的 30 分鐘內
+  const isWithin30Minutes = (contractVisit: ContractVisit): boolean => {
+    const { date, time } = contractVisit.visit;
+    if (!date || !time) return false;
+
+    // 組合日期和時間
+    const bookingDateTime = new Date(`${date}T${time}`);
+    const now = new Date();
+
+    // 計算時間差（毫秒）
+    const timeDiff = bookingDateTime.getTime() - now.getTime();
+
+    // 30 分鐘 = 30 * 60 * 1000 毫秒
+    const thirtyMinutes = 30 * 60 * 1000;
+
+    // 如果時間差小於 30 分鐘且大於 0（還沒過期），則返回 true
+    return timeDiff > 0 && timeDiff <= thirtyMinutes;
+  };
+
   return (
     <View style={styles.container}>
       {/* 狀態篩選器 */}
@@ -254,10 +273,17 @@ const CoursesScreen = () => {
                   <>
                     {contractVisit.status === 'reserved' ? (
                       <TouchableOpacity
-                        style={styles.cancelButton}
-                        onPress={() => handleCancelPress(contractVisit)}
-                        activeOpacity={0.7}>
-                        <Text style={styles.cancelButtonText}>取消預約</Text>
+                        style={[
+                          styles.cancelButton,
+                          isWithin30Minutes(contractVisit) && styles.disabledButton
+                        ]}
+                        onPress={() => !isWithin30Minutes(contractVisit) && handleCancelPress(contractVisit)}
+                        activeOpacity={isWithin30Minutes(contractVisit) ? 1 : 0.7}
+                        disabled={isWithin30Minutes(contractVisit)}>
+                        <Text style={[
+                          styles.cancelButtonText,
+                          isWithin30Minutes(contractVisit) && styles.disabledButtonText
+                        ]}>取消預約</Text>
                       </TouchableOpacity>
                     ) : contractVisit.status === 'pending_verification' ? (
                       <TouchableOpacity
@@ -397,10 +423,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
   },
+  disabledButton: {
+    backgroundColor: '#D9D9D9',
+    opacity: 0.6,
+  },
   cancelButtonText: {
     color: '#FFFFFF',
     fontSize: 14,
     fontWeight: '500',
+  },
+  disabledButtonText: {
+    color: '#999999',
   },
   emptyContainer: {
     flex: 1,
