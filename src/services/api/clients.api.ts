@@ -1,5 +1,6 @@
 import { apiClient } from './config';
-import { API_ENDPOINTS } from './endpoints.config';
+import { API_ENDPOINTS, COACH_ENDPOINTS, CLIENT_ENDPOINTS } from './endpoints.config';
+import { storageService } from '../storage.service';
 import type {
   Client,
   CreateClientRequest,
@@ -21,9 +22,18 @@ export const clientsApi = {
 
   /**
    * 取得單一客戶詳情
+   * Client 角色使用 CLIENT_DETAIL 端點，Coach 角色使用 COACH CLIENT_DETAIL 端點
    */
   getClient: async (id: number): Promise<Client> => {
-    return await apiClient.get<Client>(API_ENDPOINTS.CLIENT_DETAIL(id));
+    const userRole = await storageService.getUserRole();
+
+    if (userRole === 'client') {
+      // Client 角色使用 client 端點
+      return await apiClient.get<Client>(CLIENT_ENDPOINTS.CLIENT_DETAIL(id));
+    }
+
+    // Coach 角色使用 coach 端點
+    return await apiClient.get<Client>(COACH_ENDPOINTS.CLIENT_DETAIL(id));
   },
 
   /**
@@ -35,8 +45,17 @@ export const clientsApi = {
 
   /**
    * 更新客戶資料
+   * Client 角色使用 CLIENT_DETAIL 端點，Coach 角色使用 COACH CLIENT_DETAIL 端點
    */
   updateClient: async (id: number, data: UpdateClientRequest): Promise<Client> => {
-    return await apiClient.put<Client>(API_ENDPOINTS.CLIENT_DETAIL(id), data);
+    const userRole = await storageService.getUserRole();
+
+    if (userRole === 'client') {
+      // Client 角色使用 client 端點更新資料
+      return await apiClient.put<Client>(CLIENT_ENDPOINTS.CLIENT_DETAIL(id), data);
+    }
+
+    // Coach 角色使用 coach 端點
+    return await apiClient.put<Client>(COACH_ENDPOINTS.CLIENT_DETAIL(id), data);
   },
 };

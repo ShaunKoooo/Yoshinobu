@@ -19,11 +19,19 @@ import type {
 export const contractsApi = {
   /**
    * 取得客戶的合約列表
+   * Client 角色使用 CLIENT CONTRACTS 端點，Coach 角色使用 COACH CONTRACTS 端點
    * @param params - 包含 client_id 的參數
    */
   getContracts: async (params: GetContractsRequest): Promise<GetContractsResponse> => {
+    const userRole = await storageService.getUserRole();
+    const endpoint = userRole === 'client'
+      ? CLIENT_ENDPOINTS.CONTRACTS
+      : COACH_ENDPOINTS.CONTRACTS;
+
+    console.log('getContracts - userRole:', userRole, 'endpoint:', endpoint, 'params:', params);
+
     return await apiClient.get<GetContractsResponse>(
-      API_ENDPOINTS.CONTRACTS,
+      endpoint,
       params
     );
   },

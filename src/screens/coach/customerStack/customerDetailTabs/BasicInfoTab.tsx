@@ -1,4 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+} from 'react';
 import { View, StyleSheet } from 'react-native';
 import { CustomerForm, MyAlert } from 'src/components';
 import { CUSTOMER_FIELDS } from 'src/components/customerForm/constants';
@@ -6,6 +11,7 @@ import { useBasicInfoEdit } from '../CustomerDetailScreen';
 import { useClient, useUpdateClient } from 'src/services/hooks';
 import { useCustomerFormModal } from 'src/components/customerForm/useCustomerFormModal';
 import { useNavigation } from '@react-navigation/native';
+import { useAppSelector } from 'src/store/hooks';
 
 const BasicInfoTab = ({ route }: any) => {
   const navigation = useNavigation<any>();
@@ -13,6 +19,15 @@ const BasicInfoTab = ({ route }: any) => {
   const { id } = route.params || {};
   const { data, isLoading } = useClient(id);
   const { mutate: updateClient } = useUpdateClient();
+  const { userRole } = useAppSelector((state) => state.auth);
+
+  // 根據 userRole 過濾欄位，client 角色不顯示 note 欄位
+  const filteredFields = useMemo(() => {
+    if (userRole === 'client') {
+      return CUSTOMER_FIELDS.filter(field => field.key !== 'note');
+    }
+    return CUSTOMER_FIELDS;
+  }, [userRole]);
 
   // 用於編輯模式的表單狀態
   const [formValues, setFormValues] = useState<Record<string, string>>({
@@ -163,7 +178,7 @@ const BasicInfoTab = ({ route }: any) => {
     <View style={styles.container}>
       <CustomerForm
         editable={isEditing}
-        fields={CUSTOMER_FIELDS}
+        fields={filteredFields}
         values={displayValues}
         onFieldChange={handleFieldChange}
         onButtonPress={handleButtonPress}

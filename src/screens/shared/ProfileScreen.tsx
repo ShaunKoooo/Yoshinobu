@@ -6,14 +6,21 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import DeviceInfo from 'react-native-device-info';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import {
   MyButton,
   MyListItem,
 } from 'src/components';
-import { useAppDispatch } from 'src/store/hooks';
+import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import { Colors } from 'src/theme';
 import { logout } from 'src/store/slices/authSlice';
 import { useInitializeUser } from 'src/hooks';
+import {
+  BasicInfoTab,
+  ContractManagementTab,
+  VerificationRecordsTab,
+} from 'src/screens/coach';
+import { BasicInfoEditContext } from 'src/screens/coach/customerStack/CustomerDetailScreen';
 
 const PROFILE_FIELDS = [
   {
@@ -35,10 +42,25 @@ const PROFILE_FIELDS = [
   },
 ]
 
+const Tab = createMaterialTopTabNavigator();
+
 const ProfileScreen = () => {
   const dispatch = useAppDispatch();
+  const { userRole } = useAppSelector((state) => state.auth);
   const { isLoading, error, profile } = useInitializeUser();
-  console.log(profile, 'shaunprofile')
+
+  // BasicInfoEditContext 相關狀態
+  const [isEditingBasicInfo, setIsEditingBasicInfo] = React.useState(false);
+  const saveHandlerRef = React.useRef<(() => void) | null>(null);
+
+  const setSaveHandler = React.useCallback((handler: () => void) => {
+    saveHandlerRef.current = handler;
+  }, []);
+
+  const exitEditMode = React.useCallback(() => {
+    setIsEditingBasicInfo(false);
+  }, []);
+
   const renderProfileItem = ({ item }) => {
     const { label, key, getValue } = item || {};
     const value = getValue ? getValue() : profile?.[key] || '-';
@@ -75,6 +97,76 @@ const ProfileScreen = () => {
     );
   }
 
+  // 如果是 client 角色，顯示 CustomerDetailScreen 的 Tab Navigator
+  if (userRole === 'client' && profile?.id) {
+    return (
+      <BasicInfoEditContext.Provider
+        value={{
+          isEditing: isEditingBasicInfo,
+          setIsEditing: setIsEditingBasicInfo,
+          setSaveHandler,
+          exitEditMode,
+        }}
+      >
+        <View style={styles.container}>
+          <Tab.Navigator
+            screenOptions={{
+              tabBarActiveTintColor: Colors.primary,
+              tabBarInactiveTintColor: '#A2A2A2',
+              tabBarIndicatorStyle: {
+                backgroundColor: Colors.primary,
+                height: 2,
+              },
+              tabBarLabelStyle: {
+                fontSize: 16,
+                fontWeight: '400',
+                textTransform: 'none',
+              },
+              tabBarStyle: {
+                backgroundColor: '#FFFFFF',
+              },
+            }}>
+            <Tab.Screen
+              name="BasicInfo"
+              component={BasicInfoTab}
+              initialParams={{ id: profile.id }}
+              options={{
+                tabBarLabel: '基本資料',
+              }}
+            />
+            <Tab.Screen
+              name="ContractManagement"
+              component={ContractManagementTab}
+              initialParams={{ id: profile.id }}
+              options={{
+                tabBarLabel: '合約管理',
+              }}
+            />
+            <Tab.Screen
+              name="VerificationRecords"
+              component={VerificationRecordsTab}
+              options={{
+                tabBarLabel: '核銷紀錄',
+              }}
+            />
+          </Tab.Navigator>
+
+          {/* 登出按鈕 */}
+          <View style={styles.buttonContainer}>
+            <MyButton
+              title="登出"
+              isActive
+              onPress={() => {
+                dispatch(logout());
+              }}
+            />
+          </View>
+        </View>
+      </BasicInfoEditContext.Provider>
+    );
+  }
+
+  // 如果是 coach 角色，顯示原本的 profile 列表
   return (
     <View style={styles.container}>
       <View style={styles.listContainer}>

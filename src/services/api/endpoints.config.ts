@@ -60,7 +60,12 @@ const COACH_ENDPOINTS = {
 const CLIENT_ENDPOINTS = {
   CLIENT_ME: '/api/v4/clients/me',
 
+  // 客戶管理
+  CLIENTS: '/api/spa/client/v1/clients',
+  CLIENT_DETAIL: (id: number) => `/api/spa/client/v1/clients/${id}`,
+
   // 合約管理
+  CONTRACTS: '/api/spa/client/v1/contracts',
   AVAILABLE_CONTRACT: '/api/spa/client/v1/contracts/available_contract',
   FIND_CONTRACTS_BY_MOBILE: '/api/spa/client/v1/contracts/find_by_mobile',
 
