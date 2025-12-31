@@ -9,7 +9,7 @@ import {
   RefreshControl,
 } from 'react-native';
 import { Colors } from 'src/theme';
-import { useContractVisits, useCancelContractVisit } from 'src/services/hooks';
+import { useContractVisits, useCancelContractVisit, useCompleteContractVisit } from 'src/services/hooks';
 import { MyAlert } from 'src/components';
 import type { ContractVisit } from 'src/services/api/types';
 import { useInitializeUser } from 'src/hooks/useInitializeUser';
@@ -32,6 +32,8 @@ const CoursesScreen = () => {
   const [selectedStatus, setSelectedStatus] = useState<BookingStatus>('reserved');
   const [alertVisible, setAlertVisible] = useState(false);
   const [bookingToCancel, setBookingToCancel] = useState<ContractVisit | null>(null);
+  const [completeAlertVisible, setCompleteAlertVisible] = useState(false);
+  const [bookingToComplete, setBookingToComplete] = useState<ContractVisit | null>(null);
 
   // 為每個狀態分別查詢資料
   const reservedQuery = useContractVisits({
@@ -112,6 +114,7 @@ const CoursesScreen = () => {
   };
 
   const cancelVisitMutation = useCancelContractVisit();
+  const completeVisitMutation = useCompleteContractVisit();
 
   // Pull to refresh handler
   const handleRefresh = () => {
@@ -146,6 +149,35 @@ const CoursesScreen = () => {
   const handleCancelAlert = () => {
     setAlertVisible(false);
     setBookingToCancel(null);
+  };
+
+  const handleCompletePress = (contractVisit: ContractVisit) => {
+    setBookingToComplete(contractVisit);
+    setCompleteAlertVisible(true);
+  };
+
+  const handleConfirmComplete = () => {
+    if (bookingToComplete) {
+      completeVisitMutation.mutate(bookingToComplete.id, {
+        onSuccess: () => {
+          console.log('成功核銷課程:', bookingToComplete);
+          setCompleteAlertVisible(false);
+          setBookingToComplete(null);
+          Alert.alert('成功', '課程已核銷完成');
+        },
+        onError: (error) => {
+          console.error('核銷課程失敗:', error);
+          setCompleteAlertVisible(false);
+          setBookingToComplete(null);
+          Alert.alert('失敗', '核銷課程失敗，請稍後再試');
+        },
+      });
+    }
+  };
+
+  const handleCancelCompleteAlert = () => {
+    setCompleteAlertVisible(false);
+    setBookingToComplete(null);
   };
 
   return (
@@ -230,7 +262,7 @@ const CoursesScreen = () => {
                     ) : contractVisit.status === 'pending_verification' ? (
                       <TouchableOpacity
                         style={{ backgroundColor: Colors.primary, borderRadius: 6, paddingHorizontal: 16, paddingVertical: 8 }}
-                        onPress={() => { }}
+                        onPress={() => handleCompletePress(contractVisit)}
                         activeOpacity={0.7}>
                         <Text style={styles.cancelButtonText}>核銷課程</Text>
                       </TouchableOpacity>
@@ -251,6 +283,19 @@ const CoursesScreen = () => {
           message={`確定要取消 ${bookingToCancel.visit.service_name || '此課程'} 的預約嗎？`}
           onCancel={handleCancelAlert}
           onConfirm={handleConfirmCancel}
+          cancelText="否"
+          confirmText="是"
+        />
+      )}
+
+      {/* 核銷課程確認對話框 */}
+      {bookingToComplete && (
+        <MyAlert
+          visible={completeAlertVisible}
+          title="核銷課程"
+          message={`確定要核銷 ${bookingToComplete.visit.service_name || '此課程'} 嗎？`}
+          onCancel={handleCancelCompleteAlert}
+          onConfirm={handleConfirmComplete}
           cancelText="否"
           confirmText="是"
         />
