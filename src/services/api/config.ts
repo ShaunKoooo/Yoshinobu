@@ -67,8 +67,9 @@ export class ApiClient {
 
       if (!response.ok) {
         const error = await response.json().catch(() => ({}));
-        const apiError: any = new Error(error.message || `HTTP Error: ${response.status}`);
+        const apiError: any = new Error(error.message || error.error || `HTTP Error: ${response.status}`);
         apiError.status = response.status;
+        apiError.errorCode = error.error; // 保留原始錯誤代碼，如 "duplicate mobile"
         throw apiError;
       }
 

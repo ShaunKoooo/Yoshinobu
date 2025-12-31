@@ -6,6 +6,7 @@ import {
 import {
   MyButton,
   CustomerForm,
+  MyAlert,
 } from 'src/components';
 import { useCreateClient } from 'src/services/hooks';
 import { CUSTOMER_FIELDS } from 'src/components/customerForm/constants';
@@ -23,6 +24,11 @@ const CreateCustomer = () => {
     address: '',
     note: '',
     gender: 'male',
+  });
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertConfig, setAlertConfig] = useState({
+    title: '',
+    message: '',
   });
 
   const handleFieldChange = useCallback((key: string, value: string) => {
@@ -50,17 +56,42 @@ const CreateCustomer = () => {
   }, [formValues]);
 
   const handleSubmit = useCallback(() => {
-    mutate({
-      name: formValues.name,
-      mobile: formValues.mobile,
-      email: formValues.email,
-      birthday: formValues.birthday,
-      address: formValues.address,
-      note: formValues.note,
-      gender: formValues.gender as 'male' | 'female',
-    });
-    navigation.goBack();
-  }, [formValues, mutate]);
+    mutate(
+      {
+        name: formValues.name,
+        mobile: formValues.mobile,
+        email: formValues.email,
+        birthday: formValues.birthday,
+        address: formValues.address,
+        note: formValues.note,
+        gender: formValues.gender as 'male' | 'female',
+      },
+      {
+        onSuccess: () => {
+          navigation.goBack();
+        },
+        onError: (error: any) => {
+          console.error('Create client error:', error);
+
+          // 檢查是否為手機號碼重複錯誤
+          if (error.status === 422 && error.errorCode === 'duplicate mobile') {
+            setAlertConfig({
+              title: '手機號碼重複',
+              message: '此手機號碼已被使用，請使用其他手機號碼',
+            });
+            setAlertVisible(true);
+          } else {
+            // 其他錯誤
+            setAlertConfig({
+              title: '建立失敗',
+              message: error.message || '建立客戶時發生錯誤，請稍後再試',
+            });
+            setAlertVisible(true);
+          }
+        },
+      }
+    );
+  }, [formValues, mutate, navigation]);
 
   return (
     <View style={styles.container}>
@@ -79,6 +110,15 @@ const CreateCustomer = () => {
         />
       </View>
       {ModalComponent}
+
+      {/* 錯誤提示 */}
+      <MyAlert
+        visible={alertVisible}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        confirmText="確定"
+        onConfirm={() => setAlertVisible(false)}
+      />
     </View>
   );
 };
