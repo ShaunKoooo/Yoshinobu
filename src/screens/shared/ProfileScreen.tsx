@@ -22,6 +22,7 @@ import {
   VerificationRecordsTab,
 } from 'src/screens/coach';
 import { BasicInfoEditContext } from 'src/screens/coach/customerStack/CustomerDetailScreen';
+import { BUNDLE_BUILD } from 'src/constants/version';
 
 const PROFILE_FIELDS = [
   {
@@ -73,8 +74,8 @@ const ProfileScreen = () => {
       try {
         const metadata = await CodePush.getUpdateMetadata();
         if (metadata) {
-          // 如果有 CodePush 更新，顯示 CodePush 版本
-          setVersionInfo(`${nativeVersion} (${buildNumber}) - CP: ${metadata.label}`);
+          // 如果有 CodePush 更新，顯示 bundle 版本
+          setVersionInfo(`${nativeVersion} (${buildNumber}) - Bundle: ${BUNDLE_BUILD}`);
         } else {
           // 沒有 CodePush 更新，只顯示 Native 版本
           setVersionInfo(`${nativeVersion} (${buildNumber})`);
