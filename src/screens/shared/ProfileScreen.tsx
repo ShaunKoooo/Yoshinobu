@@ -6,6 +6,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import DeviceInfo from 'react-native-device-info';
+import CodePush from '@code-push-next/react-native-code-push';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import {
   MyButton,
@@ -38,7 +39,6 @@ const PROFILE_FIELDS = [
   {
     key: 'version',
     label: '版本',
-    getValue: () => `${DeviceInfo.getVersion()} - ${DeviceInfo.getBuildNumber()}`,
   },
 ]
 
@@ -53,6 +53,9 @@ const ProfileScreen = () => {
   const [isEditingBasicInfo, setIsEditingBasicInfo] = React.useState(false);
   const saveHandlerRef = React.useRef<(() => void) | null>(null);
 
+  // 版本資訊狀態
+  const [versionInfo, setVersionInfo] = React.useState<string>('載入中...');
+
   const setSaveHandler = React.useCallback((handler: () => void) => {
     saveHandlerRef.current = handler;
   }, []);
@@ -61,9 +64,41 @@ const ProfileScreen = () => {
     setIsEditingBasicInfo(false);
   }, []);
 
+  // 載入版本資訊
+  React.useEffect(() => {
+    const loadVersionInfo = async () => {
+      const nativeVersion = DeviceInfo.getVersion();
+      const buildNumber = DeviceInfo.getBuildNumber();
+
+      try {
+        const metadata = await CodePush.getUpdateMetadata();
+        if (metadata) {
+          // 如果有 CodePush 更新，顯示 CodePush 版本
+          setVersionInfo(`${nativeVersion} (${buildNumber}) - CP: ${metadata.label}`);
+        } else {
+          // 沒有 CodePush 更新，只顯示 Native 版本
+          setVersionInfo(`${nativeVersion} (${buildNumber})`);
+        }
+      } catch (error) {
+        console.log('Failed to get CodePush metadata:', error);
+        setVersionInfo(`${nativeVersion} (${buildNumber})`);
+      }
+    };
+
+    loadVersionInfo();
+  }, []);
+
   const renderProfileItem = ({ item }) => {
     const { label, key, getValue } = item || {};
-    const value = getValue ? getValue() : profile?.[key] || '-';
+    let value: string;
+
+    if (key === 'version') {
+      value = versionInfo;
+    } else if (getValue) {
+      value = getValue();
+    } else {
+      value = profile?.[key] || '-';
+    }
 
     return (
       <View style={styles.profileItem}>
