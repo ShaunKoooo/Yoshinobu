@@ -22,9 +22,9 @@ import { Colors } from 'src/theme';
 import {
   useCategories,
   useCreateContract,
-  useFindContractsByMobile,
   useCreateShareContract,
 } from 'src/services/hooks';
+import { contractsApi } from 'src/services/api';
 import { useNavigation } from '@react-navigation/native';
 import { useSelectedClientIdFromClients } from 'src/hooks/useClientsWithRedux';
 import { useConfirmableModal } from 'src/hooks/useConfirmableModal';
@@ -44,12 +44,7 @@ const CreateContractScreen = () => {
   const [time, setTime] = useState(60);
   const [showContractFields, setShowContractFields] = useState(false);
   const [selectedContractId, setSelectedContractId] = useState<number | null>(null);
-
-  // 查詢合約的 hook，預設不啟用
-  const { data: contractsData, refetch: searchContracts, isFetching: isSearching } = useFindContractsByMobile(
-    { mobile: phone },
-    false // 預設不自動查詢
-  );
+  const [contractsData, setContractsData] = useState<any>(null);
 
   // 使用 useConfirmableModal 管理各個 modal
   const categoryModal = useConfirmableModal(contractCategoryId, setContractCategoryId);
@@ -197,6 +192,11 @@ const CreateContractScreen = () => {
   // 根據 ID 找出對應的 name 來顯示
   const selectedCategory = categories?.find(c => c.id === contractCategoryId);
 
+  // 從選中的合約中取得 category (用於共用合約顯示)
+  const selectedContractCategory = selectedContractId && contractsData?.contracts
+    ? contractsData.contracts.find(c => c.id === selectedContractId)?.category
+    : null;
+
   const isFormValid = phone && name && contractNumber && contractType && time;
 
   return (
@@ -221,12 +221,51 @@ const CreateContractScreen = () => {
                 placeholder="請輸入"
                 placeholderTextColor={Colors.text.placeholder}
                 value={phone}
-                onChangeText={setPhone}
+                onChangeText={async (text) => {
+                  setPhone(text);
+
+                  // 當輸入完整手機號碼(10位數字)時自動查詢
+                  if (text.length === 10 && /^\d{10}$/.test(text)) {
+                    try {
+                      // 直接調用 API 並傳入最新的 text 值
+                      const result = await contractsApi.findContractsByMobile({ mobile: text });
+
+                      if (result) {
+                        // 儲存查詢結果
+                        setContractsData(result);
+                        // 查詢成功，顯示合約欄位
+                        setShowContractFields(true);
+
+                        // 如果有合約資料
+                        if (result.contracts && result.contracts.length > 0) {
+                          // 自動選擇第一筆合約
+                          const firstContract = result.contracts[0];
+                          setSelectedContractId(firstContract.id);
+                          setContractNumber(firstContract.contract_number || '');
+                          setContractCategoryId(firstContract.category_id);
+                          setTime(firstContract.contract_time);
+
+                          Alert.alert('查詢成功', `找到 ${result.contracts.length} 筆合約資料`);
+                        } else {
+                          Alert.alert('查詢結果', '此手機號碼無合約資料');
+                        }
+                      }
+                    } catch (error) {
+                      Alert.alert('查詢失敗', '查詢合約時發生錯誤');
+                    }
+                  } else if (text.length < 10) {
+                    // 如果號碼被修改且少於10位,隱藏合約欄位
+                    setShowContractFields(false);
+                    setSelectedContractId(null);
+                    setContractNumber('');
+                    setContractsData(null);
+                  }
+                }}
                 keyboardType="phone-pad"
               />
             </View>
 
-            <View style={styles.queryButtonContainer}>
+            {/* <View style={styles.queryButtonContainer}>
               <TouchableOpacity
                 style={styles.queryButton}
                 onPress={async () => {
@@ -265,7 +304,7 @@ const CreateContractScreen = () => {
                   {isSearching ? '查詢中...' : '查詢'}
                 </Text>
               </TouchableOpacity>
-            </View>
+            </View> */}
 
             <View style={styles.divider} />
           </View>
@@ -335,10 +374,10 @@ const CreateContractScreen = () => {
             <Text
               style={[
                 styles.selectorText,
-                !selectedCategory && styles.placeholderText,
+                !selectedContractCategory && styles.placeholderText,
               ]}
             >
-              {selectedCategory?.name || '請選擇'}
+              {selectedContractCategory?.name || '請選擇'}
             </Text>
           </View>
         )}
