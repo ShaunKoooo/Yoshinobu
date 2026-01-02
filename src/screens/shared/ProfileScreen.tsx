@@ -75,7 +75,7 @@ const ProfileScreen = () => {
         const metadata = await CodePush.getUpdateMetadata();
         if (metadata) {
           // 如果有 CodePush 更新，顯示 bundle 版本
-          setVersionInfo(`${nativeVersion} (${buildNumber}) - Bundle: ${BUNDLE_BUILD}`);
+          setVersionInfo(`${nativeVersion} - Bundle: ${BUNDLE_BUILD}`);
         } else {
           // 沒有 CodePush 更新，只顯示 Native 版本
           setVersionInfo(`${nativeVersion} (${buildNumber})`);
