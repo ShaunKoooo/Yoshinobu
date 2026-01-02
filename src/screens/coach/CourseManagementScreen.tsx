@@ -94,7 +94,8 @@ const CourseManagementScreen = () => {
         from_date: formatDate(startDate) as string,
         to_date: formatDate(endDate) as string,
         status,
-        provider_id: providerId || providers?.providers?.[0]?.id,
+        // 如果是「不指定服務人員」，不傳遞 provider_id
+        ...(isUnspecifiedProvider ? {} : { provider_id: currentProviderId }),
       })
     );
     return cachedData?.length || 0;

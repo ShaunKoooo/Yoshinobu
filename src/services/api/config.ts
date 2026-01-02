@@ -90,8 +90,15 @@ export class ApiClient {
   }
 
   async get<T>(endpoint: string, params?: Record<string, any>): Promise<T> {
-    const queryString = params
-      ? '?' + new URLSearchParams(params).toString()
+    // 過濾掉 undefined 的值
+    const filteredParams = params
+      ? Object.fromEntries(
+          Object.entries(params).filter(([_, value]) => value !== undefined)
+        )
+      : undefined;
+
+    const queryString = filteredParams
+      ? '?' + new URLSearchParams(filteredParams).toString()
       : '';
     return this.request<T>(endpoint + queryString, { method: 'GET' });
   }
