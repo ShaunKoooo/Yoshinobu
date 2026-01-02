@@ -139,6 +139,24 @@ const CreateBookingScreen = () => {
     }
   }, [providers, providerId]);
 
+  // 當服務項目改變時，清空預約時間
+  useEffect(() => {
+    if (serviceId !== null) {
+      setBookingDate('');
+      setBookingTime('');
+      timeModal.setTempValue({ date: '', time: '' });
+    }
+  }, [serviceId]);
+
+  // 當芳療師/按摩師改變時，清空預約時間
+  useEffect(() => {
+    if (providerId !== null) {
+      setBookingDate('');
+      setBookingTime('');
+      timeModal.setTempValue({ date: '', time: '' });
+    }
+  }, [providerId]);
+
   // 根據選擇的日期、provider、service 動態查詢可用時段
   const activeDateForSlots = timeModal.isOpen ? timeModal.tempValue.date : bookingDate;
 
