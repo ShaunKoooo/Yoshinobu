@@ -17,7 +17,7 @@
  * Increment this with each CodePush release.
  * This helps track the exact build within the same version.
  */
-export const BUNDLE_BUILD = 1;  // 將數字改為新的版本號
+export const BUNDLE_BUILD = 2026010100;  // 將數字改為新的版本號
 ```
 
 ### 步驟 2: 發布到 AppsOnAir
@@ -25,23 +25,39 @@ export const BUNDLE_BUILD = 1;  // 將數字改為新的版本號
 #### 發布到 spa
 
 ```bash
-# iOS
-appsonair-codepush release-react cofit-workspace-spa-ios --targetBinaryVersion 1.3 -t "20260101" -d "修復登入 bug" --mandatory
+# iOS (使用完整的 semver 格式)
+appsonair-codepush release-react cofit-workspace-spa-ios \
+  -t 1.3 \
+  -d "修復登入 bug" \
+  --mandatory
 
 # Android
-appsonair-codepush release-react cofit-workspace-spa-android --targetBinaryVersion 1.3 -t "20260101" -d "修復登入 bug" --mandatory
+appsonair-codepush release-react cofit-workspace-spa-android \
+  -t 1.3 \
+  -d "修復登入 bug" \
+  --mandatory
 ```
 
 #### 發布到 bb
 
 ```bash
 # iOS
-appsonair-codepush release-react cofit-workspace-bb-ios --targetBinaryVersion 1.3 -t "20260101" -d "修復登入 bug" --mandatory
+appsonair-codepush release-react cofit-workspace-bb-ios \
+  -t 1.3 \
+  -d "修復登入 bug" \
+  --mandatory
 
 # Android
-appsonair-codepush release-react cofit-workspace-bb-android --targetBinaryVersion 1.3 -t "20260101" -d "修復登入 bug" --mandatory
-
+appsonair-codepush release-react cofit-workspace-bb-android \
+  -t 1.3 \
+  -d "修復登入 bug" \
+  --mandatory
 ```
+
+**重要提醒：**
+- `--targetBinaryVersion` (`-t`) 必須使用完整的 semver 格式（例如 `1.3.0`）
+- 或使用萬用字元（例如 `"1.3.*"` 匹配所有 1.3.x 版本）
+- 或使用 `^` 符號（例如 `"^1.3.0"` 匹配 1.3.0 及以上版本）
 
 ### 步驟 3: 提交版本變更
 
@@ -103,11 +119,27 @@ export const BUNDLE_BUILD = 47;  ✅
 
 ## 常見問題
 
-### Q1: 如果忘記更新 BUNDLE_BUILD 會怎樣？
+### Q1: 發布時出現 "Please use a semver-compliant target binary version" 錯誤？
+
+**A:** 這是因為 `--targetBinaryVersion` 必須使用完整的 semver 格式。
+
+**錯誤範例：**
+```bash
+--targetBinaryVersion 1.3  ❌
+```
+
+**正確範例：**
+```bash
+--targetBinaryVersion "1.3.0"  ✅
+--targetBinaryVersion "1.3.*"  ✅（匹配所有 1.3.x）
+--targetBinaryVersion "^1.3.0" ✅（匹配 1.3.0 及以上）
+```
+
+### Q2: 如果忘記更新 BUNDLE_BUILD 會怎樣？
 
 **A:** 用戶看到的版本號不會改變，但 CodePush 仍然會更新程式碼。建議每次都更新以便追蹤。
 
-### Q2: BUNDLE_BUILD 要跟 CodePush label 一樣嗎？
+### Q3: BUNDLE_BUILD 要跟 CodePush label 一樣嗎？
 
 **A:** 建議一樣。使用 `-t` 參數指定 label 時，應該與 `BUNDLE_BUILD` 相同：
 
@@ -118,7 +150,7 @@ appsonair-codepush release-react spa-ios ios -t "45" -d "修復 bug"
 
 這樣 CodePush metadata 和 bundle 內的版本號會一致。
 
-### Q3: 多個 app 的 BUNDLE_BUILD 要分開管理嗎？
+### Q4: 多個 app 的 BUNDLE_BUILD 要分開管理嗎？
 
 **A:** 不用！使用統一的 `BUNDLE_BUILD` 有以下好處：
 
@@ -126,7 +158,7 @@ appsonair-codepush release-react spa-ios ios -t "45" -d "修復 bug"
 - 容易追蹤：知道這次更新發布到哪些平台
 - 避免混淆：不會搞不清楚哪個版本對應哪個更新
 
-### Q4: 如何查看目前發布的版本？
+### Q5: 如何查看目前發布的版本？
 
 ```bash
 # 查看 spa-ios 的發布歷史
