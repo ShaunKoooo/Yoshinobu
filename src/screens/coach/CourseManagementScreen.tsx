@@ -100,7 +100,7 @@ const CourseManagementScreen = () => {
   };
 
   const providerItems = providers?.providers?.map((provider: { name: string; id: number }) => ({
-    label: provider.name,
+    label: (provider.name === '不指定服務人員' ? '全部' : provider.name) || '全部',
     value: provider.id,
   })) || [];
 
@@ -189,7 +189,7 @@ const CourseManagementScreen = () => {
         >
           <Icon name="down-dir" size={16} color={Colors.text.primary} />
           <Text style={styles.dropdownText}>
-            {selectedProvider?.name || '全部'}
+            {(selectedProvider?.name === '不指定服務人員' ? '全部' : selectedProvider?.name) || '全部'}
           </Text>
         </TouchableOpacity>
       </View>
