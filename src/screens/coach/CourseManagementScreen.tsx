@@ -322,7 +322,7 @@ const CourseManagementScreen = () => {
         <MyAlert
           visible={alertVisible}
           title="取消預約"
-          message={`取消 ${bookingToCancel.visit.data?.real_name || '未命名'} ${bookingToCancel.date}(${getWeekday(bookingToCancel.date)}) ${bookingToCancel.visit.time || ''} ${bookingToCancel.visit.service_name || '未指定服務'} ${bookingToCancel.consumed_time}分鐘?`}
+          message={`取消 ${bookingToCancel.visit.data?.real_name || '未命名'} ${bookingToCancel.date}(${getWeekday(bookingToCancel.date)}) ${bookingToCancel.visit.time ? formatTime(bookingToCancel.visit.time) : ''} ${bookingToCancel.visit.service_name || '未指定服務'} ${bookingToCancel.consumed_time}分鐘?`}
           onCancel={handleCancelAlert}
           onConfirm={handleConfirmCancel}
           cancelText="否"
