@@ -165,6 +165,30 @@ const CourseManagementScreen = () => {
     });
   };
 
+  // 判斷是否可以核銷
+  const canVerify = (contractVisit: ContractVisit): boolean => {
+    const visitTime = contractVisit.visit.time;
+
+    // 如果沒有時間資訊，不允許核銷
+    if (!visitTime) {
+      return false;
+    }
+
+    // visitTime 已經是完整的 ISO 8601 格式（包含日期和時間）
+    const visitDateTime = new Date(visitTime);
+    const now = new Date();
+
+    // 計算課程開始前 15 分鐘
+    const fifteenMinutesBeforeVisit = new Date(visitDateTime.getTime() - 15 * 60 * 1000);
+
+    // 計算當天的 23:59:59
+    const endOfDay = new Date(visitDateTime);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    // 判斷當前時間是否在允許範圍內
+    return now >= fifteenMinutesBeforeVisit && now <= endOfDay;
+  };
+
   const handleDateRangeConfirm = (start: Date, end: Date) => {
     setStartDate(start);
     setEndDate(end);
@@ -304,10 +328,17 @@ const CourseManagementScreen = () => {
                       <Text style={styles.cancelButtonText}>取消預約</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                      style={styles.verifyButton}
+                      style={[
+                        styles.verifyButton,
+                        !canVerify(contractVisit) && styles.verifyButtonDisabled,
+                      ]}
                       onPress={() => handleVerifyPress(contractVisit)}
+                      disabled={!canVerify(contractVisit)}
                     >
-                      <Text style={styles.verifyButtonText}>員工核銷</Text>
+                      <Text style={[
+                        styles.verifyButtonText,
+                        !canVerify(contractVisit) && styles.verifyButtonTextDisabled,
+                      ]}>員工核銷</Text>
                     </TouchableOpacity>
                   </View>
                 )}
@@ -505,10 +536,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  verifyButtonDisabled: {
+    backgroundColor: '#C9CDD4',
+    opacity: 0.5,
+  },
   verifyButtonText: {
     fontSize: 14,
     color: '#FFFFFF',
     fontWeight: '600',
+  },
+  verifyButtonTextDisabled: {
+    color: '#86909C',
   },
 });
 
