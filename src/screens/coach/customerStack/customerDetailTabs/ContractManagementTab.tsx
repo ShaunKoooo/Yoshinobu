@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import {
   Accordion,
+  Badge,
 } from 'src/components';
 import { useContracts } from 'src/services/hooks';
 import { Colors } from 'src/theme';
@@ -49,7 +50,7 @@ const ContractManagementTab = ({ route }: any) => {
           <>
             <Text style={styles.contractCustomerId}>{contract.contract_number}</Text>
             <View style={styles.rightSection}>
-              {/* TODO: 判斷是否為共用合約，目前先不顯示 */}
+              {contract.shared && <Badge variant="shared" text="共用" />}
             </View>
           </>
         }>

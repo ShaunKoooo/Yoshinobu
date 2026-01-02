@@ -172,6 +172,7 @@ export interface Contract {
   updated_at: string;
   category?: Category; // 合約類別（API 回傳時會包含）
   contract_number?: string; // 合約號碼
+  shared?: boolean; // 是否為共用合約
 }
 
 export interface GetContractsRequest {
