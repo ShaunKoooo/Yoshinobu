@@ -73,12 +73,18 @@ const CourseManagementScreen = () => {
   // 使用 useConfirmableModal 管理 provider 選擇
   const providerModal = useConfirmableModal(providerId, setProviderId);
 
+  // 取得當前選擇的 provider
+  const currentProviderId = providerId || providers?.providers[0]?.id;
+  const currentProvider = providers?.providers?.find((p: { id: number; name: string }) => p.id === currentProviderId);
+  const isUnspecifiedProvider = currentProvider?.name === '不指定服務人員';
+
   // 只查詢當前選中的狀態
   const { data: contractVisits = [], isLoading, error, refetch, isRefetching } = useContractVisits({
     from_date: formatDate(startDate),
     to_date: formatDate(endDate),
     status: selectedStatus,
-    provider_id: providerId || providers?.providers[0]?.id,
+    // 如果是「不指定服務人員」，不傳遞 provider_id
+    ...(isUnspecifiedProvider ? {} : { provider_id: currentProviderId }),
   });
 
   // 從緩存中取得各狀態的數量
