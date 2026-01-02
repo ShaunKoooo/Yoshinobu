@@ -1,14 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import {
   Badge,
   Accordion,
 } from 'src/components';
+import { useContractVisits } from 'src/services/hooks/useContractVisits';
+import type { ContractVisit } from 'src/services/api/types';
+import { formatDate, formatTime } from 'src/utils';
 
 interface VerificationRecord {
   id: string;
@@ -20,34 +24,59 @@ interface VerificationRecord {
 }
 
 const VerificationRecordsTab = () => {
-  // TODO: 從 route params 或 Redux 取得實際的核銷紀錄列表
-  const [records] = useState<VerificationRecord[]>([
-    {
-      id: '1',
-      time: '2024-01-15 14:30',
-      status: 'completed',
-      serviceItems: '全身按摩、腳底按摩',
-      serviceTime: '2024-01-15 14:30 - 16:00',
-      masseurs: '張師傅、李師傅',
-    },
-    {
-      id: '2',
-      time: '2024-01-20 10:00',
-      status: 'cancelled',
-      serviceItems: '肩頸按摩',
-      serviceTime: '2024-01-20 10:00 - 11:00',
-      masseurs: '王師傅',
-    },
-    {
-      id: '3',
-      time: '2024-01-25 16:00',
-      status: 'pending',
-      serviceItems: '全身按摩、足部護理、精油按摩',
-      serviceTime: '2024-01-25 16:00 - 18:00',
-      masseurs: '張師傅、李師傅、王師傅',
-    },
-  ]);
-  const [expandedRecords, setExpandedRecords] = useState<Set<string>>(new Set(['1']));
+  const [expandedRecords, setExpandedRecords] = useState<Set<string>>(new Set());
+
+  // 取得當前日期並格式化為 YYYY-MM-DD
+  const toDate = useMemo(() => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  }, []);
+
+  // 調用 API
+  const { data: contractVisits, isLoading, error } = useContractVisits({
+    from_date: '2025-01-01',
+    to_date: toDate,
+    status: 'completed',
+  });
+
+  // 將 API 數據轉換為顯示格式
+  const records = useMemo(() => {
+    if (!contractVisits) return [];
+
+    return contractVisits.map((visit: ContractVisit): VerificationRecord => {
+      const visitDetail = visit.visit;
+      const serviceName = visitDetail.service_name || '-';
+      const providerName = visitDetail.provider_name || '-';
+
+      // 格式化為 YYYY-MM-DD HH:MM
+      const formatDateTime = (isoString: string) => {
+        if (!isoString) return '';
+        const dateObj = new Date(isoString);
+        return `${formatDate(dateObj)} ${formatTime(isoString)}`;
+      };
+
+      // 使用 check_in_time 或 time 作為開始時間
+      const startTime = visitDetail.check_in_time || visitDetail.time;
+      const duration = visitDetail.duration;
+
+      let displayTime = '';
+      let serviceTime = '';
+
+      if (startTime) {
+        displayTime = formatDateTime(startTime);
+        serviceTime = duration.toString() + ' 分鐘';
+      }
+
+      return {
+        id: visit.id.toString(),
+        time: displayTime,
+        status: visit.status as 'completed' | 'cancelled' | 'pending',
+        serviceItems: serviceName,
+        serviceTime,
+        masseurs: providerName,
+      };
+    });
+  }, [contractVisits]);
 
   const toggleRecord = (recordId: string) => {
     setExpandedRecords((prev) => {
@@ -97,7 +126,7 @@ const VerificationRecordsTab = () => {
         onToggle={() => toggleRecord(record.id)}
         header={
           <>
-            <Text style={styles.recordTime}>{record.time}</Text>
+            <Text style={styles.recordTime}>{record.time || '-'}</Text>
             <View style={styles.rightSection}>
               <Badge variant={getBadgeVariant(record.status)} text={getBadgeText(record.status)} />
             </View>
@@ -119,6 +148,30 @@ const VerificationRecordsTab = () => {
     );
   };
 
+  if (isLoading) {
+    return (
+      <View style={[styles.container, styles.centerContent]}>
+        <ActivityIndicator size="large" color="#007AFF" />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={[styles.container, styles.centerContent]}>
+        <Text style={styles.errorText}>載入失敗，請稍後再試</Text>
+      </View>
+    );
+  }
+
+  if (records.length === 0) {
+    return (
+      <View style={[styles.container, styles.centerContent]}>
+        <Text style={styles.emptyText}>目前沒有核銷紀錄</Text>
+      </View>
+    );
+  }
+
   return (
     <ScrollView style={styles.container}>
       {records.map(renderRecordItem)}
@@ -130,6 +183,22 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
+  },
+  centerContent: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorText: {
+    fontFamily: 'SF Pro',
+    fontSize: 16,
+    fontWeight: '400',
+    color: '#FF3B30',
+  },
+  emptyText: {
+    fontFamily: 'SF Pro',
+    fontSize: 16,
+    fontWeight: '400',
+    color: '#86909C',
   },
   recordTime: {
     fontFamily: 'SF Pro',
