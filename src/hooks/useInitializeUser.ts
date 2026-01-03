@@ -14,8 +14,8 @@ export const useInitializeUser = () => {
   const { isAuthenticated, userRole } = useAppSelector((state) => state.auth);
   const { profile } = useAppSelector((state) => state.user);
 
-  // 只有在登入且沒有 profile 時才呼叫 useMe
-  // useMe 內部會根據 userRole 調用不同的端點
+  // 只有在登入時才呼叫 useMe
+  // React Query 的 enabled 會在 isAuthenticated 變更時立即反應
   const shouldFetchUser = isAuthenticated && !profile;
 
   console.log('🔍 useInitializeUser - isAuthenticated:', isAuthenticated, 'userRole:', userRole, 'shouldFetchUser:', shouldFetchUser);

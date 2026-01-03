@@ -33,7 +33,7 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 const RootNavigator = () => {
   const { isAuthenticated, isLoading, userRole } = useAppSelector((state) => state.auth);
 
-  // 自動載入使用者資料（當為教練身份時）
+  // 自動載入使用者資料（內部會檢查 isAuthenticated）
   const { isLoading: isUserLoading } = useInitializeUser();
 
   // 顯示載入畫面

@@ -259,6 +259,8 @@ const authSlice = createSlice({
     builder
       .addCase(logout.pending, (state) => {
         state.isLoading = true;
+        // 立即設定為未登入，避免在登出過程中誤觸發 API 請求
+        state.isAuthenticated = false;
       })
       .addCase(logout.fulfilled, (state) => {
         state.isLoading = false;
