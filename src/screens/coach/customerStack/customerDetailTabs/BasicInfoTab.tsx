@@ -16,18 +16,33 @@ import { useAppSelector } from 'src/store/hooks';
 const BasicInfoTab = ({ route }: any) => {
   const navigation = useNavigation<any>();
   const { isEditing, setSaveHandler, exitEditMode } = useBasicInfoEdit();
-  const { id } = route.params || {};
+  const { id, showId } = route.params || {};
   const { data, isLoading } = useClient(id);
   const { mutate: updateClient } = useUpdateClient();
   const { userRole } = useAppSelector((state) => state.auth);
 
   // 根據 userRole 過濾欄位，client 角色不顯示 note 欄位
+  // 如果需要顯示 ID 和版本，則添加這些欄位
   const filteredFields = useMemo(() => {
-    if (userRole === 'client') {
-      return CUSTOMER_FIELDS.filter(field => field.key !== 'note');
+    let fields = userRole === 'client'
+      ? CUSTOMER_FIELDS.filter(field => field.key !== 'note')
+      : CUSTOMER_FIELDS;
+
+    // 如果需要顯示 ID 和版本資訊（只在 ProfileScreen 中）
+    if (showId) {
+      fields = [
+        {
+          key: 'id',
+          title: '客戶 ID',
+          type: 'textInput' as const,
+          nonEditPlaceholder: '-',
+        },
+        ...fields,
+      ];
     }
-    return CUSTOMER_FIELDS;
-  }, [userRole]);
+
+    return fields;
+  }, [userRole, showId]);
 
   // 用於編輯模式的表單狀態
   const [formValues, setFormValues] = useState<Record<string, string>>({
@@ -170,6 +185,11 @@ const BasicInfoTab = ({ route }: any) => {
     note: data.client.note || '',
     gender: data.client.gender || '',
   };
+
+  // 如果需要顯示 ID 和版本，添加到 displayValues
+  if (showId) {
+    apiDataAsFormValues.id = String(data.client.id || '');
+  }
 
   // 根據編輯模式決定顯示的值
   const displayValues = isEditing ? formValues : apiDataAsFormValues;

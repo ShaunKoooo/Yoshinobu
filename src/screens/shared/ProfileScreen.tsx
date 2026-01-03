@@ -165,7 +165,7 @@ const ProfileScreen = () => {
             <Tab.Screen
               name="BasicInfo"
               component={BasicInfoTab}
-              initialParams={{ id: profile.id }}
+              initialParams={{ id: profile.id, showId: true }}
               options={{
                 tabBarLabel: '基本資料',
               }}
@@ -189,6 +189,9 @@ const ProfileScreen = () => {
 
           {/* 登出按鈕 */}
           <View style={styles.buttonContainer}>
+            <View style={styles.versionContainer}>
+              <Text style={styles.versionText}>v{versionInfo}</Text>
+            </View>
             <MyButton
               title="登出"
               isActive
@@ -275,6 +278,12 @@ const styles = StyleSheet.create({
   buttonContainer: {
     padding: 16,
     backgroundColor: '#FFFFFF',
+  },
+  versionContainer: {
+    alignItems: 'center',
+  },
+  versionText: {
+    color: '#8E8E93',
   },
 });
 
