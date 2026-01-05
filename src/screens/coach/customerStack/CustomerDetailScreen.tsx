@@ -2,6 +2,8 @@ import React, { useLayoutEffect, createContext, useContext } from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { useNavigation } from '@react-navigation/native';
+import { useInitializeUser } from 'src/hooks';
+import { useAppSelector } from 'src/store/hooks';
 import {
   BasicInfoTab,
   ContractManagementTab,
@@ -12,8 +14,8 @@ import { Colors } from 'src/theme';
 
 export type CustomerDetailTabParamList = {
   BasicInfo: { id: number };
-  ContractManagement: undefined;
-  VerificationRecords: undefined;
+  ContractManagement: { id: number };
+  VerificationRecords: { id: number };
 };
 
 interface BasicInfoEditContextType {
@@ -37,6 +39,8 @@ const Tab = createMaterialTopTabNavigator<CustomerDetailTabParamList>();
 
 const CustomerDetailScreen = ({ route }: any) => {
   const navigation = useNavigation<any>();
+  const { userRole } = useAppSelector((state) => state.auth);
+  const { profile } = useInitializeUser();
   const { id } = route.params || {};
   const [currentTab, setCurrentTab] = React.useState<keyof CustomerDetailTabParamList>('BasicInfo');
   const [isEditingBasicInfo, setIsEditingBasicInfo] = React.useState(false);
@@ -146,7 +150,7 @@ const CustomerDetailScreen = ({ route }: any) => {
         <Tab.Screen
           name="BasicInfo"
           component={BasicInfoTab}
-          initialParams={{ id }}
+          initialParams={{ id: (userRole === 'client' && profile?.id) ? profile.id : id }}
           options={{
             tabBarLabel: '基本資料',
           }}
@@ -154,7 +158,7 @@ const CustomerDetailScreen = ({ route }: any) => {
         <Tab.Screen
           name="ContractManagement"
           component={ContractManagementTab}
-          initialParams={{ id }}
+          initialParams={{ id: (userRole === 'client' && profile?.id) ? profile.id : id }}
           options={{
             tabBarLabel: '合約管理',
           }}
@@ -162,6 +166,7 @@ const CustomerDetailScreen = ({ route }: any) => {
         <Tab.Screen
           name="VerificationRecords"
           component={VerificationRecordsTab}
+          initialParams={{ id: (userRole === 'client' && profile?.id) ? profile.id : id }}
           options={{
             tabBarLabel: '核銷紀錄',
           }}

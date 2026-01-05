@@ -181,6 +181,7 @@ const ProfileScreen = () => {
             <Tab.Screen
               name="VerificationRecords"
               component={VerificationRecordsTab}
+              initialParams={{ id: profile.id }}
               options={{
                 tabBarLabel: '核銷紀錄',
               }}

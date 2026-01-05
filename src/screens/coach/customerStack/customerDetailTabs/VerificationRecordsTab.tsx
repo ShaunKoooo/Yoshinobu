@@ -23,9 +23,9 @@ interface VerificationRecord {
   masseurs: string;
 }
 
-const VerificationRecordsTab = () => {
+const VerificationRecordsTab = ({ route }: any) => {
   const [expandedRecords, setExpandedRecords] = useState<Set<string>>(new Set());
-
+  const { id } = route.params || {};
   // 取得當前日期並格式化為 YYYY-MM-DD
   const toDate = useMemo(() => {
     const today = new Date();
@@ -37,6 +37,7 @@ const VerificationRecordsTab = () => {
     from_date: '2025-01-01',
     to_date: toDate,
     status: 'completed',
+    client_id: id,
   });
 
   // 將 API 數據轉換為顯示格式

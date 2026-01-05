@@ -122,6 +122,7 @@ export interface GetContractVisitsRequest {
   to_date?: string;
   status?: ContractVisitStatus;
   provider_id?: number;
+  client_id?: number;
 }
 
 export interface GetContractVisitsResponse {
