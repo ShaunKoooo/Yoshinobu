@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
   contractCustomerId: {
     fontFamily: 'SF Pro',
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: '700',
     lineHeight: 21,
     letterSpacing: 0.5,
     color: '#48484A',
