@@ -133,15 +133,15 @@ const VerificationRecordsTab = () => {
           </>
         }>
         <View style={styles.detail}>
-          <Text style={styles.detailLabel}>服務項目：</Text>
+          <Text style={styles.detailLabel}>服務項目</Text>
           <Text style={styles.detailValue}>{record.serviceItems}</Text>
         </View>
         <View style={styles.detail}>
-          <Text style={styles.detailLabel}>服務時間：</Text>
+          <Text style={styles.detailLabel}>服務時間</Text>
           <Text style={styles.detailValue}>{record.serviceTime}</Text>
         </View>
         <View style={styles.detail}>
-          <Text style={styles.detailLabel}>按摩師：</Text>
+          <Text style={styles.detailLabel}>按摩師</Text>
           <Text style={styles.detailValue}>{record.masseurs}</Text>
         </View>
       </Accordion>
@@ -203,7 +203,7 @@ const styles = StyleSheet.create({
   recordTime: {
     fontFamily: 'SF Pro',
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: '700',
     lineHeight: 21,
     letterSpacing: 0.5,
     color: '#48484A',
