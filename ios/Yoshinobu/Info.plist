@@ -33,6 +33,12 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Reactotron needs local network access to connect to the debugger.</string>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_reactotron._tcp</string>
+	</array>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string></string>
 	<key>RCTNewArchEnabled</key>
