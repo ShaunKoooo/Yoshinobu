@@ -21,6 +21,7 @@ interface VerificationRecord {
   serviceItems: string;
   serviceTime: string;
   masseurs: string;
+  consumed_time: number;
 }
 
 const VerificationRecordsTab = ({ route }: any) => {
@@ -58,14 +59,14 @@ const VerificationRecordsTab = ({ route }: any) => {
 
       // 使用 check_in_time 或 time 作為開始時間
       const startTime = visitDetail.check_in_time || visitDetail.time;
-      const duration = visitDetail.duration;
+      const duration = visit.consumed_time;
 
       let displayTime = '';
       let serviceTime = '';
 
       if (startTime) {
         displayTime = formatDateTime(startTime);
-        serviceTime = duration.toString() + ' 分鐘';
+        serviceTime = duration.toString();
       }
 
       return {
@@ -139,7 +140,7 @@ const VerificationRecordsTab = ({ route }: any) => {
         </View>
         <View style={styles.detail}>
           <Text style={styles.detailLabel}>服務時間</Text>
-          <Text style={styles.detailValue}>{record.serviceTime}</Text>
+          <Text style={styles.detailValue}>{record.serviceTime} 分鐘</Text>
         </View>
         <View style={styles.detail}>
           <Text style={styles.detailLabel}>按摩師</Text>
