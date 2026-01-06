@@ -3,6 +3,8 @@ import { COACH_ENDPOINTS, CLIENT_ENDPOINTS } from './endpoints.config';
 import { storageService } from '../storage.service';
 import type {
   Client,
+  UpdateDeviceRequest,
+  UpdateDeviceResponse,
 } from './types';
 
 /**
@@ -28,5 +30,19 @@ export const meApi = {
 
     const response = await apiClient.get<any>(endpoint);
     return response || ({} as any);
+  },
+
+  /**
+   * 更新設備資訊 (FCM Token)
+   */
+  updateDevice: async (data: UpdateDeviceRequest): Promise<UpdateDeviceResponse> => {
+    const userRole = await storageService.getUserRole();
+
+    // 根據角色使用不同的端點
+    const endpoint = userRole === 'client'
+      ? CLIENT_ENDPOINTS.UPDATE_DEVICE
+      : COACH_ENDPOINTS.UPDATE_DEVICE;
+
+    return await apiClient.post<UpdateDeviceResponse>(endpoint, data);
   },
 };

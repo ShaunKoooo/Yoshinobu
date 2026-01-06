@@ -80,13 +80,6 @@ function App() {
     const initPushNotifications = async () => {
       // 設置通知監聽器
       pushNotificationService.setupNotificationListeners();
-
-      // 請求通知權限並獲取 FCM token
-      const token = await pushNotificationService.requestPermission();
-      if (token) {
-        console.log('FCM Token:', token);
-        // TODO: token 發送到後端服務器
-      }
     };
 
     initPushNotifications();

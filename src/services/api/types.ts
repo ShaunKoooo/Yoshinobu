@@ -338,3 +338,27 @@ export interface ApiSuccessResponse<T = any> {
   data: T;
   message?: string;
 }
+
+// ==================== 設備管理 ====================
+
+export interface UpdateDeviceRequest {
+  pushPermissionStatus: string;
+  token: string;
+  experienceId: string;
+  appName: string;
+  appPackageName: string;
+  appVersionNumber: string;
+  appVersionCode: string;
+  appVersion: string;
+  appVersionFigure: number;
+  platform: string;
+  platformVersion: string;
+  model: string;
+  modelName: string;
+  deviceName: string;
+  uuid: string; // Device Unique ID
+}
+
+export interface UpdateDeviceResponse {
+  ok: boolean;
+}

@@ -5,6 +5,7 @@ import { AppConfig } from 'src/config/AppConfig';
 import { Icon } from 'src/components';
 import { useAppSelector } from 'src/store/hooks';
 import { useInitializeUser } from 'src/hooks/useInitializeUser';
+import { usePushNotification } from 'src/hooks/usePushNotification';
 import CoachTabNavigator from './CoachTabNavigator';
 import ClientTabNavigator from './ClientTabNavigator';
 import { Colors } from 'src/theme';
@@ -35,6 +36,9 @@ const RootNavigator = () => {
 
   // 自動載入使用者資料（內部會檢查 isAuthenticated）
   const { isLoading: isUserLoading } = useInitializeUser();
+
+  // 初始化 Push Notification (取得 Token 並上傳)
+  usePushNotification();
 
   // 顯示載入畫面
   if (isLoading || isUserLoading) {

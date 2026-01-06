@@ -87,7 +87,13 @@ class PushNotificationService {
   /**
    * 初始化通知監聽器
    */
-  setupNotificationListeners() {
+  /**
+   * 初始化通知監聽器
+   */
+  setupNotificationListeners(
+    onNotificationReceived?: (notification: any) => void,
+    onNotificationOpened?: (notification: any) => void
+  ) {
     // 監聽 Token 刷新
     messaging().onTokenRefresh((token) => {
       console.log('FCM Token 已刷新:', token);
@@ -98,6 +104,10 @@ class PushNotificationService {
     messaging().onMessage(async (remoteMessage) => {
       console.log('收到前景通知:', remoteMessage);
 
+      if (onNotificationReceived) {
+        onNotificationReceived(remoteMessage);
+      }
+
       // 顯示 Alert
       if (remoteMessage.notification) {
         Alert.alert(
@@ -105,8 +115,6 @@ class PushNotificationService {
           remoteMessage.notification.body || ''
         );
       }
-
-      // TODO: 可以使用 react-native-push-notification 顯示本地通知
     });
 
     // 背景通知處理（App 在背景時收到通知）
@@ -115,20 +123,23 @@ class PushNotificationService {
       // 在背景處理通知邏輯
     });
 
-    // 用戶點擊通知打開 App
+    // 用戶點擊通知打開 App (Background -> Foreground)
     messaging().onNotificationOpenedApp((remoteMessage) => {
       console.log('用戶點擊通知打開 App:', remoteMessage);
-      // TODO: 根據通知內容導航到特定頁面
-      // 例如：navigation.navigate('NotificationDetail', { id: remoteMessage.data.id });
+      if (onNotificationOpened) {
+        onNotificationOpened(remoteMessage);
+      }
     });
 
-    // App 從完全關閉狀態被通知打開
+    // App 從完全關閉狀態被通知打開 (Quit -> Foreground)
     messaging()
       .getInitialNotification()
       .then((remoteMessage) => {
         if (remoteMessage) {
           console.log('App 從通知啟動:', remoteMessage);
-          // TODO: 根據通知內容導航到特定頁面
+          if (onNotificationOpened) {
+            onNotificationOpened(remoteMessage);
+          }
         }
       });
   }
