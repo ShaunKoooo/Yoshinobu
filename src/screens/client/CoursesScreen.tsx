@@ -182,11 +182,11 @@ const CoursesScreen = () => {
 
   // 檢查是否在預約時間的 30 分鐘內
   const isWithin30Minutes = (contractVisit: ContractVisit): boolean => {
-    const { date, time } = contractVisit.visit;
-    if (!date || !time) return false;
+    const { time } = contractVisit.visit;
+    if (!time) return false;
 
     // 組合日期和時間
-    const bookingDateTime = new Date(`${date}T${time}`);
+    const bookingDateTime = new Date(time);
     const now = new Date();
 
     // 計算時間差（毫秒）

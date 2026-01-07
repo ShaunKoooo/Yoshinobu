@@ -42,12 +42,24 @@ export const useCustomerFormModal = ({
     const field = CUSTOMER_FIELDS.find((f) => f.key === key);
     if (field?.modalType) {
       setTempFieldKey(key);
-      fieldModal.setTempValue(formValues[key] || ''); // 初始化暫存值
+      const currentValue = formValues[key] || '';
+      fieldModal.setTempValue(currentValue); // 初始化暫存值
       setActiveModal({ type: field.modalType, fieldKey: key });
-      // 如果是生日欄位且沒有值，預設設為 1970 年
-      if (key === 'birthday' && !formValues[key]) {
-        setCurrentYear(1970);
-        setCurrentMonth(1);
+
+      // 如果是生日欄位
+      if (key === 'birthday') {
+        if (currentValue) {
+          // 如果有值，解析年份和月份
+          const date = new Date(currentValue);
+          if (!isNaN(date.getTime())) {
+            setCurrentYear(date.getFullYear());
+            setCurrentMonth(date.getMonth() + 1);
+          }
+        } else {
+          // 如果沒有值，預設設為 1970 年
+          setCurrentYear(1970);
+          setCurrentMonth(1);
+        }
         setCalendarKey(prev => prev + 1);
       }
     }
@@ -60,7 +72,27 @@ export const useCustomerFormModal = ({
 
   const handleModalConfirm = useCallback(() => {
     if (activeModal?.type === 'yearMonth') {
-      // 更新 Calendar 顯示的月份
+      // 更新 Calendar 顯示的月份，同時更新 tempValue
+      let day = 1;
+      if (fieldModal.tempValue) {
+        const date = new Date(fieldModal.tempValue);
+        if (!isNaN(date.getTime())) {
+          day = date.getDate();
+        }
+      }
+
+      // 處理日期溢位 (例如 1/31 切換到 2 月 -> 2/28)
+      // 使用 0 作為 day 會回到上個月最後一天，所以我們創建下個月第0天來獲取當月最後一天
+      const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
+      const newDay = Math.min(day, daysInMonth);
+
+      const y = currentYear;
+      const m = String(currentMonth).padStart(2, '0');
+      const d = String(newDay).padStart(2, '0');
+      const newDateString = `${y}-${m}-${d}`;
+
+      fieldModal.setTempValue(newDateString);
+
       setCalendarKey(prev => prev + 1);
       setActiveModal({ type: 'calendar', fieldKey: activeModal.fieldKey });
     } else {
@@ -68,7 +100,7 @@ export const useCustomerFormModal = ({
       fieldModal.handleConfirm();
       setActiveModal(null);
     }
-  }, [activeModal, fieldModal]);
+  }, [activeModal, fieldModal, currentYear, currentMonth]);
 
   // 生成年份選項（根據是否為生日欄位）
   const isBirthdayField = activeModal?.fieldKey === 'birthday';
@@ -172,7 +204,7 @@ export const useCustomerFormModal = ({
       default:
         return null;
     }
-  }, [activeModal, formValues, onFieldChange, currentYear, currentMonth, calendarKey, yearItems, monthItems]);
+  }, [activeModal, formValues, onFieldChange, currentYear, currentMonth, calendarKey, yearItems, monthItems, fieldModal.tempValue]);
 
   // Modal component to render
   const ModalComponent = activeModal ? (
