@@ -5,6 +5,7 @@ import { BottomSheetModal, MyPicker, Icon } from 'src/components';
 import { Colors } from 'src/theme';
 import { CUSTOMER_FIELDS } from './constants';
 import { useConfirmableModal } from 'src/hooks/useConfirmableModal';
+import { YearMonthSelector } from './YearMonthSelector';
 
 interface UseCustomerFormModalProps {
   formValues: Record<string, string>;
@@ -71,21 +72,25 @@ export const useCustomerFormModal = ({
 
   // 生成年份選項（根據是否為生日欄位）
   const isBirthdayField = activeModal?.fieldKey === 'birthday';
-  const yearItems = isBirthdayField
-    ? Array.from({ length: 101 }, (_, i) => {
-      const year = 1925 + i; // 1925 - 2025
-      return { label: `${year}年`, value: year };
-    })
-    : Array.from({ length: 21 }, (_, i) => {
-      const year = currentDate.getFullYear() - 5 + i;
-      return { label: `${year}年`, value: year };
-    });
+  const yearItems = useMemo(() => {
+    return isBirthdayField
+      ? Array.from({ length: 101 }, (_, i) => {
+        const year = 1925 + i; // 1925 - 2025
+        return { label: `${year}年`, value: year };
+      })
+      : Array.from({ length: 21 }, (_, i) => {
+        const year = currentDate.getFullYear() - 5 + i;
+        return { label: `${year}年`, value: year };
+      });
+  }, [isBirthdayField]);
 
   // 生成月份選項
-  const monthItems = Array.from({ length: 12 }, (_, i) => {
-    const month = i + 1;
-    return { label: `${month}月`, value: month };
-  });
+  const monthItems = useMemo(() => {
+    return Array.from({ length: 12 }, (_, i) => {
+      const month = i + 1;
+      return { label: `${month}月`, value: month };
+    });
+  }, []);
 
   // Memoized modal content to avoid unnecessary re-renders
   const modalContent = useMemo(() => {
@@ -143,26 +148,14 @@ export const useCustomerFormModal = ({
 
       case 'yearMonth':
         return (
-          <View>
-            <View style={styles.pickerRow}>
-              <View style={styles.pickerWrapper}>
-                <Text style={styles.pickerLabel}>年份</Text>
-                <MyPicker
-                  items={yearItems}
-                  selectedValue={currentYear}
-                  onValueChange={(value) => { setCurrentYear(Number(value)); }}
-                />
-              </View>
-              <View style={styles.pickerWrapper}>
-                <Text style={styles.pickerLabel}>月份</Text>
-                <MyPicker
-                  items={monthItems}
-                  selectedValue={currentMonth}
-                  onValueChange={(value) => { setCurrentMonth(Number(value)); }}
-                />
-              </View>
-            </View>
-          </View>
+          <YearMonthSelector
+            year={currentYear}
+            month={currentMonth}
+            onYearChange={setCurrentYear}
+            onMonthChange={setCurrentMonth}
+            yearItems={yearItems}
+            monthItems={monthItems}
+          />
         );
 
       case 'picker':

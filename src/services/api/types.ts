@@ -362,3 +362,60 @@ export interface UpdateDeviceRequest {
 export interface UpdateDeviceResponse {
   ok: boolean;
 }
+
+// ==================== 通知系統 ====================
+
+export interface Notification {
+  id: number;
+  category: 'contract_visit';
+  type: 'chatMessage' | 'other';
+  sub_category?: string;
+
+  // 記錄相關
+  record_id?: number;
+  record_type?: 'Spa::ContractVisit' | string;
+  record_client_id?: number;
+  record_diary_date?: string;
+  record_parent_id?: number;
+  record_text?: string;
+  record_post_id?: number;
+
+  // Survey 專用
+  record_finish?: boolean;
+  record_invalid_date?: string;
+  record_retakeable?: boolean;
+
+  // 發送者資訊
+  sender_id?: number;
+  sender_name?: string;
+  sender_type?: 'Client' | 'User';
+
+  title: string;
+
+  // 其他
+  image_url?: string;
+  light?: boolean;
+  read: boolean;
+  created_at: string;
+
+  // 商店相關
+  shop_product_id?: number;
+  shop_group_id?: number;
+}
+
+export interface GetNotificationsRequest {
+  before?: string | null;  // timestamp string
+  after?: string | null;   // timestamp string
+}
+
+export interface GetNotificationsResponse {
+  notifications: Notification[];
+}
+
+export interface SetNotificationsReadRequest {
+  ids: number[];
+}
+
+export interface SetNotificationsReadResponse {
+  ok: boolean;
+}

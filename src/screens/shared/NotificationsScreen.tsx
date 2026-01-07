@@ -1,119 +1,104 @@
-import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Image,
-} from 'react-native';
-import { MyListItem } from 'src/components';
+import React, { useEffect, useCallback } from 'react';
+import { View, StyleSheet, ActivityIndicator, Text } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import { FlashList } from '@shopify/flash-list';
+import { useNavigation } from '@react-navigation/native';
 import { Colors } from 'src/theme';
-
-// 通知類型
-interface Notification {
-  id: number;
-  type: 'course_verified' | 'booking_reminder' | 'cancellation';
-  title: string;
-  details: string;
-  timestamp: string;
-  avatarUrl?: string;
-  isRead: boolean;
-}
-
-// 模擬通知資料
-const MOCK_NOTIFICATIONS: Notification[] = [
-  {
-    id: 1,
-    type: 'course_verified',
-    title: '按摩師 Sunny 已核銷課程',
-    details: '2025-09-30(週日) 14:30 專業徒手-深層調理1堂 (60分鐘)',
-    timestamp: '1分鐘前',
-    avatarUrl: 'https://via.placeholder.com/48',
-    isRead: false,
-  },
-  {
-    id: 2,
-    type: 'booking_reminder',
-    title: '預約提醒',
-    details: '您有一個預約在明天 10:00',
-    timestamp: '2小時前',
-    avatarUrl: 'https://via.placeholder.com/48',
-    isRead: false,
-  },
-  {
-    id: 3,
-    type: 'cancellation',
-    title: '預約已取消',
-    details: '2025-10-01(週一) 15:00 的預約已取消',
-    timestamp: '1天前',
-    avatarUrl: 'https://via.placeholder.com/48',
-    isRead: true,
-  },
-];
+import { RootState, AppDispatch } from 'src/store';
+import { fetchNotifications, markRead, markAllRead } from 'src/store/slices/notificationSlice';
+import { NotificationItem } from 'src/components/NotificationItem';
+import { Notification } from 'src/services/api/types';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const NotificationsScreen = () => {
-  const [notifications, setNotifications] = useState(MOCK_NOTIFICATIONS);
+  const dispatch = useDispatch<AppDispatch>();
+  const navigation = useNavigation();
+  const {
+    notifications,
+    refreshing,
+    loading,
+    loadMoreing,
+    endReached
+  } = useSelector((state: RootState) => state.notification);
 
-  const handleMarkAllAsRead = () => {
-    setNotifications(
-      notifications.map((notification) => ({
-        ...notification,
-        isRead: true,
-      }))
+  // Initial Load
+  useEffect(() => {
+    dispatch(fetchNotifications({ newer: true }));
+  }, [dispatch]);
+
+  // Set Header Right (Read All)
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <Text style={styles.headerRightText} onPress={() => dispatch(markAllRead())}>
+          全部已讀
+        </Text>
+      ),
+    });
+  }, [navigation, dispatch]);
+
+  const handleRefresh = useCallback(() => {
+    dispatch(fetchNotifications({ newer: true }));
+  }, [dispatch]);
+
+  const handleLoadMore = useCallback(() => {
+    if (!endReached && !loadMoreing && !loading) {
+      dispatch(fetchNotifications({ older: true }));
+    }
+  }, [dispatch, endReached, loadMoreing, loading]);
+
+  const handleItemPress = useCallback((item: Notification) => {
+    if (!item.read) {
+      dispatch(markRead([item.id]));
+    }
+
+    // Navigation Logic based on type
+    console.log('Navigate to:', item.record_type, item.record_id);
+  }, [dispatch]);
+
+  const renderItem = useCallback(({ item }: { item: Notification }) => (
+    <NotificationItem item={item} onPress={handleItemPress} />
+  ), [handleItemPress]);
+
+  const renderFooter = () => {
+    if (!loadMoreing) return <View style={{ height: 20 }} />;
+    return (
+      <View style={styles.footer}>
+        <ActivityIndicator size="small" color={Colors.primary} />
+      </View>
     );
   };
 
-  const handleNotificationPress = (id: number) => {
-    // 標記為已讀
-    setNotifications(
-      notifications.map((notification) =>
-        notification.id === id
-          ? { ...notification, isRead: true }
-          : notification
-      )
+  const renderEmpty = () => {
+    if (loading && notifications.length === 0) {
+      return (
+        <View style={styles.centerContainer}>
+          <ActivityIndicator size="large" color={Colors.primary} />
+        </View>
+      );
+    }
+    return (
+      <View style={styles.centerContainer}>
+        <Icon name="bell-sleep-outline" size={64} color="#CCC" />
+        <Text style={styles.emptyText}>目前沒有新通知</Text>
+      </View>
     );
-    // TODO: 導航到詳細頁面
   };
 
   return (
     <View style={styles.container}>
-      {/* 通知列表 */}
-      <View style={styles.listContainer}>
-        <MyListItem
-          data={notifications}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item: notification }) => (
-            <TouchableOpacity
-              style={[
-                styles.notificationItem,
-                !notification.isRead && styles.unreadItem,
-              ]}
-              onPress={() => handleNotificationPress(notification.id)}
-            >
-              {/* Avatar */}
-              <View style={{ flexDirection: 'row', marginRight: 30 }}>
-                <Image
-                  source={{ uri: notification.avatarUrl }}
-                  style={styles.avatar}
-                />
-                <View style={{ marginTop: 5, paddingRight: 16 }}>
-                  <Text style={styles.title}>
-                    {notification.title}
-                  </Text>
-                  <Text style={styles.details}>
-                    {notification.details}
-                  </Text>
-                </View>
-              </View>
-
-              {/* Content */}
-              <View style={styles.contentContainer}>
-                <Text style={styles.timestamp}>{notification.timestamp}</Text>
-              </View>
-            </TouchableOpacity>
-          )}
-        />
-      </View>
+      <FlashList
+        data={notifications}
+        renderItem={renderItem}
+        estimatedItemSize={80}
+        onRefresh={handleRefresh}
+        refreshing={refreshing}
+        onEndReached={handleLoadMore}
+        onEndReachedThreshold={0.5}
+        ListFooterComponent={renderFooter}
+        ListEmptyComponent={renderEmpty}
+        keyExtractor={item => item.id.toString()}
+      />
     </View>
   );
 };
@@ -121,75 +106,29 @@ const NotificationsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#F5F5F5',
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    backgroundColor: '#000000',
-  },
-  headerTitle: {
-    fontSize: 17,
-    fontWeight: '600',
-    color: '#FFFFFF',
-  },
-  markAllReadText: {
-    fontSize: 14,
-    color: '#FFFFFF',
-  },
-  listContainer: {
+  centerContainer: {
     flex: 1,
-  },
-  notificationItem: {
-    alignItems: 'flex-start',
     justifyContent: 'center',
-    backgroundColor: '',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F2F2F7',
-    height: 120,
+    alignItems: 'center',
+    paddingTop: 100,
   },
-  unreadItem: {
-    backgroundColor: '#E6EEEE',
+  footer: {
+    paddingVertical: 20,
+    alignItems: 'center',
   },
-  avatar: {
-    width: 64,
-    height: 64,
-    borderRadius: 100,
-    marginRight: 12,
-  },
-  contentContainer: {
-    height: 40,
-  },
-  title: {
+  emptyText: {
+    marginTop: 16,
     fontSize: 16,
+    color: '#999',
+  },
+  headerRightText: {
+    color: Colors.primary,
+    fontSize: 16,
+    marginRight: 16,
     fontWeight: '600',
-    color: Colors.text.primary,
-    marginBottom: 4,
-  },
-  details: {
-    fontSize: 14,
-    color: Colors.text.secondary,
-    lineHeight: 20,
-    marginBottom: 4,
-    flexShrink: 1,
-  },
-  timestamp: {
-    fontSize: 12,
-    marginTop: 12,
-    paddingBottom: 4,
-  },
-  unreadDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: Colors.primary,
-    marginLeft: 8,
-    marginTop: 6,
-  },
+  }
 });
 
 export default NotificationsScreen;
