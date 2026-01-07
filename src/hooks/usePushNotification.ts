@@ -63,13 +63,24 @@ export const usePushNotification = () => {
 
             if (enabled) {
                 // 2. Get Fcm Token
-                try {
-                    const fcmToken = await messaging().getToken();
-                    if (fcmToken) {
-                        await updateDeviceToken(fcmToken, statusString);
-                    }
-                } catch (error) {
-                    console.error('❌ Failed to get FCM token:', error);
+                // For iOS, use APNs token directly as backend (rpush) uses APNs
+                // For Android, use FCM token
+                let pushToken: string | null = null;
+
+                if (Platform.OS === 'ios') {
+                    // Get APNs token for iOS (64-char hex string)
+                    pushToken = await messaging().getAPNSToken();
+                    console.log('📱 iOS APNs Token:', pushToken);
+                } else {
+                    // Get FCM token for Android
+                    pushToken = await messaging().getToken();
+                    console.log('📱 Android FCM Token:', pushToken);
+                }
+
+                if (pushToken) {
+                    await updateDeviceToken(pushToken, statusString);
+                } else {
+                    console.error('❌ Failed to get push token');
                 }
             }
         };
@@ -79,17 +90,27 @@ export const usePushNotification = () => {
         }
 
         // 3. Listen to token refresh
-        const unsubscribe = messaging().onTokenRefresh(async (fcmToken) => {
+        const unsubscribe = messaging().onTokenRefresh(async (newToken) => {
             if (token) {
-                console.log('🔄 Token refreshed:', fcmToken);
-                // Refresh logic assumes 'granted' if we are here, or we could re-check permission, 
-                // but usually refresh happens when authorized. We'll check current permission to be safe.
+                console.log('🔄 Token refreshed');
                 const authStatus = await messaging().hasPermission();
                 let statusString = 'denied';
                 if (authStatus === messaging.AuthorizationStatus.AUTHORIZED) statusString = 'granted';
                 else if (authStatus === messaging.AuthorizationStatus.PROVISIONAL) statusString = 'provisional';
 
-                await updateDeviceToken(fcmToken, statusString);
+                // For iOS, get APNs token on refresh too
+                let pushToken: string | null = null;
+                if (Platform.OS === 'ios') {
+                    pushToken = await messaging().getAPNSToken();
+                    console.log('🔄 iOS APNs Token refreshed:', pushToken);
+                } else {
+                    pushToken = newToken;
+                    console.log('🔄 Android FCM Token refreshed:', pushToken);
+                }
+
+                if (pushToken) {
+                    await updateDeviceToken(pushToken, statusString);
+                }
             }
         });
 
