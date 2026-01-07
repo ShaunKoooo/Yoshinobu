@@ -171,6 +171,9 @@ dependencies {
     } else {
         implementation jscFlavor
     }
+
+    // AndroidX Activity for Photo Picker backport (minSdk < 30)
+    implementation("androidx.activity:activity:1.9.+")
 }
 
 // Apply Google Services plugin and configure for multiple flavors
