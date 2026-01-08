@@ -4,6 +4,7 @@ import userReducer from './slices/userSlice';
 import visitsReducer from './slices/visitsSlice';
 import clientsReducer from './slices/clientsSlice';
 import notificationReducer from './slices/notificationSlice';
+import contractsReducer from './slices/contractsSlice';
 import Reactotron from '../../ReactotronConfig';
 
 // Custom middleware to log state changes to Reactotron
@@ -36,6 +37,7 @@ export const store = configureStore({
     visits: visitsReducer,
     clients: clientsReducer,
     notification: notificationReducer,
+    contracts: contractsReducer,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({

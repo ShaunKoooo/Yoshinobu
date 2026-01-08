@@ -11,6 +11,8 @@ import {
   Switch,
   ScrollView,
   Alert,
+  Image,
+  ActivityIndicator,
 } from 'react-native';
 import {
   MyButton,
@@ -28,8 +30,14 @@ import { contractsApi } from 'src/services/api';
 import { useNavigation } from '@react-navigation/native';
 import { useSelectedClientIdFromClients } from 'src/hooks/useClientsWithRedux';
 import { useConfirmableModal } from 'src/hooks/useConfirmableModal';
+import { launchImageLibrary } from 'react-native-image-picker';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from 'src/store';
+import { uploadContractMedia, clearUploadState } from 'src/store/slices/contractsSlice';
 
 const CreateContractScreen = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { uploading, lastUploadedMedia } = useSelector((state: RootState) => state.contracts);
   const navigation = useNavigation<any>();
   const { data: categories } = useCategories();
   const createContract = useCreateContract();
@@ -45,6 +53,13 @@ const CreateContractScreen = () => {
   const [showContractFields, setShowContractFields] = useState(false);
   const [selectedContractId, setSelectedContractId] = useState<number | null>(null);
   const [contractsData, setContractsData] = useState<any>(null);
+
+  // Clean up upload state on unmount
+  useEffect(() => {
+    return () => {
+      dispatch(clearUploadState());
+    };
+  }, [dispatch]);
 
   // 使用 useConfirmableModal 管理各個 modal
   const categoryModal = useConfirmableModal(contractCategoryId, setContractCategoryId);
@@ -65,6 +80,7 @@ const CreateContractScreen = () => {
       setSelectedContractId(null);
       setPhone('');
       setContractNumber('');
+      dispatch(clearUploadState());
       // 重置合約類別為預設值
       if (categories && categories.length > 0) {
         setContractCategoryId(categories[0].id);
@@ -84,6 +100,24 @@ const CreateContractScreen = () => {
       }
     }
   }, [selectedContractId, contractsData]);
+
+  const handlePickImage = async () => {
+    const result = await launchImageLibrary({
+      mediaType: 'photo',
+      selectionLimit: 1,
+    });
+
+    if (result.assets && result.assets.length > 0) {
+      const asset = result.assets[0];
+      if (asset.uri) {
+        const extname = asset.type?.split('/')[1] || 'jpg';
+        dispatch(uploadContractMedia({
+          fileUri: asset.uri,
+          extname,
+        }));
+      }
+    }
+  };
 
   const handleSubmit = () => {
     // 驗證必填欄位
@@ -145,6 +179,7 @@ const CreateContractScreen = () => {
           category_id: contractCategoryId,
           contract_time: time,
           contract_number: contractNumber,
+          attachment_url: lastUploadedMedia?.result_url,
         },
         {
           onSuccess: (data) => {
@@ -418,14 +453,44 @@ const CreateContractScreen = () => {
           </View>
         )}
 
-        {!isSharedContract && <View style={styles.column}>
-          <Text style={styles.label}>上傳照片</Text>
-          <TouchableOpacity
-            style={{ backgroundColor: '#E0E0E0', width: 64, height: 64, justifyContent: 'center', alignItems: 'center', marginTop: 16 }}
-          >
-            <Text style={{ fontSize: 24, color: '#86909C' }}>+</Text>
-          </TouchableOpacity>
-        </View>}
+        {!isSharedContract && (
+          <View style={styles.column}>
+            <Text style={styles.label}>上傳照片</Text>
+            {lastUploadedMedia ? (
+              <View style={{ marginTop: 16 }}>
+                <Image
+                  source={{ uri: lastUploadedMedia.result_url }}
+                  style={{ width: 100, height: 100, borderRadius: 8 }}
+                />
+                <TouchableOpacity
+                  onPress={() => dispatch(clearUploadState())}
+                  style={{ position: 'absolute', top: -10, right: -10, backgroundColor: 'white', borderRadius: 12 }}
+                >
+                  <Text style={{ fontSize: 20 }}>ⓧ</Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <TouchableOpacity
+                onPress={handlePickImage}
+                style={{
+                  backgroundColor: '#E0E0E0',
+                  width: 64,
+                  height: 64,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  marginTop: 16,
+                }}
+                disabled={uploading}
+              >
+                {uploading ? (
+                  <ActivityIndicator color="#86909C" />
+                ) : (
+                  <Text style={{ fontSize: 24, color: '#86909C' }}>+</Text>
+                )}
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
       </ScrollView>
 
       {/* 底部確認按鈕 */}
@@ -437,11 +502,12 @@ const CreateContractScreen = () => {
             !!time &&
             (isSharedContract ? !!selectedContractId : true) &&
             !createContract.isPending &&
-            !createShareContract.isPending
+            !createShareContract.isPending &&
+            !uploading
           }
           title={
-            (createContract.isPending || createShareContract.isPending)
-              ? "建立中..."
+            (createContract.isPending || createShareContract.isPending || uploading)
+              ? "處理中..."
               : "確認"
           }
           onPress={handleSubmit}

@@ -11,6 +11,8 @@ import type {
   GetAvailableContractResponse,
   FindContractsByMobileRequest,
   FindContractsByMobileResponse,
+  GetMediaUploadInfoRequest,
+  GetMediaUploadInfoResponse,
 } from './types';
 
 /**
@@ -83,6 +85,16 @@ export const contractsApi = {
 
     return await apiClient.get<FindContractsByMobileResponse>(
       endpoint,
+      params
+    );
+  },
+
+  /**
+   * 取得媒體上傳憑證
+   */
+  getMediaUploadInfo: async (params: GetMediaUploadInfoRequest): Promise<GetMediaUploadInfoResponse> => {
+    return await apiClient.get<GetMediaUploadInfoResponse>(
+      '/v4/notes/media_upload_info',
       params
     );
   },

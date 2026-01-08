@@ -189,6 +189,7 @@ export interface CreateContractRequest {
   category_id: number;
   contract_time: number;
   contract_number: string;
+  attachment_url?: string;
 }
 
 export interface CreateContractResponse {
@@ -419,3 +420,21 @@ export interface SetNotificationsReadRequest {
 export interface SetNotificationsReadResponse {
   ok: boolean;
 }
+
+// ==================== 合約管理 (Media Upload) ====================
+
+export interface ContractMediaUploadInfo {
+  url: string;
+  storage: 'aliyun' | 'gcloud';
+  key: string;
+  result_url: string;
+  form_data?: Record<string, any>; // Aliyun specific
+}
+
+export interface GetMediaUploadInfoRequest {
+  extname: string; // 'jpg', 'png', etc.
+  date: string; // YYYY-MM-DD
+}
+
+export interface GetMediaUploadInfoResponse extends ContractMediaUploadInfo { }
+
