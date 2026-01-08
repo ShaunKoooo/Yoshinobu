@@ -7,6 +7,7 @@ import {
   ScrollView,
   Image,
   RefreshControl,
+  Alert,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useQueryClient } from '@tanstack/react-query';
@@ -166,8 +167,15 @@ const CourseManagementScreen = () => {
       onSuccess: () => {
         console.log('成功提交核銷:', booking);
       },
-      onError: (error) => {
+      onError: (error: any) => {
         console.error('提交核銷失敗:', error);
+        // 檢查是否為合約時間不足的錯誤
+        const errorMessage = error?.response?.data?.error || error?.message || '';
+        if (errorMessage.includes('Insufficient remaining time')) {
+          Alert.alert('提示', '請先新增合約');
+        } else {
+          Alert.alert('錯誤', '核銷失敗，請稍後再試');
+        }
       },
     });
   };
