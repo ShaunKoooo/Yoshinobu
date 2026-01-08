@@ -34,6 +34,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     }
 
     application.registerForRemoteNotifications()
+    print("📱 [AppDelegate] Registered for remote notifications")
+
+    // Check if token already exists in UserDefaults
+    if let existingToken = UserDefaults.standard.string(forKey: "APNsDeviceToken") {
+      print("✅ [AppDelegate] Found existing APNs token in UserDefaults: \(existingToken)")
+    } else {
+      print("⚠️ [AppDelegate] No existing APNs token found in UserDefaults")
+    }
 
     let delegate = ReactNativeDelegate()
     let factory = RCTReactNativeFactory(delegate: delegate)
@@ -75,6 +83,53 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                               withCompletionHandler completionHandler: @escaping () -> Void) {
     print("📱 用戶點擊通知:", response.notification.request.content.userInfo)
     completionHandler()
+  }
+
+  // MARK: - APNs Token Registration
+
+  // 成功註冊 APNs，收到 Device Token
+  func application(_ application: UIApplication,
+                   didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+    print("🎯 [AppDelegate] didRegisterForRemoteNotificationsWithDeviceToken called!")
+    print("🎯 [AppDelegate] Received device token, raw length: \(deviceToken.count) bytes")
+
+    // 標準 APNs token 應該是 32 bytes = 64 hex chars
+    // 如果收到更長的 token，只取前 32 bytes
+    let standardTokenData: Data
+    if deviceToken.count > 32 {
+      standardTokenData = deviceToken.prefix(32)
+      print("⚠️ APNs token was \(deviceToken.count) bytes, truncated to 32 bytes")
+    } else {
+      standardTokenData = deviceToken
+      print("✅ APNs token is standard \(deviceToken.count) bytes")
+    }
+
+    // 將 Data 轉換為 hex 字串
+    let token = standardTokenData.map { String(format: "%02.2hhx", $0) }.joined()
+    print("📱 [AppDelegate] APNs Device Token: \(token)")
+    print("📱 [AppDelegate] APNs Token Length: \(token.count)")
+
+    // Save to UserDefaults for Native Module to access
+    UserDefaults.standard.set(token, forKey: "APNsDeviceToken")
+    UserDefaults.standard.synchronize()
+    print("✅ [AppDelegate] Token saved to UserDefaults with key: APNsDeviceToken")
+
+    // Verify it was saved
+    if let savedToken = UserDefaults.standard.string(forKey: "APNsDeviceToken") {
+      print("✅ [AppDelegate] Verified token in UserDefaults: \(savedToken)")
+    } else {
+      print("❌ [AppDelegate] Failed to verify token in UserDefaults!")
+    }
+
+    // 將標準長度的 APNs token 設置給 Firebase Messaging
+    Messaging.messaging().apnsToken = standardTokenData
+    print("✅ [AppDelegate] APNs token set to Firebase Messaging")
+  }
+  
+  // 註冊 APNs 失敗
+  func application(_ application: UIApplication,
+                   didFailToRegisterForRemoteNotificationsWithError error: Error) {
+    print("❌ Failed to register for remote notifications: \(error.localizedDescription)")
   }
 }
 

@@ -12,6 +12,10 @@
 		761780ED2CA45674006654EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
 		82C6B393EC23E9D6814E3B6E /* Pods_bb.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AFB699653999750B7B10CAF5 /* Pods_bb.framework */; };
 		DE325B87AD532FC285742F28 /* Pods_spa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 50902A8F7DE1F693416DDBDE /* Pods_spa.framework */; };
+		E4059DBA2F0FA98D00B2E670 /* APNsModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4059DB92F0FA98D00B2E670 /* APNsModule.swift */; };
+		E4059DBB2F0FA98D00B2E670 /* APNsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = E4059DB82F0FA98D00B2E670 /* APNsModule.m */; };
+		E4059DBC2F0FA98D00B2E670 /* APNsModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4059DB92F0FA98D00B2E670 /* APNsModule.swift */; };
+		E4059DBD2F0FA98D00B2E670 /* APNsModule.m in Sources */ = {isa = PBXBuildFile; fileRef = E4059DB82F0FA98D00B2E670 /* APNsModule.m */; };
 		E42E43E92EE7F6EA0061089A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
 		E42E43EF2EE7F6EA0061089A /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
 		E42E43F02EE7F6EA0061089A /* config.json in Resources */ = {isa = PBXBuildFile; fileRef = 953C09B3534E47B59C9943B4 /* config.json */; };
@@ -47,6 +51,10 @@
 		AFB699653999750B7B10CAF5 /* Pods_bb.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_bb.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B721A52DFE5F5CB39EB30860 /* Pods-bb.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-bb.debug.xcconfig"; path = "Target Support Files/Pods-bb/Pods-bb.debug.xcconfig"; sourceTree = "<group>"; };
 		CF5A8D51163C973029FD96E0 /* Pods-bbClient.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-bbClient.debug.xcconfig"; path = "Target Support Files/Pods-bbClient/Pods-bbClient.debug.xcconfig"; sourceTree = "<group>"; };
+		E4059DB82F0FA98D00B2E670 /* APNsModule.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = APNsModule.m; sourceTree = "<group>"; };
+		E4059DB92F0FA98D00B2E670 /* APNsModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APNsModule.swift; sourceTree = "<group>"; };
+		E4059DBE2F0FA98F00B2E670 /* spa-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "spa-Bridging-Header.h"; sourceTree = "<group>"; };
+		E4059DBF2F0FA98F00B2E670 /* bb-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "bb-Bridging-Header.h"; sourceTree = "<group>"; };
 		E42E43F82EE7F6EA0061089A /* bb.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = bb.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E4A63F7A2EF7C8EE00311450 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		E4A63F7C2EF7DA3400311450 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
@@ -85,11 +93,15 @@
 		13B07FAE1A68108700A75B9A /* Yoshinobu */ = {
 			isa = PBXGroup;
 			children = (
+				E4059DB82F0FA98D00B2E670 /* APNsModule.m */,
+				E4059DB92F0FA98D00B2E670 /* APNsModule.swift */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				761780EC2CA45674006654EE /* AppDelegate.swift */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */,
+				E4059DBE2F0FA98F00B2E670 /* spa-Bridging-Header.h */,
+				E4059DBF2F0FA98F00B2E670 /* bb-Bridging-Header.h */,
 			);
 			name = Yoshinobu;
 			sourceTree = "<group>";
@@ -243,7 +255,10 @@
 				LastUpgradeCheck = 1210;
 				TargetAttributes = {
 					13B07F861A680F5B00A75B9A = {
-						LastSwiftMigration = 1120;
+						LastSwiftMigration = 1620;
+					};
+					E42E43E62EE7F6EA0061089A = {
+						LastSwiftMigration = 1620;
 					};
 				};
 			};
@@ -475,6 +490,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E4059DBC2F0FA98D00B2E670 /* APNsModule.swift in Sources */,
+				E4059DBD2F0FA98D00B2E670 /* APNsModule.m in Sources */,
 				761780ED2CA45674006654EE /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -483,6 +500,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E4059DBA2F0FA98D00B2E670 /* APNsModule.swift in Sources */,
+				E4059DBB2F0FA98D00B2E670 /* APNsModule.m in Sources */,
 				E42E43E92EE7F6EA0061089A /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -517,6 +536,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = me.spaapp.yamamoto;
 				PRODUCT_NAME = Yoshinobu;
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "spa-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -549,6 +569,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = me.spaapp.yamamoto;
 				PRODUCT_NAME = Yoshinobu;
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "spa-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
@@ -750,6 +771,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = me.bbapp.yoshinobu;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "bb-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -779,6 +801,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = me.bbapp.yoshinobu;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "bb-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
