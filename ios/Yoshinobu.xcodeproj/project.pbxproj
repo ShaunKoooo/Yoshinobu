@@ -518,7 +518,7 @@
 				CODE_SIGN_ENTITLEMENTS = spa/spa.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2026010800;
+				CURRENT_PROJECT_VERSION = 2026010801;
 				DEVELOPMENT_TEAM = 9C96LPD3M9;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = spa_Info.plist;
@@ -527,7 +527,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.3;
+				MARKETING_VERSION = 1.4;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -552,7 +552,7 @@
 				CODE_SIGN_ENTITLEMENTS = spa/spa.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2026010800;
+				CURRENT_PROJECT_VERSION = 2026010801;
 				DEVELOPMENT_TEAM = 9C96LPD3M9;
 				INFOPLIST_FILE = spa_Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
@@ -560,7 +560,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.3;
+				MARKETING_VERSION = 1.4;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -754,7 +754,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = bb/bb.entitlements;
-				CURRENT_PROJECT_VERSION = 2026010800;
+				CURRENT_PROJECT_VERSION = 2026010801;
 				DEVELOPMENT_TEAM = 9C96LPD3M9;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = bb_Info.plist;
@@ -763,7 +763,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.3;
+				MARKETING_VERSION = 1.4;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -785,7 +785,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = bb/bb.entitlements;
-				CURRENT_PROJECT_VERSION = 2026010800;
+				CURRENT_PROJECT_VERSION = 2026010801;
 				DEVELOPMENT_TEAM = 9C96LPD3M9;
 				INFOPLIST_FILE = bb_Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
@@ -793,7 +793,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.3;
+				MARKETING_VERSION = 1.4;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
