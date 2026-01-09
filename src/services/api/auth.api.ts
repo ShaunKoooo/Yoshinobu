@@ -93,7 +93,7 @@ export const authApi = {
       t: 1,
     };
 
-    const url = `https://staging.cofit.me${AUTH_ENDPOINTS.CLIENT_SEND_CODE}`;
+    const url = `https://ff-staging.cofit.me${AUTH_ENDPOINTS.CLIENT_SEND_CODE}`;
 
     const response = await fetch(url, {
       method: 'POST',
@@ -133,7 +133,7 @@ export const authApi = {
       code,
     };
 
-    const url = `https://staging.cofit.me${AUTH_ENDPOINTS.CLIENT_VERIFY_CODE}`;
+    const url = `https://ff-staging.cofit.me${AUTH_ENDPOINTS.CLIENT_VERIFY_CODE}`;
 
     const response = await fetch(url, {
       method: 'POST',

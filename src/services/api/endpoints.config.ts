@@ -21,7 +21,7 @@ const AUTH_ENDPOINTS = {
 
   // Client 登入
   CLIENT_SEND_CODE: '/api/v4/clients/mobile_sms_code',
-  CLIENT_VERIFY_CODE: '/api/v4/clients/register_mobile_with_code',
+  CLIENT_VERIFY_CODE: '/api/spa/client/v1/clients/',
 };
 
 // 教練端專用端點
