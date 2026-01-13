@@ -94,7 +94,7 @@ export const contractsApi = {
    */
   getMediaUploadInfo: async (params: GetMediaUploadInfoRequest): Promise<GetMediaUploadInfoResponse> => {
     return await apiClient.get<GetMediaUploadInfoResponse>(
-      '/v4/notes/media_upload_info',
+      '/spa/user/v1/contracts/media_upload_info',
       params
     );
   },
