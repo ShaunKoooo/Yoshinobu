@@ -45,7 +45,7 @@ const CreateCustomer = () => {
 
   // 檢查必填欄位是否為空
   const validateForm = useCallback(() => {
-    const requiredFields = ['name', 'mobile', 'email', 'gender']; // 只有姓名和電話 email 性別為必填
+    const requiredFields = ['name', 'mobile', 'gender']; // 只有姓名和電話性別為必填
 
     for (const field of requiredFields) {
       if (!formValues[field] || formValues[field].trim() === '') {

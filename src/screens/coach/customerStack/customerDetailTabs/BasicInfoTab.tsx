@@ -99,7 +99,7 @@ const BasicInfoTab = ({ route }: any) => {
 
   // 驗證表單
   const validateForm = useCallback(() => {
-    const requiredFields = ['name', 'mobile', 'email', 'gender'];
+    const requiredFields = ['name', 'mobile', 'gender'];
 
     for (const field of requiredFields) {
       if (!formValues[field] || formValues[field].trim() === '') {
