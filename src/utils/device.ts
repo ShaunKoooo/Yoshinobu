@@ -44,7 +44,7 @@ export const getDeviceData = async (fcmToken: string, permissionStatus: string):
     return {
         pushPermissionStatus: permissionStatus,
         token: fcmToken,
-        experienceId: bundleId, // Using bundleId as experienceId for now
+        experienceId: AppConfig.APP_TYPE === 'bb' ? '@anonymous/bb' : '@anonymous/spa',
         appName: appName,
         appPackageName: bundleId,
         appVersionNumber: version,
