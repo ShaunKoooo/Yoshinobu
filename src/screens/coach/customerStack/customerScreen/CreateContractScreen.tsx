@@ -30,7 +30,7 @@ import { contractsApi } from 'src/services/api';
 import { useNavigation } from '@react-navigation/native';
 import { useSelectedClientIdFromClients } from 'src/hooks/useClientsWithRedux';
 import { useConfirmableModal } from 'src/hooks/useConfirmableModal';
-import { launchImageLibrary } from 'react-native-image-picker';
+import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from 'src/store';
 import { uploadContractMedia, clearUploadState } from 'src/store/slices/contractsSlice';
@@ -101,22 +101,57 @@ const CreateContractScreen = () => {
     }
   }, [selectedContractId, contractsData]);
 
-  const handlePickImage = async () => {
-    const result = await launchImageLibrary({
-      mediaType: 'photo',
-      selectionLimit: 1,
-    });
+  const handlePickImage = () => {
+    Alert.alert(
+      '選擇照片來源',
+      '請選擇要從哪裡上傳照片',
+      [
+        {
+          text: '相機',
+          onPress: async () => {
+            const result = await launchCamera({
+              mediaType: 'photo',
+              saveToPhotos: true,
+            });
 
-    if (result.assets && result.assets.length > 0) {
-      const asset = result.assets[0];
-      if (asset.uri) {
-        const extname = asset.type?.split('/')[1] || 'jpg';
-        dispatch(uploadContractMedia({
-          fileUri: asset.uri,
-          extname,
-        }));
-      }
-    }
+            if (result.assets && result.assets.length > 0) {
+              const asset = result.assets[0];
+              if (asset.uri) {
+                const extname = asset.type?.split('/')[1] || 'jpg';
+                dispatch(uploadContractMedia({
+                  fileUri: asset.uri,
+                  extname,
+                }));
+              }
+            }
+          },
+        },
+        {
+          text: '相簿',
+          onPress: async () => {
+            const result = await launchImageLibrary({
+              mediaType: 'photo',
+              selectionLimit: 1,
+            });
+
+            if (result.assets && result.assets.length > 0) {
+              const asset = result.assets[0];
+              if (asset.uri) {
+                const extname = asset.type?.split('/')[1] || 'jpg';
+                dispatch(uploadContractMedia({
+                  fileUri: asset.uri,
+                  extname,
+                }));
+              }
+            }
+          },
+        },
+        {
+          text: '取消',
+          style: 'cancel',
+        },
+      ]
+    );
   };
 
   const handleSubmit = () => {
