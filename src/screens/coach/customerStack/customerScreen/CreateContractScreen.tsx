@@ -544,53 +544,30 @@ const CreateContractScreen = () => {
         {!isSharedContract && (
           <View style={styles.column}>
             <Text style={styles.label}>上傳照片</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 16 }}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imageScrollView}>
               {uploadedMediaList.map((media, index) => (
-                <View key={index} style={{ marginRight: 12, position: 'relative' }}>
+                <View key={index} style={styles.imageContainer}>
                   <Image
                     source={{ uri: media.result_url }}
-                    style={{ width: 72, height: 72, borderRadius: 8 }}
+                    style={styles.uploadedImage}
                   />
                   <TouchableOpacity
                     onPress={() => dispatch(removeUploadedMedia(media.result_url))}
-                    style={{
-                      position: 'absolute',
-                      top: 4,
-                      right: 4,
-                      backgroundColor: 'white',
-                      borderRadius: 12,
-                      width: 24,
-                      height: 24,
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      shadowColor: '#000',
-                      shadowOffset: { width: 0, height: 2 },
-                      shadowOpacity: 0.25,
-                      shadowRadius: 3.84,
-                      elevation: 5,
-                      zIndex: 10,
-                    }}
+                    style={styles.deleteButton}
                   >
-                    <Text style={{ fontSize: 16, color: '#666' }}>✕</Text>
+                    <Text style={styles.deleteButtonText}>✕</Text>
                   </TouchableOpacity>
                 </View>
               ))}
               <TouchableOpacity
                 onPress={handlePickImage}
-                style={{
-                  backgroundColor: '#E0E0E0',
-                  width: 72,
-                  height: 72,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  borderRadius: 12,
-                }}
+                style={styles.addImageButton}
                 disabled={uploading}
               >
                 {uploading ? (
                   <ActivityIndicator color="#86909C" />
                 ) : (
-                  <Text style={{ fontSize: 24, color: '#86909C' }}>+</Text>
+                  <Text style={styles.addImageButtonText}>+</Text>
                 )}
               </TouchableOpacity>
             </ScrollView>
@@ -737,6 +714,51 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
+  },
+  imageScrollView: {
+    marginTop: 16,
+  },
+  imageContainer: {
+    marginRight: 12,
+    position: 'relative',
+  },
+  uploadedImage: {
+    width: 72,
+    height: 72,
+    borderRadius: 8,
+  },
+  deleteButton: {
+    position: 'absolute',
+    top: 4,
+    right: 4,
+    backgroundColor: 'white',
+    borderRadius: 12,
+    width: 24,
+    height: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    zIndex: 10,
+  },
+  deleteButtonText: {
+    fontSize: 16,
+    color: '#666',
+  },
+  addImageButton: {
+    backgroundColor: '#E0E0E0',
+    width: 72,
+    height: 72,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 12,
+  },
+  addImageButtonText: {
+    fontSize: 24,
+    color: '#86909C',
   },
 });
 
