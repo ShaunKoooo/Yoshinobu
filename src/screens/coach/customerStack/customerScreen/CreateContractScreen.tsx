@@ -33,11 +33,11 @@ import { useConfirmableModal } from 'src/hooks/useConfirmableModal';
 import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from 'src/store';
-import { uploadContractMedia, clearUploadState } from 'src/store/slices/contractsSlice';
+import { uploadContractMedia, clearUploadState, removeUploadedMedia } from 'src/store/slices/contractsSlice';
 
 const CreateContractScreen = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { uploading, lastUploadedMedia } = useSelector((state: RootState) => state.contracts);
+  const { uploading, uploadedMediaList } = useSelector((state: RootState) => state.contracts);
   const navigation = useNavigation<any>();
   const { data: categories } = useCategories();
   const createContract = useCreateContract();
@@ -131,17 +131,70 @@ const CreateContractScreen = () => {
           onPress: async () => {
             const result = await launchImageLibrary({
               mediaType: 'photo',
-              selectionLimit: 1,
+              selectionLimit: 0, // 0 表示不限制選擇數量
             });
 
             if (result.assets && result.assets.length > 0) {
-              const asset = result.assets[0];
-              if (asset.uri) {
-                const extname = asset.type?.split('/')[1] || 'jpg';
-                dispatch(uploadContractMedia({
-                  fileUri: asset.uri,
-                  extname,
-                }));
+              // 依序上傳每張照片
+              let successCount = 0;
+              let failCount = 0;
+              const totalCount = result.assets.length;
+              const maxRetries = 2; // 最多重試2次
+
+              console.log(`開始上傳 ${totalCount} 張照片`);
+
+              for (let i = 0; i < result.assets.length; i++) {
+                const asset = result.assets[i];
+                if (asset.uri) {
+                  let uploaded = false;
+                  let retryCount = 0;
+
+                  // 重試機制
+                  while (!uploaded && retryCount <= maxRetries) {
+                    try {
+                      if (retryCount > 0) {
+                        console.log(`第 ${i + 1} 張照片重試第 ${retryCount} 次`);
+                      } else {
+                        console.log(`上傳第 ${i + 1}/${totalCount} 張照片`);
+                      }
+
+                      const extname = asset.type?.split('/')[1] || 'jpg';
+                      await dispatch(uploadContractMedia({
+                        fileUri: asset.uri,
+                        extname,
+                      })).unwrap();
+
+                      uploaded = true;
+                      successCount++;
+                      console.log(`第 ${i + 1} 張上傳成功`);
+
+                      // 加入延遲避免過快的連續請求 (增加到1秒)
+                      if (i < result.assets.length - 1) {
+                        await new Promise<void>(resolve => setTimeout(() => resolve(), 1000));
+                      }
+                    } catch (error) {
+                      retryCount++;
+                      if (retryCount > maxRetries) {
+                        console.error(`第 ${i + 1} 張上傳失敗 (已重試${maxRetries}次):`, error);
+                        failCount++;
+                      } else {
+                        // 重試前等待
+                        await new Promise<void>(resolve => setTimeout(() => resolve(), 1000));
+                      }
+                    }
+                  }
+                }
+              }
+
+              // 顯示上傳結果
+              if (totalCount > 1) {
+                Alert.alert(
+                  '上傳完成',
+                  `總共: ${totalCount} 張\n成功: ${successCount} 張\n失敗: ${failCount} 張`,
+                  [{ text: '確定' }]
+                );
+              } else if (failCount > 0) {
+                Alert.alert('上傳失敗', '照片上傳失敗，請重試');
               }
             }
           },
@@ -214,7 +267,7 @@ const CreateContractScreen = () => {
           category_id: contractCategoryId,
           contract_time: time,
           contract_number: contractNumber,
-          attachment_url: lastUploadedMedia?.result_url,
+          attachment_url: uploadedMediaList.length > 0 ? uploadedMediaList[0].result_url : undefined,
         },
         {
           onSuccess: (data) => {
@@ -491,29 +544,46 @@ const CreateContractScreen = () => {
         {!isSharedContract && (
           <View style={styles.column}>
             <Text style={styles.label}>上傳照片</Text>
-            {lastUploadedMedia ? (
-              <View style={{ marginTop: 16 }}>
-                <Image
-                  source={{ uri: lastUploadedMedia.result_url }}
-                  style={{ width: 100, height: 100, borderRadius: 8 }}
-                />
-                <TouchableOpacity
-                  onPress={() => dispatch(clearUploadState())}
-                  style={{ position: 'absolute', top: -10, right: -10, backgroundColor: 'white', borderRadius: 12 }}
-                >
-                  <Text style={{ fontSize: 20 }}>ⓧ</Text>
-                </TouchableOpacity>
-              </View>
-            ) : (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 16 }}>
+              {uploadedMediaList.map((media, index) => (
+                <View key={index} style={{ marginRight: 12, position: 'relative' }}>
+                  <Image
+                    source={{ uri: media.result_url }}
+                    style={{ width: 72, height: 72, borderRadius: 8 }}
+                  />
+                  <TouchableOpacity
+                    onPress={() => dispatch(removeUploadedMedia(media.result_url))}
+                    style={{
+                      position: 'absolute',
+                      top: 4,
+                      right: 4,
+                      backgroundColor: 'white',
+                      borderRadius: 12,
+                      width: 24,
+                      height: 24,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      shadowColor: '#000',
+                      shadowOffset: { width: 0, height: 2 },
+                      shadowOpacity: 0.25,
+                      shadowRadius: 3.84,
+                      elevation: 5,
+                      zIndex: 10,
+                    }}
+                  >
+                    <Text style={{ fontSize: 16, color: '#666' }}>✕</Text>
+                  </TouchableOpacity>
+                </View>
+              ))}
               <TouchableOpacity
                 onPress={handlePickImage}
                 style={{
                   backgroundColor: '#E0E0E0',
-                  width: 64,
-                  height: 64,
+                  width: 72,
+                  height: 72,
                   justifyContent: 'center',
                   alignItems: 'center',
-                  marginTop: 16,
+                  borderRadius: 12,
                 }}
                 disabled={uploading}
               >
@@ -523,7 +593,7 @@ const CreateContractScreen = () => {
                   <Text style={{ fontSize: 24, color: '#86909C' }}>+</Text>
                 )}
               </TouchableOpacity>
-            )}
+            </ScrollView>
           </View>
         )}
       </ScrollView>
@@ -615,7 +685,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     paddingHorizontal: 16,
     paddingVertical: 16,
-    height: 136,
+    height: 150,
     borderBottomColor: '#F2F2F7',
   },
   label: {

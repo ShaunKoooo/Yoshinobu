@@ -8,10 +8,12 @@ interface ContractsState {
     uploading: boolean;
     error?: string;
     lastUploadedMedia?: ContractMediaUploadInfo;
+    uploadedMediaList: ContractMediaUploadInfo[];
 }
 
 const initialState: ContractsState = {
     uploading: false,
+    uploadedMediaList: [],
 };
 
 // Async Thunk for Two-Stage Upload
@@ -34,6 +36,11 @@ export const uploadContractMedia = createAsyncThunk(
                 throw new Error('Failed to get upload URL');
             }
 
+            console.log('已取得上傳 URL，準備上傳...');
+
+            // 加入短暫延遲，讓 GCS 準備好接收
+            await new Promise<void>(resolve => setTimeout(() => resolve(), 300));
+
             // 2. Upload to GCS
             const contentType = extname === 'png' ? 'image/png' : 'image/jpeg';
             await uploadService.uploadToGCS(uploadInfo.url, fileUri, contentType);
@@ -53,6 +60,12 @@ const contractsSlice = createSlice({
             state.uploading = false;
             state.error = undefined;
             state.lastUploadedMedia = undefined;
+            state.uploadedMediaList = [];
+        },
+        removeUploadedMedia: (state, action) => {
+            state.uploadedMediaList = state.uploadedMediaList.filter(
+                media => media.result_url !== action.payload
+            );
         },
     },
     extraReducers: (builder) => {
@@ -64,6 +77,9 @@ const contractsSlice = createSlice({
             .addCase(uploadContractMedia.fulfilled, (state, action) => {
                 state.uploading = false;
                 state.lastUploadedMedia = action.payload;
+                // 使用不可變更新方式，避免 state 更新衝突
+                state.uploadedMediaList = [...state.uploadedMediaList, action.payload];
+                console.log('Redux: 照片已加入列表，目前總數:', state.uploadedMediaList.length);
             })
             .addCase(uploadContractMedia.rejected, (state, action) => {
                 state.uploading = false;
@@ -72,5 +88,5 @@ const contractsSlice = createSlice({
     },
 });
 
-export const { clearUploadState } = contractsSlice.actions;
+export const { clearUploadState, removeUploadedMedia } = contractsSlice.actions;
 export default contractsSlice.reducer;
