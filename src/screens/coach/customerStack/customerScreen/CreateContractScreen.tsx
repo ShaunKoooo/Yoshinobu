@@ -13,6 +13,7 @@ import {
   Alert,
   Image,
   ActivityIndicator,
+  Modal,
 } from 'react-native';
 import {
   MyButton,
@@ -53,6 +54,8 @@ const CreateContractScreen = () => {
   const [showContractFields, setShowContractFields] = useState(false);
   const [selectedContractId, setSelectedContractId] = useState<number | null>(null);
   const [contractsData, setContractsData] = useState<any>(null);
+  const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
+  const [imageLoading, setImageLoading] = useState(false);
 
   // Clean up upload state on unmount
   useEffect(() => {
@@ -267,7 +270,7 @@ const CreateContractScreen = () => {
           category_id: contractCategoryId,
           contract_time: time,
           contract_number: contractNumber,
-          attachment_url: uploadedMediaList.length > 0 ? uploadedMediaList[0].result_url : undefined,
+          attachment_url: uploadedMediaList.map(media => media.result_url),
         },
         {
           onSuccess: (data) => {
@@ -547,10 +550,12 @@ const CreateContractScreen = () => {
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imageScrollView}>
               {uploadedMediaList.map((media, index) => (
                 <View key={index} style={styles.imageContainer}>
-                  <Image
-                    source={{ uri: media.result_url }}
-                    style={styles.uploadedImage}
-                  />
+                  <TouchableOpacity onPress={() => setSelectedImageUrl(media.result_url)}>
+                    <Image
+                      source={{ uri: media.result_url }}
+                      style={styles.uploadedImage}
+                    />
+                  </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() => dispatch(removeUploadedMedia(media.result_url))}
                     style={styles.deleteButton}
@@ -634,6 +639,55 @@ const CreateContractScreen = () => {
           onValueChange={(value) => contractModal.setTempValue(Number(value))}
         />
       </BottomSheetModal>
+
+      {/* Image Preview Modal - 照片放大預覽 */}
+      <Modal
+        visible={!!selectedImageUrl}
+        transparent={true}
+        onRequestClose={() => {
+          setSelectedImageUrl(null);
+          setImageLoading(false);
+        }}
+        animationType="fade"
+      >
+        <View style={styles.imagePreviewContainer}>
+          <TouchableOpacity
+            style={styles.imagePreviewBackdrop}
+            activeOpacity={1}
+            onPress={() => {
+              setSelectedImageUrl(null);
+              setImageLoading(false);
+            }}
+          >
+            <View style={styles.imagePreviewContent}>
+              {imageLoading && (
+                <View style={styles.imageLoadingContainer}>
+                  <ActivityIndicator size="large" color={Colors.primary} />
+                </View>
+              )}
+              {selectedImageUrl && (
+                <Image
+                  source={{ uri: selectedImageUrl }}
+                  style={styles.previewImage}
+                  resizeMode="contain"
+                  onLoadStart={() => setImageLoading(true)}
+                  onLoadEnd={() => setImageLoading(false)}
+                  onError={() => setImageLoading(false)}
+                />
+              )}
+              <TouchableOpacity
+                onPress={() => {
+                  setSelectedImageUrl(null);
+                  setImageLoading(false);
+                }}
+                style={styles.closePreviewButton}
+              >
+                <Text style={styles.closePreviewButtonText}>✕</Text>
+              </TouchableOpacity>
+            </View>
+          </TouchableOpacity>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -759,6 +813,53 @@ const styles = StyleSheet.create({
   addImageButtonText: {
     fontSize: 24,
     color: '#86909C',
+  },
+  imagePreviewContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  imagePreviewBackdrop: {
+    flex: 1,
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  imagePreviewContent: {
+    width: '90%',
+    height: '70%',
+    position: 'relative',
+  },
+  imageLoadingContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1,
+  },
+  previewImage: {
+    width: '100%',
+    height: '100%',
+  },
+  closePreviewButton: {
+    position: 'absolute',
+    top: -50,
+    right: 10,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  closePreviewButtonText: {
+    fontSize: 24,
+    color: '#333',
+    fontWeight: 'bold',
   },
 });
 
