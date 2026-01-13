@@ -70,6 +70,8 @@ const CourseManagementScreen = () => {
   const [bookingToCancel, setBookingToCancel] = useState<ContractVisit | null>(null);
   const [datePickerVisible, setDatePickerVisible] = useState(false);
   const [providerId, setProviderId] = useState<number | null>(null);
+  const [verifyModalVisible, setVerifyModalVisible] = useState(false);
+  const [bookingToVerify, setBookingToVerify] = useState<ContractVisit | null>(null);
 
   // 使用 useConfirmableModal 管理 provider 選擇
   const providerModal = useConfirmableModal(providerId, setProviderId);
@@ -347,7 +349,10 @@ const CourseManagementScreen = () => {
                         styles.verifyButton,
                         !canVerify(contractVisit) && styles.verifyButtonDisabled,
                       ]}
-                      onPress={() => handleVerifyPress(contractVisit)}
+                      onPress={() => {
+                        setBookingToVerify(contractVisit);
+                        setVerifyModalVisible(true);
+                      }}
                       disabled={!canVerify(contractVisit)}
                     >
                       <Text style={[
@@ -396,6 +401,51 @@ const CourseManagementScreen = () => {
           selectedValue={providerModal.tempValue ?? undefined}
           onValueChange={(value) => providerModal.setTempValue(Number(value))}
         />
+      </BottomSheetModal>
+
+      {/* 核銷確認 Modal */}
+      <BottomSheetModal
+        visible={verifyModalVisible}
+        onClose={() => {
+          setVerifyModalVisible(false);
+          setBookingToVerify(null);
+        }}
+        title={"發起核銷"}
+        onConfirm={() => {
+          if (bookingToVerify) {
+            handleVerifyPress(bookingToVerify);
+            setVerifyModalVisible(false);
+            setBookingToVerify(null);
+          }
+        }}
+      >
+        {bookingToVerify && (
+          <View style={styles.verifyModalContent}>
+            <View style={styles.verifyModalRow}>
+              <Text style={styles.verifyModalLabel}>合約號碼</Text>
+              <View style={styles.verifyModalValueContainer}>
+                <Text style={styles.verifyModalValue}>
+                  {bookingToVerify.contract.contract_number}
+                </Text>
+                {bookingToVerify.contract.shared && <Badge variant="shared" text="共用" />}
+              </View>
+            </View>
+
+            <View style={styles.verifyModalRow}>
+              <Text style={styles.verifyModalLabel}>合約類別</Text>
+              <Text style={styles.verifyModalValue}>
+                {bookingToVerify.visit.service_name || '未指定'}
+              </Text>
+            </View>
+
+            <View style={styles.verifyModalRow}>
+              <Text style={styles.verifyModalLabel}>時間</Text>
+              <Text style={styles.verifyModalValue}>
+                {bookingToVerify.consumed_time}分鐘
+              </Text>
+            </View>
+          </View>
+        )}
       </BottomSheetModal>
     </View>
   );
@@ -562,6 +612,32 @@ const styles = StyleSheet.create({
   },
   verifyButtonTextDisabled: {
     color: '#86909C',
+  },
+  // 核銷確認 Modal
+  verifyModalContent: {
+    paddingHorizontal: 16,
+  },
+  verifyModalRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F2F2F7',
+  },
+  verifyModalLabel: {
+    fontSize: 16,
+    color: '#666666',
+  },
+  verifyModalValueContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  verifyModalValue: {
+    fontSize: 16,
+    color: '#333333',
+    fontWeight: '500',
   },
 });
 

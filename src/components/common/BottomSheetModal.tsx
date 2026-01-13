@@ -18,6 +18,7 @@ interface BottomSheetModalProps {
   onClose: () => void;
   onConfirm?: () => void;
   children?: React.ReactNode;
+  title: string;
 }
 
 const BottomSheetModal: React.FC<BottomSheetModalProps> = ({
@@ -25,6 +26,7 @@ const BottomSheetModal: React.FC<BottomSheetModalProps> = ({
   onClose,
   onConfirm,
   children,
+  title,
 }) => {
 
   return (
@@ -43,6 +45,9 @@ const BottomSheetModal: React.FC<BottomSheetModalProps> = ({
                 <TouchableOpacity onPress={onClose}>
                   <Text style={styles.cancelText}>取消</Text>
                 </TouchableOpacity>
+                {title && <View>
+                  <Text style={styles.title}>{title}</Text>
+                </View>}
                 <TouchableOpacity onPress={onConfirm}>
                   <Text style={[styles.confirmText]}>確認</Text>
                 </TouchableOpacity>
