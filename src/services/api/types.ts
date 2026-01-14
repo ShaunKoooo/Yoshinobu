@@ -114,6 +114,7 @@ export interface ContractVisit {
   updated_at: string;
   date: string;
   provider_id: number;
+  contract: Contract;
   visit: VisitDetail;
 }
 
@@ -174,6 +175,7 @@ export interface Contract {
   category?: Category; // 合約類別（API 回傳時會包含）
   contract_number?: string; // 合約號碼
   shared?: boolean; // 是否為共用合約
+  upload_file_urls?: string[]; // 上傳的檔案 URL 列表
 }
 
 export interface GetContractsRequest {
@@ -189,7 +191,7 @@ export interface CreateContractRequest {
   category_id: number;
   contract_time: number;
   contract_number: string;
-  attachment_url?: string;
+  upload_file_urls?: string[];
 }
 
 export interface CreateContractResponse {

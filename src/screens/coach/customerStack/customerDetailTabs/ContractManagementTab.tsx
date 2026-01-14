@@ -5,6 +5,9 @@ import {
   StyleSheet,
   ScrollView,
   ActivityIndicator,
+  Image,
+  TouchableOpacity,
+  Modal,
 } from 'react-native';
 import {
   Accordion,
@@ -24,6 +27,8 @@ const ContractManagementTab = ({ route }: any) => {
   });
 
   const [expandedContracts, setExpandedContracts] = useState<Set<string>>(new Set());
+  const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
+  const [imageLoading, setImageLoading] = useState(true);
 
   const toggleContract = (contractId: string) => {
     setExpandedContracts((prev) => {
@@ -64,12 +69,23 @@ const ContractManagementTab = ({ route }: any) => {
         </View>
         <View style={styles.detail}>
           <Text style={styles.detailLabel}>合約類別</Text>
-          <Text style={styles.detailValue}>{contract.category.name}</Text>
+          <Text style={styles.detailValue}>{contract.category?.name}</Text>
         </View>
-        <View style={styles.detail}>
-          <Text style={styles.detailLabel}>照片</Text>
-          <Text style={styles.detailValue}></Text>
-        </View>
+        {contract.upload_file_urls && contract.upload_file_urls.length > 0 && (
+          <View style={[styles.detail, { height: 'auto', minHeight: 64, paddingVertical: 16 }]}>
+            <Text style={styles.detailLabel}>照片</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.photosScrollView}>
+              {contract.upload_file_urls.map((url, index) => (
+                <TouchableOpacity key={index} onPress={() => setSelectedImageUrl(url)}>
+                  <Image
+                    source={{ uri: url }}
+                    style={styles.photoThumbnail}
+                  />
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        )}
       </Accordion>
     );
   };
@@ -102,9 +118,68 @@ const ContractManagementTab = ({ route }: any) => {
   }
 
   return (
-    <ScrollView style={styles.container}>
-      {contracts.map(renderContractItem)}
-    </ScrollView>
+    <View style={styles.container}>
+      <ScrollView>
+        {contracts.map(renderContractItem)}
+      </ScrollView>
+
+      {/* Image Preview Modal - 照片放大預覽 */}
+      <Modal
+        visible={!!selectedImageUrl}
+        transparent={true}
+        onRequestClose={() => {
+          setSelectedImageUrl(null);
+          setImageLoading(true);
+        }}
+        animationType="fade"
+      >
+        <View style={styles.imagePreviewContainer}>
+          <TouchableOpacity
+            style={styles.imagePreviewBackdrop}
+            activeOpacity={1}
+            onPress={() => {
+              setSelectedImageUrl(null);
+              setImageLoading(true);
+            }}
+          >
+            <View style={styles.imagePreviewContent}>
+              {selectedImageUrl && (
+                <Image
+                  source={{ uri: selectedImageUrl }}
+                  style={styles.previewImage}
+                  resizeMode="contain"
+                  onLoadStart={() => {
+                    console.log('圖片開始載入');
+                    setImageLoading(true);
+                  }}
+                  onLoad={() => {
+                    console.log('圖片載入完成');
+                    setImageLoading(false);
+                  }}
+                  onLoadEnd={() => {
+                    console.log('圖片載入結束');
+                    setImageLoading(false);
+                  }}
+                  onError={(e: any) => {
+                    console.log('圖片載入錯誤:', e.nativeEvent?.error);
+                    setImageLoading(false);
+                  }}
+                />
+              )}
+              <TouchableOpacity
+                onPress={() => {
+                  setSelectedImageUrl(null);
+                  setImageLoading(true);
+                }}
+                style={styles.closePreviewButton}
+              >
+                <Text style={styles.closePreviewButtonText}>✕</Text>
+              </TouchableOpacity>
+            </View>
+          </TouchableOpacity>
+        </View>
+      </Modal>
+    </View>
   );
 };
 
@@ -181,24 +256,61 @@ const styles = StyleSheet.create({
     color: '#86909C',
     textAlign: 'center',
   },
-  photosContainer: {
+  photosScrollView: {
     flex: 1,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
   },
-  photoPlaceholder: {
-    width: 80,
-    height: 80,
-    backgroundColor: '#E5E5EA',
+  photoThumbnail: {
+    width: 64,
+    height: 64,
     borderRadius: 8,
+    marginRight: 8,
+  },
+  imagePreviewContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.9)',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  photoText: {
-    fontFamily: 'SF Pro',
-    fontSize: 12,
-    color: '#8E8E93',
+  imagePreviewBackdrop: {
+    flex: 1,
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  imagePreviewContent: {
+    width: '90%',
+    height: '70%',
+    position: 'relative',
+  },
+  imageLoadingContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1,
+  },
+  previewImage: {
+    width: '100%',
+    height: '100%',
+  },
+  closePreviewButton: {
+    position: 'absolute',
+    top: -50,
+    right: 10,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  closePreviewButtonText: {
+    fontSize: 24,
+    color: '#333',
+    fontWeight: 'bold',
   },
 });
 

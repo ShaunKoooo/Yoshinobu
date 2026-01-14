@@ -270,7 +270,7 @@ const CreateContractScreen = () => {
           category_id: contractCategoryId,
           contract_time: time,
           contract_number: contractNumber,
-          attachment_url: uploadedMediaList.map(media => media.result_url),
+          upload_file_urls: uploadedMediaList.map(media => media.result_url),
         },
         {
           onSuccess: (data) => {
