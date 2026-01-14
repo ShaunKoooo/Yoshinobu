@@ -6,6 +6,7 @@ import {
   ImageBackground,
   TouchableOpacity,
   Dimensions,
+  TextInput,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppConfig } from 'src/config/AppConfig';
@@ -22,6 +23,7 @@ const HomeScreen = () => {
   const insets = useSafeAreaInsets();
   const { profile } = useInitializeUser();
   const [showNameAlert, setShowNameAlert] = useState(false);
+  const [nameInput, setNameInput] = useState('');
 
   // 進入頁面時檢查是否有姓名
   useEffect(() => {
@@ -75,6 +77,15 @@ const HomeScreen = () => {
         message="填寫客戶姓名時，建議使用與身分證明文件一致的真實姓名，以確保驗證和服務使用的準確性"
         onConfirm={handleConfirmName}
         confirmText="確認"
+        customContent={
+          <TextInput
+            style={nameInputStyles.input}
+            placeholder="真實姓名"
+            placeholderTextColor="#C9CDD4"
+            value={nameInput}
+            onChangeText={setNameInput}
+          />
+        }
       />
     </View>
   );
@@ -109,6 +120,18 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '500',
+  },
+});
+
+const nameInputStyles = StyleSheet.create({
+  input: {
+    borderWidth: 1,
+    borderColor: '#E5E5EA',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 15,
+    color: '#000000',
   },
 });
 

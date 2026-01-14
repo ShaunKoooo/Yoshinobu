@@ -17,6 +17,7 @@ interface MyAlertProps {
   onConfirm: () => void;
   cancelText?: string;
   confirmText?: string;
+  customContent?: React.ReactNode;
 }
 
 const MyAlert: React.FC<MyAlertProps> = ({
@@ -27,6 +28,7 @@ const MyAlert: React.FC<MyAlertProps> = ({
   onConfirm,
   cancelText,
   confirmText,
+  customContent,
 }) => {
   return (
     <Modal
@@ -48,6 +50,13 @@ const MyAlert: React.FC<MyAlertProps> = ({
               <View style={styles.messageContainer}>
                 <Text style={styles.message}>{message}</Text>
               </View>
+
+              {/* Custom Content */}
+              {customContent && (
+                <View style={styles.customContentContainer}>
+                  {customContent}
+                </View>
+              )}
 
               {/* Buttons */}
               <View style={styles.buttonContainer}>
@@ -138,6 +147,10 @@ const styles = StyleSheet.create({
     fontSize: 17,
     color: '#4E5969',
     fontWeight: '600',
+  },
+  customContentContainer: {
+    paddingHorizontal: 24,
+    paddingBottom: 20,
   },
 });
 
