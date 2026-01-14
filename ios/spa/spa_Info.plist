@@ -11,7 +11,7 @@
   <key>CodePushServerURL</key>
   <string>https://codepush.appsonair.com</string>
 	<key>CFBundleDisplayName</key>
-	<string>人體工房教練</string>
+	<string>人體工房</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
