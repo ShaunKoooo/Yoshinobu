@@ -180,23 +180,21 @@ const CoursesScreen = () => {
     setBookingToComplete(null);
   };
 
-  // 檢查是否在預約時間的 30 分鐘內
+  // 檢查是否應該禁用取消按鈕
+  // 例: 預約時間 14:00，從 13:30 開始就不能取消
   const isWithin30Minutes = (contractVisit: ContractVisit): boolean => {
     const { time } = contractVisit.visit;
     if (!time) return false;
 
-    // 組合日期和時間
     const bookingDateTime = new Date(time);
     const now = new Date();
 
-    // 計算時間差（毫秒）
-    const timeDiff = bookingDateTime.getTime() - now.getTime();
+    // 計算預約時間前 30 分鐘的時間點
+    const thirtyMinutesBeforeBooking = new Date(bookingDateTime.getTime() - 30 * 60 * 1000);
 
-    // 30 分鐘 = 30 * 60 * 1000 毫秒
-    const thirtyMinutes = 30 * 60 * 1000;
-
-    // 如果時間差小於 30 分鐘且大於 0（還沒過期），則返回 true
-    return timeDiff > 0 && timeDiff <= thirtyMinutes;
+    // 如果現在時間 >= (預約時間 - 30分鐘)，就禁用取消按鈕
+    // 換句話說：只有當現在時間 < (預約時間 - 30分鐘) 時才可以取消
+    return now >= thirtyMinutesBeforeBooking;
   };
 
   return (
