@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -11,6 +11,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppConfig } from 'src/config/AppConfig';
 import { Colors } from 'src/theme';
 import { useNavigation } from '@react-navigation/native';
+import { useInitializeUser } from 'src/hooks/useInitializeUser';
+import { MyAlert } from 'src/components';
 
 const { width, height } = Dimensions.get('window');
 const isSPAApp = AppConfig.APP_TYPE === 'spa';
@@ -18,6 +20,15 @@ const isSPAApp = AppConfig.APP_TYPE === 'spa';
 const HomeScreen = () => {
   const navigation = useNavigation<any>();
   const insets = useSafeAreaInsets();
+  const { profile } = useInitializeUser();
+  const [showNameAlert, setShowNameAlert] = useState(false);
+
+  // 進入頁面時檢查是否有姓名
+  useEffect(() => {
+    if (profile && (profile.name == 'undefined' || !profile.name)) {
+      setShowNameAlert(true);
+    }
+  }, [profile]);
 
   // 根據 APP_TYPE 選擇對應的圖片
   const backgroundImage = isSPAApp
@@ -25,8 +36,19 @@ const HomeScreen = () => {
     : require('../../../assets/bb/home.png');
 
   const handleBooking = () => {
+    // 檢查是否有姓名
+    if (!profile?.name) {
+      setShowNameAlert(true);
+      return;
+    }
     console.log('立即預約');
     navigation.navigate('CreateBooking');
+  };
+
+  const handleConfirmName = () => {
+    setShowNameAlert(false);
+    // TODO: 這裡將來會呼叫 API 更新姓名
+    console.log('確認填寫姓名');
   };
 
   return (
@@ -45,6 +67,15 @@ const HomeScreen = () => {
           </TouchableOpacity>
         </View>
       </ImageBackground>
+
+      {/* 填寫姓名提醒 */}
+      <MyAlert
+        visible={showNameAlert}
+        title="請填寫客戶姓名"
+        message="填寫客戶姓名時，建議使用與身分證明文件一致的真實姓名，以確保驗證和服務使用的準確性"
+        onConfirm={handleConfirmName}
+        confirmText="確認"
+      />
     </View>
   );
 };
