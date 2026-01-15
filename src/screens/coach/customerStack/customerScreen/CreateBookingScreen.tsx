@@ -34,6 +34,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useInitializeUser } from 'src/hooks/useInitializeUser';
 import { useAppSelector } from 'src/store/hooks';
 import { useConfirmableModal } from 'src/hooks/useConfirmableModal';
+import { storageService } from 'src/services/storage.service';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -80,8 +81,20 @@ const CreateBookingScreen = () => {
   const [calendarKey, setCalendarKey] = useState(0);
 
   // 使用 useConfirmableModal 管理各個 modal
-  const serviceModal = useConfirmableModal(serviceId, setServiceId);
-  const therapistModal = useConfirmableModal(providerId, setProviderId);
+  const serviceModal = useConfirmableModal(serviceId, async (value) => {
+    setServiceId(value);
+    // 保存選擇到 local storage
+    if (value !== null) {
+      await storageService.setLastSelectedServiceId(value);
+    }
+  });
+  const therapistModal = useConfirmableModal(providerId, async (value) => {
+    setProviderId(value);
+    // 保存選擇到 local storage
+    if (value !== null) {
+      await storageService.setLastSelectedProviderId(value);
+    }
+  });
   const timeModal = useConfirmableModal(
     { date: bookingDate, time: bookingTime },
     (values) => {
@@ -125,17 +138,45 @@ const CreateBookingScreen = () => {
     }
   }, [contractError]);
 
-  // 當 services 載入後，自動設定第一個為預設值
+  // 當 services 載入後，優先使用上次選擇的 ID，若無則使用第一個為預設值
   useEffect(() => {
     if (services?.services && services?.services?.length > 0 && serviceId === null) {
-      setServiceId(services?.services[0].id);
+      const loadLastSelectedService = async () => {
+        const lastSelectedId = await storageService.getLastSelectedServiceId();
+
+        // 檢查上次選擇的 ID 是否仍然存在於當前的 services 列表中
+        const isLastSelectedValid = lastSelectedId && services?.services?.some((s: any) => s.id === lastSelectedId);
+
+        if (isLastSelectedValid) {
+          setServiceId(lastSelectedId);
+        } else {
+          // 若上次選擇的 ID 不存在，使用第一個為預設值
+          setServiceId(services?.services[0].id);
+        }
+      };
+
+      loadLastSelectedService();
     }
   }, [services, serviceId]);
 
-  // 當 providers 載入後，自動設定第一個為預設值
+  // 當 providers 載入後，優先使用上次選擇的 ID，若無則使用第一個為預設值
   useEffect(() => {
     if (providers?.providers && providers?.providers?.length > 0 && providerId === null) {
-      setProviderId(providers?.providers?.[0].id);
+      const loadLastSelectedProvider = async () => {
+        const lastSelectedId = await storageService.getLastSelectedProviderId();
+
+        // 檢查上次選擇的 ID 是否仍然存在於當前的 providers 列表中
+        const isLastSelectedValid = lastSelectedId && providers?.providers?.some((p: any) => p.id === lastSelectedId);
+
+        if (isLastSelectedValid) {
+          setProviderId(lastSelectedId);
+        } else {
+          // 若上次選擇的 ID 不存在，使用第一個為預設值
+          setProviderId(providers?.providers[0].id);
+        }
+      };
+
+      loadLastSelectedProvider();
     }
   }, [providers, providerId]);
 

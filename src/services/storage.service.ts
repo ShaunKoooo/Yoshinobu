@@ -5,6 +5,8 @@ const STORAGE_KEYS = {
   AUTH_TOKEN: 'authToken',
   USER_DATA: 'userData',
   USER_ROLE: 'userRole',
+  LAST_SELECTED_SERVICE_ID: 'lastSelectedServiceId',
+  LAST_SELECTED_PROVIDER_ID: 'lastSelectedProviderId',
   // 可以在這裡添加更多常用的 keys
 } as const;
 
@@ -117,6 +119,46 @@ class StorageService {
       ]);
     } catch (error) {
       console.error('Failed to clear auth data:', error);
+      throw error;
+    }
+  }
+
+  // ==================== Booking 相關 ====================
+
+  async getLastSelectedServiceId(): Promise<number | null> {
+    try {
+      const id = await AsyncStorage.getItem(STORAGE_KEYS.LAST_SELECTED_SERVICE_ID);
+      return id ? Number(id) : null;
+    } catch (error) {
+      console.error('Failed to get last selected service id:', error);
+      return null;
+    }
+  }
+
+  async setLastSelectedServiceId(serviceId: number): Promise<void> {
+    try {
+      await AsyncStorage.setItem(STORAGE_KEYS.LAST_SELECTED_SERVICE_ID, String(serviceId));
+    } catch (error) {
+      console.error('Failed to set last selected service id:', error);
+      throw error;
+    }
+  }
+
+  async getLastSelectedProviderId(): Promise<number | null> {
+    try {
+      const id = await AsyncStorage.getItem(STORAGE_KEYS.LAST_SELECTED_PROVIDER_ID);
+      return id ? Number(id) : null;
+    } catch (error) {
+      console.error('Failed to get last selected provider id:', error);
+      return null;
+    }
+  }
+
+  async setLastSelectedProviderId(providerId: number): Promise<void> {
+    try {
+      await AsyncStorage.setItem(STORAGE_KEYS.LAST_SELECTED_PROVIDER_ID, String(providerId));
+    } catch (error) {
+      console.error('Failed to set last selected provider id:', error);
       throw error;
     }
   }
