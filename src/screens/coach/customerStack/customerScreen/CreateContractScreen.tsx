@@ -15,6 +15,8 @@ import {
   ActivityIndicator,
   Modal,
 } from 'react-native';
+// @ts-ignore - Platform and PermissionsAndroid exist in RN 0.83 but types are outdated
+import { Platform, PermissionsAndroid } from 'react-native';
 import {
   MyButton,
   Icon,
@@ -31,7 +33,7 @@ import { contractsApi } from 'src/services/api';
 import { useNavigation } from '@react-navigation/native';
 import { useSelectedClientIdFromClients } from 'src/hooks/useClientsWithRedux';
 import { useConfirmableModal } from 'src/hooks/useConfirmableModal';
-import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
+import * as ImagePicker from 'react-native-image-picker';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from 'src/store';
 import { uploadContractMedia, clearUploadState, removeUploadedMedia } from 'src/store/slices/contractsSlice';
@@ -104,7 +106,96 @@ const CreateContractScreen = () => {
     }
   }, [selectedContractId, contractsData]);
 
+  // 請求相機權限
+  const requestCameraPermission = async () => {
+    // iOS 會在使用時自動請求權限，不需要手動請求
+    if (Platform.OS === 'ios') {
+      return true;
+    }
+
+    // Android 需要手動請求權限
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.CAMERA,
+        {
+          title: "相機權限",
+          message: "需要使用相機來拍攝照片",
+          buttonNeutral: "稍後詢問",
+          buttonNegative: "取消",
+          buttonPositive: "允許"
+        }
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log("相機權限已授予");
+        return true;
+      } else {
+        console.log("相機權限被拒絕");
+        return false;
+      }
+    } catch (err) {
+      console.warn(err);
+      return false;
+    }
+  };
+
+  // 請求儲存權限
+  const requestStoragePermission = async () => {
+    // iOS 會在使用時自動請求權限，不需要手動請求
+    if (Platform.OS === 'ios') {
+      return true;
+    }
+
+    // Android 需要手動請求權限
+    try {
+      // Android 13+ 使用 READ_MEDIA_IMAGES
+      if (Platform.Version >= 33) {
+        const granted = await PermissionsAndroid.request(
+          'android.permission.READ_MEDIA_IMAGES' as any,
+          {
+            title: "照片權限",
+            message: "需要存取您的照片",
+            buttonNeutral: "稍後詢問",
+            buttonNegative: "取消",
+            buttonPositive: "允許"
+          }
+        );
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          console.log("照片權限已授予");
+          return true;
+        } else {
+          console.log("照片權限被拒絕");
+          return false;
+        }
+      } else {
+        // Android 12 及以下使用 READ_EXTERNAL_STORAGE
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+          {
+            title: "儲存權限",
+            message: "需要存取您的照片",
+            buttonNeutral: "稍後詢問",
+            buttonNegative: "取消",
+            buttonPositive: "允許"
+          }
+        );
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          console.log("儲存權限已授予");
+          return true;
+        } else {
+          console.log("儲存權限被拒絕");
+          return false;
+        }
+      }
+    } catch (err) {
+      console.warn(err);
+      return false;
+    }
+  };
+
   const handlePickImage = () => {
+    console.log('handlePickImage 被調用');
+    console.log('Platform:', Platform.OS, 'Version:', Platform.Version);
+
     Alert.alert(
       '選擇照片來源',
       '請選擇要從哪裡上傳照片',
@@ -112,30 +203,86 @@ const CreateContractScreen = () => {
         {
           text: '相機',
           onPress: async () => {
-            const result = await launchCamera({
-              mediaType: 'photo',
-              saveToPhotos: true,
-            });
+            try {
+              // 請求相機權限
+              const hasPermission = await requestCameraPermission();
+              console.log('相機權限狀態:', hasPermission);
 
-            if (result.assets && result.assets.length > 0) {
-              const asset = result.assets[0];
-              if (asset.uri) {
-                const extname = asset.type?.split('/')[1] || 'jpg';
-                dispatch(uploadContractMedia({
-                  fileUri: asset.uri,
-                  extname,
-                }));
+              if (!hasPermission) {
+                Alert.alert('權限被拒絕', '無法使用相機，請在設定中開啟相機權限');
+                return;
               }
+
+              console.log('準備啟動相機...');
+
+              const result = await ImagePicker.launchCamera({
+                mediaType: 'photo',
+                saveToPhotos: true,
+                cameraType: 'back',
+                includeBase64: false,
+                includeExtra: false,
+              });
+
+              console.log('相機結果:', result);
+
+              if (result.didCancel) {
+                console.log('用戶取消了拍照');
+                return;
+              }
+
+              if (result.errorCode) {
+                console.error('相機錯誤:', result.errorCode, result.errorMessage);
+                Alert.alert('錯誤', `無法開啟相機: ${result.errorMessage || result.errorCode}`);
+                return;
+              }
+
+              if (result.assets && result.assets.length > 0) {
+                const asset = result.assets[0];
+                if (asset.uri) {
+                  const extname = asset.type?.split('/')[1] || 'jpg';
+                  dispatch(uploadContractMedia({
+                    fileUri: asset.uri,
+                    extname,
+                  }));
+                }
+              }
+            } catch (error) {
+              console.error('相機啟動失敗:', error);
+              Alert.alert('錯誤', '無法開啟相機');
             }
           },
         },
         {
           text: '相簿',
           onPress: async () => {
-            const result = await launchImageLibrary({
-              mediaType: 'photo',
-              selectionLimit: 0, // 0 表示不限制選擇數量
-            });
+            try {
+              // 請求儲存權限
+              const hasPermission = await requestStoragePermission();
+              console.log('儲存權限狀態:', hasPermission);
+
+              if (!hasPermission) {
+                Alert.alert('權限被拒絕', '無法存取照片，請在設定中開啟儲存權限');
+                return;
+              }
+
+              console.log('準備開啟相簿...');
+              const result = await ImagePicker.launchImageLibrary({
+                mediaType: 'photo',
+                selectionLimit: 0, // 0 表示不限制選擇數量
+              });
+
+              console.log('相簿結果:', result);
+
+              if (result.didCancel) {
+                console.log('用戶取消了選擇');
+                return;
+              }
+
+              if (result.errorCode) {
+                console.error('相簿錯誤:', result.errorCode, result.errorMessage);
+                Alert.alert('錯誤', `無法開啟相簿: ${result.errorMessage || result.errorCode}`);
+                return;
+              }
 
             if (result.assets && result.assets.length > 0) {
               // 依序上傳每張照片
@@ -199,6 +346,10 @@ const CreateContractScreen = () => {
               } else if (failCount > 0) {
                 Alert.alert('上傳失敗', '照片上傳失敗，請重試');
               }
+            }
+            } catch (error) {
+              console.error('相簿啟動失敗:', error);
+              Alert.alert('錯誤', '無法開啟相簿');
             }
           },
         },
