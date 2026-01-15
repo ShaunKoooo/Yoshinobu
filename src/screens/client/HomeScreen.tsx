@@ -69,18 +69,19 @@ const HomeScreen = () => {
       return;
     }
 
-    // 處理 gender 類型轉換
-    let gender: 'male' | 'female' = 'male';
+    // 處理 gender 類型轉換，只允許 'male' 或 'female'
+    let gender: 'male' | 'female' | undefined = undefined;
     if (clientData.client.gender === 'female') {
       gender = 'female';
     } else if (clientData.client.gender === 'male') {
       gender = 'male';
     }
-    // 如果是 'other',預設使用 'male'
+    // 如果是 'other' 或其他值，gender 設為 undefined
 
     const updateData = {
       ...clientData.client,
       name: nameInput.trim(),
+      gender, // 保證只會是 'male' | 'female' | undefined
     };
 
     console.log('準備更新的資料:', updateData);
