@@ -12,10 +12,12 @@ import { useCreateClient } from 'src/services/hooks';
 import { CUSTOMER_FIELDS } from 'src/components/customerForm/constants';
 import { useCustomerFormModal } from 'src/components/customerForm/useCustomerFormModal';
 import { useNavigation } from '@react-navigation/native';
+import { useToast, Toast, ToastTitle } from 'src/components/ui/gluestack-ui-provider/toast';
 
 const CreateCustomer = () => {
   const navigation = useNavigation<any>();
   const { mutate } = useCreateClient();
+  const toast = useToast();
   const [formValues, setFormValues] = useState<Record<string, string>>({
     name: '',
     email: '',
@@ -68,6 +70,30 @@ const CreateCustomer = () => {
       },
       {
         onSuccess: () => {
+          toast.show({
+            placement: 'top',
+            duration: 3000,
+            render: ({ id }) => {
+              return (
+                <Toast
+                  nativeID={id}
+                  action="success"
+                  variant="solid"
+                  style={{
+                    backgroundColor: '#22C55E',
+                    padding: 16,
+                    borderRadius: 8,
+                    marginHorizontal: 16,
+                    marginTop: 16,
+                  }}
+                >
+                  <ToastTitle style={{ color: '#FFFFFF' }}>
+                    新增客戶完成
+                  </ToastTitle>
+                </Toast>
+              );
+            },
+          });
           navigation.goBack();
         },
         onError: (error: any) => {

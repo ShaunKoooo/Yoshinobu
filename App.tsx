@@ -11,6 +11,7 @@ import CodePush from "@code-push-next/react-native-code-push";
 import { queryClient } from 'src/services/queryClient';
 import { pushNotificationService } from 'src/services/pushNotification.service';
 import { Colors } from 'src/theme';
+import { GluestackUIProvider } from 'src/components/ui/gluestack-ui-provider';
 
 function App() {
   const [downloadProgress, setDownloadProgress] = useState<{
@@ -90,60 +91,62 @@ function App() {
     : 0;
 
   return (
-    <Provider store={store}>
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <SafeAreaProvider>
-            <StatusBar
-              barStyle="light-content"
-              backgroundColor="#000000"
-              translucent={false}
-            />
-            <NavigationContainer>
-              <RootNavigator />
-            </NavigationContainer>
+    <GluestackUIProvider>
+      <Provider store={store}>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <SafeAreaProvider>
+              <StatusBar
+                barStyle="light-content"
+                backgroundColor="#000000"
+                translucent={false}
+              />
+              <NavigationContainer>
+                <RootNavigator />
+              </NavigationContainer>
 
-            {/* CodePush 下載進度 Modal */}
-            <Modal
-              visible={isDownloading}
-              transparent={true}
-              animationType="fade"
-              onRequestClose={() => {
-                // 防止使用者關閉 Modal
-              }}
-            >
-              <View style={styles.modalOverlay}>
-                <View style={styles.modalContent}>
-                  <ActivityIndicator size="large" color={Colors.primary} style={styles.spinner} />
-                  <Text style={styles.title}>正在下載更新</Text>
-                  <Text style={styles.warning}>⚠️ 下載期間請勿關閉 App</Text>
+              {/* CodePush 下載進度 Modal */}
+              <Modal
+                visible={isDownloading}
+                transparent={true}
+                animationType="fade"
+                onRequestClose={() => {
+                  // 防止使用者關閉 Modal
+                }}
+              >
+                <View style={styles.modalOverlay}>
+                  <View style={styles.modalContent}>
+                    <ActivityIndicator size="large" color={Colors.primary} style={styles.spinner} />
+                    <Text style={styles.title}>正在下載更新</Text>
+                    <Text style={styles.warning}>⚠️ 下載期間請勿關閉 App</Text>
 
-                  {/* 進度條 */}
-                  <View style={styles.progressBarContainer}>
-                    <View
-                      style={[
-                        styles.progressBar,
-                        { width: `${progressPercentage}%` }
-                      ]}
-                    />
-                  </View>
+                    {/* 進度條 */}
+                    <View style={styles.progressBarContainer}>
+                      <View
+                        style={[
+                          styles.progressBar,
+                          { width: `${progressPercentage}%` }
+                        ]}
+                      />
+                    </View>
 
-                  {/* 進度百分比和大小 */}
-                  <Text style={styles.progressText}>
-                    {progressPercentage}%
-                  </Text>
-                  {downloadProgress && (
-                    <Text style={styles.sizeText}>
-                      {(downloadProgress.receivedBytes / 1024 / 1024).toFixed(2)} MB / {(downloadProgress.totalBytes / 1024 / 1024).toFixed(2)} MB
+                    {/* 進度百分比和大小 */}
+                    <Text style={styles.progressText}>
+                      {progressPercentage}%
                     </Text>
-                  )}
+                    {downloadProgress && (
+                      <Text style={styles.sizeText}>
+                        {(downloadProgress.receivedBytes / 1024 / 1024).toFixed(2)} MB / {(downloadProgress.totalBytes / 1024 / 1024).toFixed(2)} MB
+                      </Text>
+                    )}
+                  </View>
                 </View>
-              </View>
-            </Modal>
-          </SafeAreaProvider>
-        </AuthProvider>
-      </QueryClientProvider>
-    </Provider>
+              </Modal>
+            </SafeAreaProvider>
+          </AuthProvider>
+        </QueryClientProvider>
+      </Provider>
+    </GluestackUIProvider>
   );
 }
 
