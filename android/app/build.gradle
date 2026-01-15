@@ -93,8 +93,8 @@ android {
         applicationId "com.yoshinobu"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 2026010801
-        versionName "1.4"
+        versionCode 2026011500
+        versionName "1.5"
     }
 
     flavorDimensions "app"
