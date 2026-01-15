@@ -28,6 +28,7 @@ const AUTH_ENDPOINTS = {
 const COACH_ENDPOINTS = {
   USER_ME: '/api/v4.1/users/me',
   UPDATE_DEVICE: '/api/v4/users/me/update_device',
+  UNREAD_COUNT: '/api/v4/users/me/unread_count',
   // 客戶管理
   CLIENTS: '/api/spa/user/v1/clients',
   CLIENT_DETAIL: (id: number) => `/api/spa/user/v1/clients/${id}`,
@@ -61,6 +62,7 @@ const COACH_ENDPOINTS = {
 const CLIENT_ENDPOINTS = {
   CLIENT_ME: '/api/v4/clients/me',
   UPDATE_DEVICE: '/api/v4/clients/me/update_device',
+  UNREAD_COUNT: '/api/v4/clients/me/unread_count',
 
   // 客戶管理
   CLIENTS: '/api/spa/client/v1/clients',

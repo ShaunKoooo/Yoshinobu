@@ -11,6 +11,7 @@ interface NotificationState {
     loading: boolean;
     loadMoreing: boolean;
     error?: string;
+    unreadCount: number; // 未讀通知數量
 }
 
 const initialState: NotificationState = {
@@ -19,9 +20,22 @@ const initialState: NotificationState = {
     refreshing: false,
     loading: false,
     loadMoreing: false,
+    unreadCount: 0,
 };
 
 // Async Thunks
+export const fetchUnreadCount = createAsyncThunk(
+    'notification/fetchUnreadCount',
+    async (_, { rejectWithValue }) => {
+        try {
+            const response = await notificationApi.getUnreadCount();
+            return response.notificationUnreadCount;
+        } catch (error: any) {
+            return rejectWithValue(error.message);
+        }
+    }
+);
+
 export const fetchNotifications = createAsyncThunk(
     'notification/fetch',
     async ({ newer = false, older = false }: { newer?: boolean; older?: boolean }, { getState, rejectWithValue }) => {
@@ -128,6 +142,9 @@ const notificationSlice = createSlice({
 
             state.newestTimestamp = state.notifications.length > 0 ? state.notifications[0].created_at : undefined;
             state.oldestTimestamp = state.notifications.length > 0 ? state.notifications[state.notifications.length - 1].created_at : undefined;
+
+            // 同步更新 unreadCount
+            state.unreadCount = state.notifications.filter(n => !n.read).length;
         });
         builder.addCase(fetchNotifications.rejected, (state, action) => {
             state.refreshing = false;
@@ -149,8 +166,31 @@ const notificationSlice = createSlice({
         builder.addCase(markAllRead.pending, (state) => {
             state.notifications.forEach(n => n.read = true);
         });
+
+        // Fetch Unread Count
+        builder.addCase(fetchUnreadCount.fulfilled, (state, action) => {
+            state.unreadCount = action.payload;
+        });
+        builder.addCase(fetchUnreadCount.rejected, (state, action) => {
+            state.error = action.payload as string;
+        });
+
+        // 當標記已讀時，更新 unreadCount
+        builder.addCase(markRead.fulfilled, (state, action) => {
+            const count = action.payload.length;
+            state.unreadCount = Math.max(0, state.unreadCount - count);
+        });
+        builder.addCase(markAllRead.fulfilled, (state) => {
+            state.unreadCount = 0;
+        });
     }
 });
 
 export const { setNotificationsRead } = notificationSlice.actions;
+
+// Selector: 計算未讀通知數量
+export const selectUnreadCount = (state: { notification: NotificationState }) => {
+    return state.notification.notifications.filter(n => !n.read).length;
+};
+
 export default notificationSlice.reducer;

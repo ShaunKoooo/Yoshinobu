@@ -5,6 +5,7 @@ import { TouchableOpacity, Text, StyleSheet, Platform } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from './types';
+import { useAppSelector } from 'src/store/hooks';
 import {
   Icon,
 } from 'src/components';
@@ -28,6 +29,9 @@ const tabBarInactiveTintColor = '#D6D6D6';
 
 const AdminTabNavigator = () => {
   const insets = useSafeAreaInsets();
+
+  // 取得未讀通知數量
+  const unreadCount = useAppSelector((state) => state.notification.unreadCount);
 
   // Android 需要額外的底部 padding
   const tabBarHeight = Platform.OS === 'android' ? 70 : 40 + insets.bottom;
@@ -88,6 +92,7 @@ const AdminTabNavigator = () => {
         component={NotificationsScreen}
         options={{
           title: '通知',
+          tabBarBadge: unreadCount > 0 ? unreadCount : undefined,
           tabBarIcon: ({ color, size }) => (
             <Icon name="notification" size={size} color={color} />
           ),

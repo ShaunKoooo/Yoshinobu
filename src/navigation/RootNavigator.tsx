@@ -1,11 +1,14 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { TouchableOpacity, ActivityIndicator, View } from 'react-native';
+import { useDispatch } from 'react-redux';
 import { AppConfig } from 'src/config/AppConfig';
 import { Icon } from 'src/components';
 import { useAppSelector } from 'src/store/hooks';
 import { useInitializeUser } from 'src/hooks/useInitializeUser';
 import { usePushNotification } from 'src/hooks/usePushNotification';
+import { fetchUnreadCount } from 'src/store/slices/notificationSlice';
+import type { AppDispatch } from 'src/store';
 import CoachTabNavigator from './CoachTabNavigator';
 import ClientTabNavigator from './ClientTabNavigator';
 import { Colors } from 'src/theme';
@@ -32,6 +35,7 @@ export type RootStackParamList = {
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const RootNavigator = () => {
+  const dispatch = useDispatch<AppDispatch>();
   const { isAuthenticated, isLoading, userRole } = useAppSelector((state) => state.auth);
 
   // 自動載入使用者資料（內部會檢查 isAuthenticated）
@@ -39,6 +43,13 @@ const RootNavigator = () => {
 
   // 初始化 Push Notification (取得 Token 並上傳)
   usePushNotification();
+
+  // 登入後載入通知（取得未讀數量）
+  useEffect(() => {
+    if (isAuthenticated && !isLoading && !isUserLoading) {
+      dispatch(fetchUnreadCount());
+    }
+  }, [isAuthenticated, isLoading, isUserLoading, dispatch]);
 
   // 顯示載入畫面
   if (isLoading || isUserLoading) {

@@ -2,6 +2,7 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Platform } from 'react-native';
+import { useAppSelector } from 'src/store/hooks';
 import { Icon } from 'src/components';
 import type { ClientTabParamList } from './types';
 import { Colors } from 'src/theme';
@@ -20,6 +21,9 @@ const tabBarInactiveTintColor = '#D6D6D6';
 
 const ClientTabNavigator = () => {
   const insets = useSafeAreaInsets();
+
+  // 取得未讀通知數量
+  const unreadCount = useAppSelector((state) => state.notification.unreadCount);
 
   // Android 需要額外的底部 padding
   const tabBarHeight = Platform.OS === 'android' ? 70 : 40 + insets.bottom;
@@ -69,6 +73,7 @@ const ClientTabNavigator = () => {
         component={NotificationsScreen}
         options={{
           title: '通知',
+          tabBarBadge: unreadCount > 0 ? unreadCount : undefined,
           tabBarIcon: ({ color, size }) => (
             <Icon name="notification" size={size} color={color} />
           ),

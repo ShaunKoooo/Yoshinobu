@@ -290,7 +290,7 @@ export interface Slot {
 
 export interface GetSlotsRequest {
   date: string; // YYYY-MM-DD
-  provider_id: number;
+  provider_id?: number;
   service_id: number;
 }
 
@@ -421,6 +421,13 @@ export interface SetNotificationsReadRequest {
 
 export interface SetNotificationsReadResponse {
   ok: boolean;
+}
+
+export interface UnreadCountResponse {
+  chatUnreadCount: number;
+  notificationUnreadCount: number;
+  totalUnreadCount: number;
+  unreads: Array<Record<string, any>>;
 }
 
 // ==================== 合約管理 (Media Upload) ====================
