@@ -13,6 +13,7 @@ import { AppConfig } from 'src/config/AppConfig';
 import { Colors } from 'src/theme';
 import { useNavigation } from '@react-navigation/native';
 import { useInitializeUser } from 'src/hooks/useInitializeUser';
+import { useUpdateClient, useClient } from 'src/services/hooks';
 import { MyAlert } from 'src/components';
 
 const { width, height } = Dimensions.get('window');
@@ -24,7 +25,10 @@ const HomeScreen = () => {
   const { profile } = useInitializeUser();
   const [showNameAlert, setShowNameAlert] = useState(false);
   const [nameInput, setNameInput] = useState('');
+  const { mutate: updateClient } = useUpdateClient();
 
+  // 獲取完整的客戶資料
+  const { data: clientData } = useClient(profile?.id || 0, !!profile?.id);
   // 進入頁面時檢查是否有姓名
   useEffect(() => {
     if (profile && (profile.name == 'undefined' || !profile.name)) {
@@ -48,9 +52,55 @@ const HomeScreen = () => {
   };
 
   const handleConfirmName = () => {
-    setShowNameAlert(false);
-    // TODO: 這裡將來會呼叫 API 更新姓名
-    console.log('確認填寫姓名');
+    // 檢查輸入框是否為空
+    if (!nameInput.trim()) {
+      return; // 輸入框為空時不允許關閉 Modal
+    }
+
+    // 檢查 profile 是否存在且有 id
+    if (!profile?.id) {
+      console.error('無法取得客戶 ID');
+      return;
+    }
+
+    // 檢查是否有完整的客戶資料
+    if (!clientData?.client) {
+      console.error('無法取得完整客戶資料');
+      return;
+    }
+
+    // 處理 gender 類型轉換
+    let gender: 'male' | 'female' = 'male';
+    if (clientData.client.gender === 'female') {
+      gender = 'female';
+    } else if (clientData.client.gender === 'male') {
+      gender = 'male';
+    }
+    // 如果是 'other',預設使用 'male'
+
+    const updateData = {
+      ...clientData.client,
+      name: nameInput.trim(),
+    };
+
+    console.log('準備更新的資料:', updateData);
+
+    updateClient(
+      {
+        id: profile.id,
+        data: updateData,
+      },
+      {
+        onSuccess: () => {
+          console.log('成功更新姓名:', nameInput);
+          setShowNameAlert(false);
+          setNameInput('');
+        },
+        onError: (error: any) => {
+          console.error('更新姓名失敗:', error);
+        },
+      }
+    );
   };
 
   return (
