@@ -22,19 +22,30 @@ const isSPAApp = AppConfig.APP_TYPE === 'spa';
 const HomeScreen = () => {
   const navigation = useNavigation<any>();
   const insets = useSafeAreaInsets();
-  const { profile } = useInitializeUser();
+  const { profile, isLoading } = useInitializeUser();
   const [showNameAlert, setShowNameAlert] = useState(false);
   const [nameInput, setNameInput] = useState('');
+  const [hasCheckedName, setHasCheckedName] = useState(false);
   const { mutate: updateClient } = useUpdateClient();
 
   // 獲取完整的客戶資料
-  const { data: clientData } = useClient(profile?.id || 0, !!profile?.id);
+  const { data: clientData, isLoading: isClientLoading } = useClient(profile?.id || 0, !!profile?.id);
   // 進入頁面時檢查是否有姓名
   useEffect(() => {
-    if (profile && (profile.name == 'undefined' || !profile.name)) {
-      setShowNameAlert(true);
+    // 等待 profile 和 clientData 都載入完成後才檢查姓名，且只檢查一次
+    if (!isLoading && !isClientLoading && !hasCheckedName && profile && clientData?.client) {
+      // 先檢查姓名是否為空
+      const shouldShowAlert = clientData.client.name === 'undefined' || !clientData.client.name;
+
+      // 標記已檢查過
+      setHasCheckedName(true);
+
+      // 只有在需要時才顯示 Alert
+      if (shouldShowAlert) {
+        setShowNameAlert(true);
+      }
     }
-  }, [profile]);
+  }, [profile, clientData, isLoading, isClientLoading, hasCheckedName]);
 
   // 根據 APP_TYPE 選擇對應的圖片
   const backgroundImage = isSPAApp
