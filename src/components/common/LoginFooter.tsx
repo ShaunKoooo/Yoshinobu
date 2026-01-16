@@ -1,9 +1,10 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Linking } from 'react-native';
 import { Colors } from 'src/theme';
 import DeviceInfo from 'react-native-device-info';
 import CodePush from '@code-push-next/react-native-code-push';
 import { BUNDLE_BUILD } from 'src/constants/version';
+import { AppConfig } from 'src/config/AppConfig';
 
 const LoginFooter = () => {
   const [versionInfo, setVersionInfo] = React.useState('');
@@ -31,6 +32,16 @@ const LoginFooter = () => {
     loadVersionInfo();
   }, []);
 
+  const handlePrivacyPolicyPress = () => {
+    const privacyUrl = AppConfig.APP_TYPE === 'bb'
+      ? 'https://www.powerwindhealth.com.tw/buddybodyworkshop/tw'
+      : 'https://www.fitnessfactory.com.tw/tw/privacy';
+
+    Linking.openURL(privacyUrl).catch(err =>
+      console.error('Failed to open privacy policy URL:', err)
+    );
+  };
+
   return (
     <View style={styles.footerContainer}>
       <View style={styles.footerTextContainer}>
@@ -38,7 +49,7 @@ const LoginFooter = () => {
           <Text style={styles.footerLink}>使用者條款(EULA)</Text>
         </TouchableOpacity> */}
         {/* <Text style={styles.footerText}>與</Text> */}
-        <TouchableOpacity>
+        <TouchableOpacity onPress={handlePrivacyPolicyPress}>
           <Text style={styles.footerLink}>隱私權政策</Text>
         </TouchableOpacity>
       </View>
