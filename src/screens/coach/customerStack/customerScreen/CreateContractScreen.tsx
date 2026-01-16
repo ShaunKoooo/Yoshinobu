@@ -238,12 +238,27 @@ const CreateContractScreen = () => {
 
               if (result.assets && result.assets.length > 0) {
                 const asset = result.assets[0];
+                console.log('相機拍攝的照片資訊:', {
+                  uri: asset.uri,
+                  type: asset.type,
+                  fileName: asset.fileName,
+                  fileSize: asset.fileSize,
+                });
+
                 if (asset.uri) {
                   const extname = asset.type?.split('/')[1] || 'jpg';
-                  dispatch(uploadContractMedia({
-                    fileUri: asset.uri,
-                    extname,
-                  }));
+                  console.log('準備上傳，extname:', extname);
+
+                  try {
+                    await dispatch(uploadContractMedia({
+                      fileUri: asset.uri,
+                      extname,
+                    })).unwrap();
+                    console.log('✅ 上傳成功');
+                  } catch (uploadError: any) {
+                    console.error('❌ 上傳失敗:', uploadError);
+                    Alert.alert('上傳失敗', uploadError.message || '照片上傳失敗，請重試');
+                  }
                 }
               }
             } catch (error) {

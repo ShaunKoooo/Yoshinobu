@@ -39,6 +39,7 @@
     "nativewind": "^4.2.1",
     "react": "^19.2.3",
     "react-native": "^0.83.1",
+    "react-native-blob-util": "^0.24.6",
     "react-native-calendars": "^1.1313.0",
     "react-native-config": "^1.6.1",
     "react-native-date-picker": "^5.0.13",
