@@ -6,6 +6,7 @@ import {
   Modal,
   TouchableOpacity,
   TouchableWithoutFeedback,
+  ActivityIndicator,
 } from 'react-native';
 import { Colors } from 'src/theme';
 
@@ -18,6 +19,7 @@ interface MyAlertProps {
   cancelText?: string;
   confirmText?: string;
   customContent?: React.ReactNode;
+  loading?: boolean;
 }
 
 const MyAlert: React.FC<MyAlertProps> = ({
@@ -29,6 +31,7 @@ const MyAlert: React.FC<MyAlertProps> = ({
   cancelText,
   confirmText,
   customContent,
+  loading = false,
 }) => {
   return (
     <Modal
@@ -70,10 +73,19 @@ const MyAlert: React.FC<MyAlertProps> = ({
                 {cancelText && <View style={styles.buttonDivider} />}
 
                 <TouchableOpacity
-                  style={[styles.button, styles.confirmButton]}
-                  onPress={onConfirm}
+                  style={[styles.button, styles.confirmButton, loading && styles.disabledButton]}
+                  onPress={() => {
+                    if (!loading) {
+                      onConfirm();
+                    }
+                  }}
+                  activeOpacity={loading ? 1 : 0.2}
                 >
-                  <Text style={styles.confirmButtonText}>{confirmText}</Text>
+                  {loading ? (
+                    <ActivityIndicator size="small" color="#4E5969" />
+                  ) : (
+                    <Text style={styles.confirmButtonText}>{confirmText}</Text>
+                  )}
                 </TouchableOpacity>
               </View>
             </View>

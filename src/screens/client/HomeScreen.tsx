@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,8 @@ import {
   Dimensions,
   TextInput,
 } from 'react-native';
+// @ts-ignore - Alert exists in RN but types may be outdated
+import { Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppConfig } from 'src/config/AppConfig';
 import { Colors } from 'src/theme';
@@ -26,6 +28,8 @@ const HomeScreen = () => {
   const [showNameAlert, setShowNameAlert] = useState(false);
   const [nameInput, setNameInput] = useState('');
   const [hasCheckedName, setHasCheckedName] = useState(false);
+  const [isUpdatingName, setIsUpdatingName] = useState(false);
+  const isUpdatingRef = useRef(false);
   const { mutate: updateClient } = useUpdateClient();
 
   // 獲取完整的客戶資料
@@ -63,8 +67,17 @@ const HomeScreen = () => {
   };
 
   const handleConfirmName = () => {
+    console.log('handleConfirmName 被調用，isUpdatingRef.current:', isUpdatingRef.current);
+
+    // 使用 ref 立即阻止重複點擊
+    if (isUpdatingRef.current) {
+      console.log('⛔️ 正在更新中，忽略重複點擊');
+      return;
+    }
+
     // 檢查輸入框是否為空
     if (!nameInput.trim()) {
+      console.log('⛔️ 輸入框為空');
       return; // 輸入框為空時不允許關閉 Modal
     }
 
@@ -97,6 +110,10 @@ const HomeScreen = () => {
 
     console.log('準備更新的資料:', updateData);
 
+    // 立即設定 ref 和 state，防止重複點擊
+    isUpdatingRef.current = true;
+    setIsUpdatingName(true);
+
     updateClient(
       {
         id: profile.id,
@@ -105,11 +122,19 @@ const HomeScreen = () => {
       {
         onSuccess: () => {
           console.log('成功更新姓名:', nameInput);
+          isUpdatingRef.current = false;
+          setIsUpdatingName(false);
           setShowNameAlert(false);
           setNameInput('');
         },
         onError: (error: any) => {
           console.error('更新姓名失敗:', error);
+          isUpdatingRef.current = false;
+          setIsUpdatingName(false);
+
+          // 顯示錯誤訊息給用戶
+          const errorMessage = error?.message || '更新姓名失敗，請稍後再試';
+          Alert.alert('更新失敗', errorMessage);
         },
       }
     );
@@ -139,6 +164,7 @@ const HomeScreen = () => {
         message="填寫客戶姓名時，建議使用與身分證明文件一致的真實姓名，以確保驗證和服務使用的準確性"
         onConfirm={handleConfirmName}
         confirmText="確認"
+        loading={isUpdatingName}
         customContent={
           <TextInput
             style={nameInputStyles.input}
