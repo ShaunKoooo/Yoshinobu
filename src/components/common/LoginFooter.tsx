@@ -1,27 +1,49 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Colors } from 'src/theme';
+import DeviceInfo from 'react-native-device-info';
+import CodePush from '@code-push-next/react-native-code-push';
+import { BUNDLE_BUILD } from 'src/constants/version';
 
 const LoginFooter = () => {
+  const [versionInfo, setVersionInfo] = React.useState('');
+
+  React.useEffect(() => {
+    const loadVersionInfo = async () => {
+      const nativeVersion = DeviceInfo.getVersion();
+      const buildNumber = DeviceInfo.getBuildNumber();
+
+      try {
+        const metadata = await CodePush.getUpdateMetadata();
+        if (metadata) {
+          // 如果有 CodePush 更新，顯示 bundle 版本
+          setVersionInfo(`${nativeVersion} - Bundle: ${BUNDLE_BUILD}`);
+        } else {
+          // 沒有 CodePush 更新，只顯示 Native 版本
+          setVersionInfo(`${nativeVersion} (${buildNumber})`);
+        }
+      } catch (error) {
+        console.log('Failed to get CodePush metadata:', error);
+        setVersionInfo(`${nativeVersion} (${buildNumber})`);
+      }
+    };
+
+    loadVersionInfo();
+  }, []);
+
   return (
     <View style={styles.footerContainer}>
       <View style={styles.footerTextContainer}>
-        <Text style={styles.footerText}>無障礙行前表示您同意 </Text>
-        <TouchableOpacity>
+        {/* <TouchableOpacity>
           <Text style={styles.footerLink}>使用者條款(EULA)</Text>
-        </TouchableOpacity>
-        <Text style={styles.footerText}>與</Text>
+        </TouchableOpacity> */}
+        {/* <Text style={styles.footerText}>與</Text> */}
         <TouchableOpacity>
           <Text style={styles.footerLink}>隱私權政策</Text>
         </TouchableOpacity>
       </View>
       <View style={styles.footerVersionContainer}>
-        <Text style={styles.footerVersion}>V3.4.10-202110613</Text>
-        <TouchableOpacity style={styles.updateButton}>
-          <Text style={[styles.footerVersion, styles.updateText]}>
-            檢查程式更新
-          </Text>
-        </TouchableOpacity>
+        <Text style={styles.footerVersion}>版本資訊：{versionInfo}</Text>
       </View>
     </View>
   );
