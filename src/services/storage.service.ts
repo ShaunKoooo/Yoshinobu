@@ -7,6 +7,7 @@ const STORAGE_KEYS = {
   USER_ROLE: 'userRole',
   LAST_SELECTED_SERVICE_ID: 'lastSelectedServiceId',
   LAST_SELECTED_PROVIDER_ID: 'lastSelectedProviderId',
+  LOGIN_TYPE: 'loginType',
   // 可以在這裡添加更多常用的 keys
 } as const;
 
@@ -159,6 +160,27 @@ class StorageService {
       await AsyncStorage.setItem(STORAGE_KEYS.LAST_SELECTED_PROVIDER_ID, String(providerId));
     } catch (error) {
       console.error('Failed to set last selected provider id:', error);
+      throw error;
+    }
+  }
+
+  // ==================== Login 相關 ====================
+
+  async getLoginType(): Promise<'account' | 'phone' | null> {
+    try {
+      const type = await AsyncStorage.getItem(STORAGE_KEYS.LOGIN_TYPE);
+      return type as 'account' | 'phone' | null;
+    } catch (error) {
+      console.error('Failed to get login type:', error);
+      return null;
+    }
+  }
+
+  async setLoginType(type: 'account' | 'phone'): Promise<void> {
+    try {
+      await AsyncStorage.setItem(STORAGE_KEYS.LOGIN_TYPE, type);
+    } catch (error) {
+      console.error('Failed to set login type:', error);
       throw error;
     }
   }

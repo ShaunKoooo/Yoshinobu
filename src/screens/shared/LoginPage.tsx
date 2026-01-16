@@ -19,13 +19,30 @@ import {
 import { AppConfig } from 'src/config/AppConfig';
 import { useAppDispatch } from 'src/store/hooks';
 import { loginWithAccount, loginWithPhone } from 'src/store/slices/authSlice';
+import { storageService } from 'src/services/storage.service';
 
 const isSPAApp = AppConfig.APP_TYPE === 'spa';
 
 const LoginPage = () => {
   const dispatch = useAppDispatch();
-  const [loginType, setLoginType] = useState<'account' | 'phone'>('account');
+  const [loginType, setLoginType] = useState<'account' | 'phone'>('phone');
   const [keyboardVisible, setKeyboardVisible] = useState(false);
+
+  // 初始化時讀取上次的登入類型
+  useEffect(() => {
+    const loadLoginType = async () => {
+      try {
+        const savedLoginType = await storageService.getLoginType();
+        if (savedLoginType) {
+          setLoginType(savedLoginType);
+        }
+      } catch (error) {
+        console.error('Failed to load login type:', error);
+      }
+    };
+
+    loadLoginType();
+  }, []);
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
@@ -52,8 +69,14 @@ const LoginPage = () => {
     console.log('忘記密碼');
   };
 
-  const toggleLoginType = () => {
-    setLoginType(prev => prev === 'account' ? 'phone' : 'account');
+  const toggleLoginType = async () => {
+    const newType = loginType === 'account' ? 'phone' : 'account';
+    setLoginType(newType);
+    try {
+      await storageService.setLoginType(newType);
+    } catch (error) {
+      console.error('Failed to save login type:', error);
+    }
   };
 
   const handleLogin = async (account: string, password: string) => {
