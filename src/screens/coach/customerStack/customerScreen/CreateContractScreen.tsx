@@ -299,69 +299,69 @@ const CreateContractScreen = () => {
                 return;
               }
 
-            if (result.assets && result.assets.length > 0) {
-              // 依序上傳每張照片
-              let successCount = 0;
-              let failCount = 0;
-              const totalCount = result.assets.length;
-              const maxRetries = 2; // 最多重試2次
+              if (result.assets && result.assets.length > 0) {
+                // 依序上傳每張照片
+                let successCount = 0;
+                let failCount = 0;
+                const totalCount = result.assets.length;
+                const maxRetries = 2; // 最多重試2次
 
-              console.log(`開始上傳 ${totalCount} 張照片`);
+                console.log(`開始上傳 ${totalCount} 張照片`);
 
-              for (let i = 0; i < result.assets.length; i++) {
-                const asset = result.assets[i];
-                if (asset.uri) {
-                  let uploaded = false;
-                  let retryCount = 0;
+                for (let i = 0; i < result.assets.length; i++) {
+                  const asset = result.assets[i];
+                  if (asset.uri) {
+                    let uploaded = false;
+                    let retryCount = 0;
 
-                  // 重試機制
-                  while (!uploaded && retryCount <= maxRetries) {
-                    try {
-                      if (retryCount > 0) {
-                        console.log(`第 ${i + 1} 張照片重試第 ${retryCount} 次`);
-                      } else {
-                        console.log(`上傳第 ${i + 1}/${totalCount} 張照片`);
-                      }
+                    // 重試機制
+                    while (!uploaded && retryCount <= maxRetries) {
+                      try {
+                        if (retryCount > 0) {
+                          console.log(`第 ${i + 1} 張照片重試第 ${retryCount} 次`);
+                        } else {
+                          console.log(`上傳第 ${i + 1}/${totalCount} 張照片`);
+                        }
 
-                      const extname = asset.type?.split('/')[1] || 'jpg';
-                      await dispatch(uploadContractMedia({
-                        fileUri: asset.uri,
-                        extname,
-                      })).unwrap();
+                        const extname = asset.type?.split('/')[1] || 'jpg';
+                        await dispatch(uploadContractMedia({
+                          fileUri: asset.uri,
+                          extname,
+                        })).unwrap();
 
-                      uploaded = true;
-                      successCount++;
-                      console.log(`第 ${i + 1} 張上傳成功`);
+                        uploaded = true;
+                        successCount++;
+                        console.log(`第 ${i + 1} 張上傳成功`);
 
-                      // 加入延遲避免過快的連續請求 (增加到1秒)
-                      if (i < result.assets.length - 1) {
-                        await new Promise<void>(resolve => setTimeout(() => resolve(), 1000));
-                      }
-                    } catch (error) {
-                      retryCount++;
-                      if (retryCount > maxRetries) {
-                        console.error(`第 ${i + 1} 張上傳失敗 (已重試${maxRetries}次):`, error);
-                        failCount++;
-                      } else {
-                        // 重試前等待
-                        await new Promise<void>(resolve => setTimeout(() => resolve(), 1000));
+                        // 加入延遲避免過快的連續請求 (增加到1秒)
+                        if (i < result.assets.length - 1) {
+                          await new Promise<void>(resolve => setTimeout(() => resolve(), 1000));
+                        }
+                      } catch (error) {
+                        retryCount++;
+                        if (retryCount > maxRetries) {
+                          console.error(`第 ${i + 1} 張上傳失敗 (已重試${maxRetries}次):`, error);
+                          failCount++;
+                        } else {
+                          // 重試前等待
+                          await new Promise<void>(resolve => setTimeout(() => resolve(), 1000));
+                        }
                       }
                     }
                   }
                 }
-              }
 
-              // 顯示上傳結果
-              if (totalCount > 1) {
-                Alert.alert(
-                  '上傳完成',
-                  `總共: ${totalCount} 張\n成功: ${successCount} 張\n失敗: ${failCount} 張`,
-                  [{ text: '確定' }]
-                );
-              } else if (failCount > 0) {
-                Alert.alert('上傳失敗', '照片上傳失敗，請重試');
+                // 顯示上傳結果
+                if (totalCount > 1) {
+                  Alert.alert(
+                    '上傳完成',
+                    `總共: ${totalCount} 張\n成功: ${successCount} 張\n失敗: ${failCount} 張`,
+                    [{ text: '確定' }]
+                  );
+                } else if (failCount > 0) {
+                  Alert.alert('上傳失敗', '照片上傳失敗，請重試');
+                }
               }
-            }
             } catch (error) {
               console.error('相簿啟動失敗:', error);
               Alert.alert('錯誤', '無法開啟相簿');
@@ -408,7 +408,7 @@ const CreateContractScreen = () => {
           onSuccess: (data) => {
             Alert.alert(
               '建立成功',
-              '共用合約已成功建立！',
+              '請通知合約持有人，透過簡訊確認合約的共用',
               [
                 {
                   text: '確定',
