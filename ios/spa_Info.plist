@@ -43,8 +43,6 @@
 	<array>
 		<string>_reactotron._tcp</string>
 	</array>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>請允許訪問相簿以選取合約照片</string>
 	<key>NSCameraUsageDescription</key>
