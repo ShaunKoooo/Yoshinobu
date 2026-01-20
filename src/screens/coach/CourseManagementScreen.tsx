@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -36,6 +36,7 @@ import {
 import { Colors } from 'src/theme';
 import type { BadgeVariant } from 'src/components/common/Badge';
 import { useConfirmableModal } from 'src/hooks/useConfirmableModal';
+import { storageService } from 'src/services/storage.service';
 
 // 預約狀態類型
 type BookingStatus = 'reserved' | 'pending_verification' | 'completed' | 'cancelled';
@@ -74,7 +75,13 @@ const CourseManagementScreen = () => {
   const [bookingToVerify, setBookingToVerify] = useState<ContractVisit | null>(null);
 
   // 使用 useConfirmableModal 管理 provider 選擇
-  const providerModal = useConfirmableModal(providerId, setProviderId);
+  const providerModal = useConfirmableModal(providerId, async (value) => {
+    setProviderId(value);
+    // 保存選擇到 local storage (CourseManagement 專用)
+    if (value !== null) {
+      await storageService.setCourseManagementLastSelectedProviderId(value);
+    }
+  });
 
   // 取得當前選擇的 provider
   const currentProviderId = providerId || providers?.providers[0]?.id;
@@ -108,6 +115,27 @@ const CourseManagementScreen = () => {
   const handleRefresh = () => {
     refetch();
   };
+
+  // 當 providers 載入後，優先使用上次選擇的 ID，若無則使用第一個為預設值
+  useEffect(() => {
+    if (providers?.providers && providers?.providers?.length > 0 && providerId === null) {
+      const loadLastSelectedProvider = async () => {
+        const lastSelectedId = await storageService.getCourseManagementLastSelectedProviderId();
+
+        // 檢查上次選擇的 ID 是否仍然存在於當前的 providers 列表中
+        const isLastSelectedValid = lastSelectedId && providers?.providers?.some((p: any) => p.id === lastSelectedId);
+
+        if (isLastSelectedValid) {
+          setProviderId(lastSelectedId);
+        } else {
+          // 若上次選擇的 ID 不存在，使用第一個為預設值
+          setProviderId(providers?.providers[0].id);
+        }
+      };
+
+      loadLastSelectedProvider();
+    }
+  }, [providers, providerId]);
 
   const providerItems = providers?.providers?.map((provider: { name: string; id: number }) => ({
     label: (provider.name === '不指定服務人員' ? '全部' : provider.name) || '全部',

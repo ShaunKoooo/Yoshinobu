@@ -7,6 +7,7 @@ const STORAGE_KEYS = {
   USER_ROLE: 'userRole',
   LAST_SELECTED_SERVICE_ID: 'lastSelectedServiceId',
   LAST_SELECTED_PROVIDER_ID: 'lastSelectedProviderId',
+  COURSE_MANAGEMENT_LAST_SELECTED_PROVIDER_ID: 'courseManagementLastSelectedProviderId',
   LOGIN_TYPE: 'loginType',
   // 可以在這裡添加更多常用的 keys
 } as const;
@@ -160,6 +161,26 @@ class StorageService {
       await AsyncStorage.setItem(STORAGE_KEYS.LAST_SELECTED_PROVIDER_ID, String(providerId));
     } catch (error) {
       console.error('Failed to set last selected provider id:', error);
+      throw error;
+    }
+  }
+
+  // CourseManagement 專用的 provider 選擇
+  async getCourseManagementLastSelectedProviderId(): Promise<number | null> {
+    try {
+      const id = await AsyncStorage.getItem(STORAGE_KEYS.COURSE_MANAGEMENT_LAST_SELECTED_PROVIDER_ID);
+      return id ? Number(id) : null;
+    } catch (error) {
+      console.error('Failed to get course management last selected provider id:', error);
+      return null;
+    }
+  }
+
+  async setCourseManagementLastSelectedProviderId(providerId: number): Promise<void> {
+    try {
+      await AsyncStorage.setItem(STORAGE_KEYS.COURSE_MANAGEMENT_LAST_SELECTED_PROVIDER_ID, String(providerId));
+    } catch (error) {
+      console.error('Failed to set course management last selected provider id:', error);
       throw error;
     }
   }
