@@ -156,6 +156,8 @@ export interface Category {
   name: string;
   description?: string;
   is_active: boolean;
+  available_minutes?: number[]; // 該類別可用的時間選項（分鐘）
+  services?: any[]; // 該類別包含的服務項目
 }
 
 export interface GetCategoriesResponse {

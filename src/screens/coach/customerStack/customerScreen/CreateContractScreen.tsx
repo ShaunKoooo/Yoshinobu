@@ -74,9 +74,24 @@ const CreateContractScreen = () => {
   // 當 categories 載入後，自動設定第一個為預設值
   useEffect(() => {
     if (categories && categories.length > 0 && contractCategoryId === null) {
-      setContractCategoryId(categories[0].id);
+      const firstCategory = categories[0];
+      setContractCategoryId(firstCategory.id);
+      // 設定初始時間為該 category 的第一個 available_minutes
+      if (firstCategory.available_minutes && firstCategory.available_minutes.length > 0) {
+        setTime(firstCategory.available_minutes[0]);
+      }
     }
   }, [categories, contractCategoryId]);
+
+  // 當 category 改變時，更新時間為該 category 的第一個 available_minutes
+  useEffect(() => {
+    if (contractCategoryId && categories) {
+      const selectedCategory = categories.find(c => c.id === contractCategoryId);
+      if (selectedCategory?.available_minutes && selectedCategory.available_minutes.length > 0) {
+        setTime(selectedCategory.available_minutes[0]);
+      }
+    }
+  }, [contractCategoryId, categories]);
 
   // 當切換回非共用合約時，重置顯示狀態和清空查詢資料
   useEffect(() => {
@@ -470,19 +485,20 @@ const CreateContractScreen = () => {
     value: category.id,
   })) || [];
 
-  const timeItems = [30, 60, 90, 120, 180].map(time => ({
-    label: time + ' 分鐘',
-    value: time,
-  })) || [];
-
   // 準備合約選項列表
-  const contractItems = contractsData?.contracts?.map(contract => ({
+  const contractItems = contractsData?.contracts?.map((contract: any) => ({
     label: contract.contract_number || `合約 ${contract.id}`,
     value: contract.id,
   })) || [];
 
   // 根據 ID 找出對應的 name 來顯示
   const selectedCategory = categories?.find(c => c.id === contractCategoryId);
+
+  // 根據選中的 category 取得 available_minutes 作為時間選項
+  const timeItems = (selectedCategory?.available_minutes || []).map(minutes => ({
+    label: minutes + ' 分鐘',
+    value: minutes,
+  }));
 
   // 從選中的合約中取得 category (用於共用合約顯示)
   const selectedContractCategory = selectedContractId && contractsData?.contracts
@@ -688,7 +704,7 @@ const CreateContractScreen = () => {
                   !time && styles.placeholderText,
                 ]}
               >
-                {time || '請選擇'}
+                {time ? `${time} 分鐘` : '請選擇'}
               </Text>
               <Icon name="right-open-big" size={16} />
             </View>
