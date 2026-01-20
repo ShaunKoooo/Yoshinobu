@@ -31,10 +31,32 @@ const CustomerListScreen = () => {
       return clients;
     }
 
+    const query = searchQuery.toLowerCase();
+
     return clients.filter((item: Client) => {
       const name = item?.client?.name?.toLowerCase() || '';
-      const query = searchQuery.toLowerCase();
-      return name.includes(query);
+      const mobile = item?.client?.mobile || '';
+
+      // 檢查姓名匹配
+      const nameMatches = name.includes(query);
+
+      // 檢查手機號碼匹配
+      // 將手機號碼標準化：移除所有非數字字符
+      let normalizedMobile = mobile.replace(/\D/g, '');
+      const normalizedQuery = query.replace(/\D/g, '');
+
+      // 只有當搜尋字串包含數字時才進行手機號碼匹配
+      let mobileMatches = false;
+      if (normalizedQuery.length > 0) {
+        // 處理台灣手機號碼格式：+886 -> 0
+        // 如果資料庫是 +886931753678，轉換為 0931753678
+        if (normalizedMobile.startsWith('886')) {
+          normalizedMobile = '0' + normalizedMobile.substring(3);
+        }
+        mobileMatches = normalizedMobile.includes(normalizedQuery);
+      }
+
+      return nameMatches || mobileMatches;
     });
   }, [clients, searchQuery]);
 
