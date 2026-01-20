@@ -4,6 +4,7 @@ import {
   StyleSheet,
   Text,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import DeviceInfo from 'react-native-device-info';
 import CodePush from '@code-push-next/react-native-code-push';
@@ -23,6 +24,8 @@ import {
 } from 'src/screens/coach';
 import { BasicInfoEditContext } from 'src/screens/coach/customerStack/CustomerDetailScreen';
 import { BUNDLE_BUILD } from 'src/constants/version';
+import { useDeactivateCoachAccount, useDeactivateClientAccount } from 'src/services/hooks/useClients';
+import { TouchableOpacity } from 'react-native';
 
 const PROFILE_FIELDS = [
   {
@@ -41,6 +44,11 @@ const PROFILE_FIELDS = [
     key: 'version',
     label: '版本',
   },
+  {
+    key: 'deactivate',
+    label: '刪除帳號',
+    isAction: true,
+  },
 ]
 
 const Tab = createMaterialTopTabNavigator();
@@ -49,6 +57,10 @@ const ProfileScreen = () => {
   const dispatch = useAppDispatch();
   const { userRole } = useAppSelector((state) => state.auth);
   const { isLoading, error, profile } = useInitializeUser();
+
+  // 停用帳號的 hooks
+  const deactivateCoachAccount = useDeactivateCoachAccount();
+  const deactivateClientAccount = useDeactivateClientAccount();
 
   // BasicInfoEditContext 相關狀態
   const [isEditingBasicInfo, setIsEditingBasicInfo] = React.useState(false);
@@ -64,6 +76,47 @@ const ProfileScreen = () => {
   const exitEditMode = React.useCallback(() => {
     setIsEditingBasicInfo(false);
   }, []);
+
+  // 處理刪除帳號
+  const handleDeactivateAccount = React.useCallback(() => {
+    Alert.alert(
+      '刪除帳號',
+      '確定要刪除帳號嗎？此操作無法復原。',
+      [
+        {
+          text: '取消',
+          style: 'cancel',
+        },
+        {
+          text: '確定刪除',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              if (userRole === 'coach') {
+                // Coach 端：刪除自己的帳號（使用 profile.id）
+                await deactivateCoachAccount.mutateAsync(profile?.id);
+              } else {
+                // Client 端：刪除自己的帳號
+                await deactivateClientAccount.mutateAsync();
+              }
+
+              Alert.alert('成功', '帳號已刪除', [
+                {
+                  text: '確定',
+                  onPress: () => {
+                    dispatch(logout());
+                  },
+                },
+              ]);
+            } catch (error) {
+              Alert.alert('錯誤', '刪除帳號失敗，請稍後再試');
+              console.error('刪除帳號失敗:', error);
+            }
+          },
+        },
+      ]
+    );
+  }, [userRole, profile?.id, deactivateCoachAccount, deactivateClientAccount, dispatch]);
 
   // 載入版本資訊
   React.useEffect(() => {
@@ -90,9 +143,21 @@ const ProfileScreen = () => {
   }, []);
 
   const renderProfileItem = ({ item }) => {
-    const { label, key, getValue } = item || {};
-    let value: string;
+    const { label, key, getValue, isAction } = item || {};
 
+    // 如果是刪除帳號按鈕
+    if (isAction && key === 'deactivate') {
+      return (
+        <TouchableOpacity
+          style={styles.profileItem}
+          onPress={handleDeactivateAccount}
+        >
+          <Text style={styles.label}>{label}</Text>
+        </TouchableOpacity>
+      );
+    }
+
+    let value: string;
     if (key === 'version') {
       value = versionInfo;
     } else if (getValue) {
@@ -188,11 +253,17 @@ const ProfileScreen = () => {
             />
           </Tab.Navigator>
 
-          {/* 登出按鈕 */}
+          {/* 刪除帳號和登出按鈕 */}
           <View style={styles.buttonContainer}>
             <View style={styles.versionContainer}>
               <Text style={styles.versionText}>v{versionInfo}</Text>
             </View>
+            <MyButton
+              title="刪除帳號"
+              isActive
+              onPress={handleDeactivateAccount}
+            />
+            <View style={styles.buttonSpacer} />
             <MyButton
               title="登出"
               isActive
@@ -277,14 +348,21 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   buttonContainer: {
-    padding: 16,
+    padding: 10,
     backgroundColor: '#FFFFFF',
+  },
+  buttonSpacer: {
+    height: 6,
   },
   versionContainer: {
     alignItems: 'center',
+    marginBottom: 16,
   },
   versionText: {
     color: '#8E8E93',
+  },
+  deleteButtonWrapper: {
+    width: 80,
   },
 });
 

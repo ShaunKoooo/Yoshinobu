@@ -32,6 +32,7 @@ const COACH_ENDPOINTS = {
   // 客戶管理
   CLIENTS: '/api/spa/user/v1/clients',
   CLIENT_DETAIL: (id: number) => `/api/spa/user/v1/clients/${id}`,
+  DEACTIVATE_ACCOUNT: '/api/spa/user/v1/clients/deactivate_account',
 
   // 類別列表
   CATEGORIES: '/api/spa/user/v1/categories',
@@ -67,6 +68,7 @@ const CLIENT_ENDPOINTS = {
   // 客戶管理
   CLIENTS: '/api/spa/client/v1/clients',
   CLIENT_DETAIL: (id: number) => `/api/spa/client/v1/clients/${id}`,
+  DEACTIVATE_ACCOUNT: '/api/spa/client/v1/clients/deactivate_account',
 
   // 合約管理
   CONTRACTS: '/api/spa/client/v1/contracts',

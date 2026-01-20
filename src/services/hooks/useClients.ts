@@ -67,3 +67,28 @@ export const useUpdateClient = () => {
     },
   });
 };
+
+/**
+ * 停用客戶帳號 (教練端)
+ */
+export const useDeactivateCoachAccount = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (clientId: number) => clientsApi.deactivateCoachAccount(clientId),
+    onSuccess: (_, clientId) => {
+      // 重新獲取客戶列表和詳情
+      queryClient.invalidateQueries({ queryKey: clientKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: clientKeys.detail(clientId) });
+    },
+  });
+};
+
+/**
+ * 停用自己的帳號 (客戶端)
+ */
+export const useDeactivateClientAccount = () => {
+  return useMutation({
+    mutationFn: () => clientsApi.deactivateClientAccount(),
+  });
+};

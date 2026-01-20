@@ -52,10 +52,35 @@ export const clientsApi = {
 
     if (userRole === 'client') {
       // Client 角色使用 client 端點更新資料
-      return await apiClient.put<Client>(CLIENT_ENDPOINTS.CLIENT_DETAIL(id), data);
+      const endpoint = CLIENT_ENDPOINTS.CLIENT_DETAIL(id);
+      console.log('📝 updateClient (Client 角色):', { userRole, id, endpoint, data });
+      return await apiClient.put<Client>(endpoint, data);
     }
 
     // Coach 角色使用 coach 端點
-    return await apiClient.put<Client>(COACH_ENDPOINTS.CLIENT_DETAIL(id), data);
+    const endpoint = COACH_ENDPOINTS.CLIENT_DETAIL(id);
+    console.log('📝 updateClient (Coach 角色):', { userRole, id, endpoint, data });
+    return await apiClient.put<Client>(endpoint, data);
+  },
+
+  /**
+   * 停用客戶帳號 (教練端)
+   * @param clientId - 要停用的客戶 ID
+   */
+  deactivateCoachAccount: async (clientId: number): Promise<{ ok: boolean }> => {
+    return await apiClient.post<{ ok: boolean }>(
+      COACH_ENDPOINTS.DEACTIVATE_ACCOUNT,
+      { client_id: clientId }
+    );
+  },
+
+  /**
+   * 停用自己的帳號 (客戶端)
+   */
+  deactivateClientAccount: async (): Promise<{ ok: boolean }> => {
+    return await apiClient.post<{ ok: boolean }>(
+      CLIENT_ENDPOINTS.DEACTIVATE_ACCOUNT,
+      {}
+    );
   },
 };
