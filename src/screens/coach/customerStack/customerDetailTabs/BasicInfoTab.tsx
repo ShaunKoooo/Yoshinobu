@@ -46,6 +46,7 @@ const BasicInfoTab = ({ route }: any) => {
 
   // 用於編輯模式的表單狀態
   const [formValues, setFormValues] = useState<Record<string, string>>({
+    id: '',
     name: '',
     email: '',
     mobile: '',
@@ -70,6 +71,7 @@ const BasicInfoTab = ({ route }: any) => {
   useEffect(() => {
     if (data?.client) {
       setFormValues({
+        id: String(data.client.id || ''),
         name: data.client.name || '',
         email: data.client.email || '',
         mobile: data.client.mobile || '',
@@ -82,9 +84,11 @@ const BasicInfoTab = ({ route }: any) => {
   }, [data]);
 
   const handleFieldChange = useCallback((key: string, value: string) => {
-    // 編輯模式下不允許修改 mobile email
-    if (isEditing && (key === 'mobile' || key === 'email')) {
-      return;
+    // 編輯模式下不允許修改 mobile 和 id
+    if (isEditing) {
+      if (key === 'mobile' || key === 'id') {
+        return;
+      }
     }
     setFormValues((prev) => ({
       ...prev,
@@ -148,8 +152,6 @@ const BasicInfoTab = ({ route }: any) => {
           });
           // 只有在儲存成功時才關閉編輯模式
           exitEditMode();
-          // 導航回到客戶列表頁面
-          navigation.goBack();
         },
         onError: (error) => {
           setAlertConfig({

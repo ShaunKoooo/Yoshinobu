@@ -5,13 +5,16 @@ import {
   Text,
   ActivityIndicator,
   Alert,
+  TouchableOpacity,
 } from 'react-native';
 import DeviceInfo from 'react-native-device-info';
 import CodePush from '@code-push-next/react-native-code-push';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import { useNavigation } from '@react-navigation/native';
 import {
   MyButton,
   MyListItem,
+  Icon,
 } from 'src/components';
 import { useAppDispatch, useAppSelector } from 'src/store/hooks';
 import { Colors } from 'src/theme';
@@ -25,7 +28,6 @@ import {
 import { BasicInfoEditContext } from 'src/screens/coach/customerStack/CustomerDetailScreen';
 import { BUNDLE_BUILD } from 'src/constants/version';
 import { useDeactivateCoachAccount, useDeactivateClientAccount } from 'src/services/hooks/useClients';
-import { TouchableOpacity } from 'react-native';
 
 const PROFILE_FIELDS = [
   {
@@ -55,6 +57,7 @@ const Tab = createMaterialTopTabNavigator();
 
 const ProfileScreen = () => {
   const dispatch = useAppDispatch();
+  const navigation = useNavigation<any>();
   const { userRole } = useAppSelector((state) => state.auth);
   const { isLoading, error, profile } = useInitializeUser();
 
@@ -76,6 +79,38 @@ const ProfileScreen = () => {
   const exitEditMode = React.useCallback(() => {
     setIsEditingBasicInfo(false);
   }, []);
+
+  // 處理編輯按鈕點擊
+  const handleToggleEditBasicInfo = React.useCallback(() => {
+    if (isEditingBasicInfo) {
+      // 呼叫 BasicInfoTab 的儲存函數
+      if (saveHandlerRef.current) {
+        saveHandlerRef.current();
+      }
+    } else {
+      setIsEditingBasicInfo(true);
+    }
+  }, [isEditingBasicInfo]);
+
+  // 設定 header 右側的編輯/儲存按鈕（僅針對 client 角色）
+  React.useLayoutEffect(() => {
+    if (userRole === 'client') {
+      navigation.setOptions({
+        headerRight: () => (
+          <TouchableOpacity
+            onPress={handleToggleEditBasicInfo}
+            style={styles.headerRightButton}
+          >
+            {isEditingBasicInfo ? (
+              <Text style={styles.headerRightButtonText}>儲存</Text>
+            ) : (
+              <Icon name="pen" size={16} color="white" />
+            )}
+          </TouchableOpacity>
+        ),
+      });
+    }
+  }, [navigation, userRole, isEditingBasicInfo, handleToggleEditBasicInfo]);
 
   // 處理刪除帳號
   const handleDeactivateAccount = React.useCallback(() => {
@@ -348,7 +383,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   buttonContainer: {
-    padding: 10,
+    padding: 16,
     backgroundColor: '#FFFFFF',
   },
   buttonSpacer: {
@@ -363,6 +398,17 @@ const styles = StyleSheet.create({
   },
   deleteButtonWrapper: {
     width: 80,
+  },
+  headerRightButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  headerRightButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '500',
   },
 });
 
