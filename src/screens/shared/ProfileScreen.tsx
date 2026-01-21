@@ -69,6 +69,9 @@ const ProfileScreen = () => {
   const [isEditingBasicInfo, setIsEditingBasicInfo] = React.useState(false);
   const saveHandlerRef = React.useRef<(() => void) | null>(null);
 
+  // 追蹤當前的 Tab
+  const [currentTab, setCurrentTab] = React.useState('BasicInfo');
+
   // 版本資訊狀態
   const [versionInfo, setVersionInfo] = React.useState<string>('載入中...');
 
@@ -92,11 +95,11 @@ const ProfileScreen = () => {
     }
   }, [isEditingBasicInfo]);
 
-  // 設定 header 右側的編輯/儲存按鈕（僅針對 client 角色）
+  // 設定 header 右側的編輯/儲存按鈕（僅針對 client 角色且在 BasicInfo Tab）
   React.useLayoutEffect(() => {
     if (userRole === 'client') {
       navigation.setOptions({
-        headerRight: () => (
+        headerRight: currentTab === 'BasicInfo' ? () => (
           <TouchableOpacity
             onPress={handleToggleEditBasicInfo}
             style={styles.headerRightButton}
@@ -107,10 +110,10 @@ const ProfileScreen = () => {
               <Icon name="pen" size={16} color="white" />
             )}
           </TouchableOpacity>
-        ),
+        ) : undefined,
       });
     }
-  }, [navigation, userRole, isEditingBasicInfo, handleToggleEditBasicInfo]);
+  }, [navigation, userRole, isEditingBasicInfo, handleToggleEditBasicInfo, currentTab]);
 
   // 處理刪除帳號
   const handleDeactivateAccount = React.useCallback(() => {
@@ -261,7 +264,22 @@ const ProfileScreen = () => {
               tabBarStyle: {
                 backgroundColor: '#FFFFFF',
               },
-            }}>
+            }}
+            screenListeners={{
+              state: (e) => {
+                // 監聽 tab 切換事件
+                const state = e.data.state;
+                if (state) {
+                  const currentRoute = state.routes[state.index];
+                  setCurrentTab(currentRoute.name);
+                  // 當切換到其他 tab 時，退出編輯模式
+                  if (currentRoute.name !== 'BasicInfo' && isEditingBasicInfo) {
+                    setIsEditingBasicInfo(false);
+                  }
+                }
+              },
+            }}
+          >
             <Tab.Screen
               name="BasicInfo"
               component={BasicInfoTab}
