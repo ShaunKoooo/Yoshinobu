@@ -93,25 +93,10 @@ android {
         applicationId "com.yoshinobu"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 2026012100
+        versionCode 2026012202
         versionName "1.0.0"
     }
 
-    flavorDimensions "app"
-
-    productFlavors {
-        spa {
-            dimension "app"
-            applicationId "me.spaapp.yamamoto"
-            resValue "string", "app_name", "SPA"
-        }
-
-        bb {
-            dimension "app"
-            applicationId "me.bbapp.yoshinobu"
-            resValue "string", "app_name", "BB"
-        }
-    }
     signingConfigs {
         debug {
             storeFile file('debug.keystore')
@@ -126,23 +111,41 @@ android {
             keyAlias 'spaapp'
             keyPassword 'spaapp'
         }
-        
+
         bbapp {
             storeFile file('../../bb_prod.jks')
             storePassword 'bbbapp'
             keyAlias 'bbbapp'
             keyPassword 'bbbapp'
         }
-
     }
+
+    flavorDimensions "app"
+
+    productFlavors {
+        spa {
+            dimension "app"
+            applicationId "me.spaapp.yamamoto"
+            resValue "string", "app_name", "SPA"
+            // Spa flavor 使用 spaapp 簽名
+            signingConfig signingConfigs.spaapp
+        }
+
+        bb {
+            dimension "app"
+            applicationId "me.bbapp.yoshinobu"
+            resValue "string", "app_name", "BB"
+            // BB flavor 使用 bbapp 簽名
+            signingConfig signingConfigs.bbapp
+        }
+    }
+
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
         }
         release {
-            // Caution! In production, you need to generate your own keystore file.
-            // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
+            // Release 構建會使用各 flavor 指定的簽名配置
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
