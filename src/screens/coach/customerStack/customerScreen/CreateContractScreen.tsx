@@ -52,7 +52,7 @@ const CreateContractScreen = () => {
   const [contractNumber, setContractNumber] = useState('');
   const [contractCategoryId, setContractCategoryId] = useState<number | null>(null);
   const [contractType, setContractType] = useState('');
-  const [time, setTime] = useState(60);
+  const [time, setTime] = useState<number | null>(null);
   const [showContractFields, setShowContractFields] = useState(false);
   const [selectedContractId, setSelectedContractId] = useState<number | null>(null);
   const [contractsData, setContractsData] = useState<any>(null);
@@ -804,7 +804,7 @@ const CreateContractScreen = () => {
       >
         <MyPicker
           items={timeItems}
-          selectedValue={timeModal.tempValue}
+          selectedValue={timeModal.tempValue ?? undefined}
           onValueChange={(value) => timeModal.setTempValue(Number(value))}
         />
       </BottomSheetModal>
