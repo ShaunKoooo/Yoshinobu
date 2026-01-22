@@ -312,18 +312,19 @@ const ProfileScreen = () => {
               <Text style={styles.versionText}>v{versionInfo}</Text>
             </View>
             <MyButton
-              title="刪除帳號"
-              isActive
-              onPress={handleDeactivateAccount}
-            />
-            <View style={styles.buttonSpacer} />
-            <MyButton
               title="登出"
               isActive
               onPress={() => {
                 dispatch(logout());
               }}
             />
+            <View style={styles.buttonSpacer} />
+            <TouchableOpacity
+              style={styles.deleteButtonWrapper}
+              onPress={handleDeactivateAccount}
+            >
+              <Text style={styles.deleteButtonText}>刪除帳號</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </BasicInfoEditContext.Provider>
@@ -415,7 +416,14 @@ const styles = StyleSheet.create({
     color: '#8E8E93',
   },
   deleteButtonWrapper: {
-    width: 80,
+    alignSelf: 'center',
+    alignItems: 'center',
+    paddingVertical: 20,
+    paddingHorizontal: 80,
+  },
+  deleteButtonText: {
+    color: '#FF3B30',
+    fontSize: 14,
   },
   headerRightButton: {
     paddingHorizontal: 16,
