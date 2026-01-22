@@ -86,7 +86,7 @@ const CustomerDetailScreen = ({ route }: any) => {
           return () => (
             <TouchableOpacity
               onPress={() => {
-                navigation.navigate('CreateContract');
+                navigation.navigate('CreateContract', { client_id: id });
               }}
               style={styles.rightButtonContainer}>
               <Text style={styles.rightButtonText}>+ 新增合約</Text>

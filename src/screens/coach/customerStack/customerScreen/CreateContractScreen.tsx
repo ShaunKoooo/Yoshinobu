@@ -38,14 +38,16 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from 'src/store';
 import { uploadContractMedia, clearUploadState, removeUploadedMedia } from 'src/store/slices/contractsSlice';
 
-const CreateContractScreen = () => {
+const CreateContractScreen = ({ route }: any) => {
   const dispatch = useDispatch<AppDispatch>();
   const { uploading, uploadedMediaList } = useSelector((state: RootState) => state.contracts);
   const navigation = useNavigation<any>();
   const { data: categories } = useCategories();
   const createContract = useCreateContract();
   const createShareContract = useCreateShareContract();
-  const clientId = useSelectedClientIdFromClients(); // 從 Redux 取得當前選中的 client_id
+  const clientIdFromRedux = useSelectedClientIdFromClients(); // 從 Redux 取得當前選中的 client_id
+  // 優先使用路由參數傳遞的 client_id，如果沒有才使用 Redux 的值
+  const clientId = route?.params?.client_id || clientIdFromRedux;
   const [isSharedContract, setIsSharedContract] = useState(false);
   const [phone, setPhone] = useState('');
   const [name, setName] = useState('');
