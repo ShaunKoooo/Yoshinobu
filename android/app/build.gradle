@@ -93,7 +93,7 @@ android {
         applicationId "com.yoshinobu"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 2026012202
+        versionCode 2026012300
         versionName "1.0.0"
     }
 
@@ -126,7 +126,7 @@ android {
         spa {
             dimension "app"
             applicationId "me.spaapp.yamamoto"
-            resValue "string", "app_name", "SPA"
+            resValue "string", "app_name", "人體工房"
             // Spa flavor 使用 spaapp 簽名
             signingConfig signingConfigs.spaapp
         }
@@ -134,7 +134,7 @@ android {
         bb {
             dimension "app"
             applicationId "me.bbapp.yoshinobu"
-            resValue "string", "app_name", "BB"
+            resValue "string", "app_name", "Buddy Body"
             // BB flavor 使用 bbapp 簽名
             signingConfig signingConfigs.bbapp
         }
