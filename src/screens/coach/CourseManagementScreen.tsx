@@ -351,6 +351,11 @@ const CourseManagementScreen = () => {
                 {/* 服務項目 */}
                 <Text style={styles.serviceText}>{visit.service_name || '未指定服務'}</Text>
 
+                {/* 地點 */}
+                {visit.location_name && (
+                  <Text style={styles.locationText}>{visit.location_name}</Text>
+                )}
+
                 {/* 時長和教練 */}
                 <View style={styles.providerRow}>
                   <Text style={styles.durationText}>{contractVisit.consumed_time} 分鐘</Text>
@@ -580,6 +585,11 @@ const styles = StyleSheet.create({
   },
   serviceText: {
     fontSize: 14,
+    marginBottom: 8,
+  },
+  locationText: {
+    fontSize: 13,
+    color: Colors.text.secondary,
     marginBottom: 8,
   },
   providerRow: {

@@ -87,6 +87,7 @@ export interface VisitDetail {
   title: string | null;
   provider_name: string | null;
   service_name: string | null;
+  location_name: string | null;
   date: string | null;
   time: string | null;
   check_in_time: string | null;
@@ -338,6 +339,8 @@ export interface FirstAvailableSlot {
 export interface CreateBookingRequest {
   service_id: number;
   provider_id: number;
+  location_id: number | null;
+  location_name: string | null;
   start_datetime: string; // "YYYY-MM-DD HH:MM"
   contract_id: number;
   client_id: number;

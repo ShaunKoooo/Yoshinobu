@@ -258,6 +258,9 @@ const CoursesScreen = () => {
                 formatTime(contractVisit.visit.time ?? '')
               }</Text>
               <Text style={styles.courseName}>{contractVisit.visit.service_name || '未命名課程'}</Text>
+              {contractVisit.visit.location_name && (
+                <Text style={styles.locationText}>{contractVisit.visit.location_name}</Text>
+              )}
               <View style={styles.courseInfo}>
                 <View style={styles.providerInfo}>
                   <Text style={styles.sessionInfo}>{contractVisit.consumed_time}分鐘</Text>
@@ -390,6 +393,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#333333',
+    marginBottom: 8,
+  },
+  locationText: {
+    fontSize: 13,
+    color: Colors.text.secondary,
     marginBottom: 12,
   },
   courseInfo: {

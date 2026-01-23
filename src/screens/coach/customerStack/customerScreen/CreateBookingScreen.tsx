@@ -27,6 +27,7 @@ import {
   useSlots,
   useCreateBooking,
   useAvailableContract,
+  useLocations,
 } from 'src/services/hooks';
 import { useSelectedClientIdFromClients } from 'src/hooks/useClientsWithRedux';
 import { Calendar } from 'react-native-calendars';
@@ -69,6 +70,7 @@ const CreateBookingScreen = () => {
   const { userRole } = useAppSelector((state) => state.auth);
   const clientId = userRole == 'coach' ? useSelectedClientIdFromClients() : profile?.id;
 
+  const [locationId, setLocationId] = useState<number | null>(null);
   const [serviceId, setServiceId] = useState<number | null>(null);
   const [providerId, setProviderId] = useState<number | null>(null);
   const [bookingDate, setBookingDate] = useState('');
@@ -81,6 +83,13 @@ const CreateBookingScreen = () => {
   const [calendarKey, setCalendarKey] = useState(0);
 
   // 使用 useConfirmableModal 管理各個 modal
+  const locationModal = useConfirmableModal(locationId, async (value) => {
+    setLocationId(value);
+    // 保存選擇到 local storage
+    if (value !== null) {
+      await storageService.setLastSelectedLocationId(value);
+    }
+  });
   const serviceModal = useConfirmableModal(serviceId, async (value) => {
     setServiceId(value);
     // 保存選擇到 local storage
@@ -106,6 +115,7 @@ const CreateBookingScreen = () => {
   const [noContractAlertVisible, setNoContractAlertVisible] = useState(false);
   const hasShownAlertRef = useRef(false);
 
+  const { data: locations, isLoading: locationsLoading } = useLocations();
   const { data: services, isLoading: servicesLoading } = useServices();
   const { data: providers, isLoading: providersLoading } = useProviders();
   const createBooking = useCreateBooking();
@@ -137,6 +147,27 @@ const CreateBookingScreen = () => {
       }
     }
   }, [contractError]);
+
+  // 當 locations 載入後，優先使用上次選擇的 ID，若無則使用第一個為預設值
+  useEffect(() => {
+    if (locations?.locations && locations?.locations?.length > 0 && locationId === null) {
+      const loadLastSelectedLocation = async () => {
+        const lastSelectedId = await storageService.getLastSelectedLocationId();
+
+        // 檢查上次選擇的 ID 是否仍然存在於當前的 locations 列表中
+        const isLastSelectedValid = lastSelectedId && locations?.locations?.some((l: any) => l.id === lastSelectedId);
+
+        if (isLastSelectedValid) {
+          setLocationId(lastSelectedId);
+        } else {
+          // 若上次選擇的 ID 不存在，使用第一個為預設值
+          setLocationId(locations?.locations[0].id);
+        }
+      };
+
+      loadLastSelectedLocation();
+    }
+  }, [locations, locationId]);
 
   // 當 services 載入後，優先使用上次選擇的 ID，若無則使用第一個為預設值
   useEffect(() => {
@@ -234,10 +265,14 @@ const CreateBookingScreen = () => {
       return;
     }
 
+    const selectedLocation = locations?.locations?.find(l => l.id === locationId);
+
     createBooking.mutate(
       {
         service_id: serviceId,
         provider_id: providerId,
+        location_id: locationId || null,
+        location_name: selectedLocation?.name || null,
         start_datetime: bookingDate + ' ' + formatBookingTime(bookingTime),
         client_id: finalClientId,
         contract_id: availableContract.id,
@@ -271,6 +306,11 @@ const CreateBookingScreen = () => {
       }
     );
   };
+
+  const locationItems = locations?.locations?.map(location => ({
+    label: location.name,
+    value: location.id,
+  })) || [];
 
   const serviceItems = services?.services?.map(service => ({
     label: service.name,
@@ -308,9 +348,32 @@ const CreateBookingScreen = () => {
 
   const isFormValid = !!(serviceId && providerId && bookingTime && bookingDate && availableContract);
 
+  const selectedLocation = locations?.locations?.find(l => l.id === locationId);
+
   return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollContainer}>
+        {/* 選擇地點 */}
+        <TouchableOpacity
+          style={styles.row}
+          onPress={locationModal.handleOpen}
+        >
+          <Text style={styles.label}>選擇地點</Text>
+          <View style={styles.selectorContainer}>
+            <Text
+              style={[
+                styles.selectorText,
+                !selectedLocation && styles.placeholderText,
+              ]}
+            >
+              {selectedLocation?.name || '請選擇'}
+            </Text>
+            <Icon name="right-open-big" size={16} />
+          </View>
+        </TouchableOpacity>
+
+        <View style={styles.divider} />
+
         {/* 服務項目 */}
         <TouchableOpacity
           style={styles.row}
@@ -425,6 +488,19 @@ const CreateBookingScreen = () => {
           onPress={handleSubmit}
         />
       </View>
+
+      {/* Location Modal */}
+      <BottomSheetModal
+        visible={locationModal.isOpen}
+        onClose={locationModal.handleCancel}
+        onConfirm={locationModal.handleConfirm}
+      >
+        <MyPicker
+          items={locationItems}
+          selectedValue={locationModal.tempValue ?? undefined}
+          onValueChange={(value) => locationModal.setTempValue(Number(value))}
+        />
+      </BottomSheetModal>
 
       {/* Service Modal */}
       <BottomSheetModal

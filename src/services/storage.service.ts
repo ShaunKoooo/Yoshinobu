@@ -5,6 +5,7 @@ const STORAGE_KEYS = {
   AUTH_TOKEN: 'authToken',
   USER_DATA: 'userData',
   USER_ROLE: 'userRole',
+  LAST_SELECTED_LOCATION_ID: 'lastSelectedLocationId',
   LAST_SELECTED_SERVICE_ID: 'lastSelectedServiceId',
   LAST_SELECTED_PROVIDER_ID: 'lastSelectedProviderId',
   COURSE_MANAGEMENT_LAST_SELECTED_PROVIDER_ID: 'courseManagementLastSelectedProviderId',
@@ -126,6 +127,25 @@ class StorageService {
   }
 
   // ==================== Booking 相關 ====================
+
+  async getLastSelectedLocationId(): Promise<number | null> {
+    try {
+      const id = await AsyncStorage.getItem(STORAGE_KEYS.LAST_SELECTED_LOCATION_ID);
+      return id ? Number(id) : null;
+    } catch (error) {
+      console.error('Failed to get last selected location id:', error);
+      return null;
+    }
+  }
+
+  async setLastSelectedLocationId(locationId: number): Promise<void> {
+    try {
+      await AsyncStorage.setItem(STORAGE_KEYS.LAST_SELECTED_LOCATION_ID, String(locationId));
+    } catch (error) {
+      console.error('Failed to set last selected location id:', error);
+      throw error;
+    }
+  }
 
   async getLastSelectedServiceId(): Promise<number | null> {
     try {
