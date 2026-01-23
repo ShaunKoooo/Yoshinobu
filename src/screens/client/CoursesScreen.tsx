@@ -258,8 +258,8 @@ const CoursesScreen = () => {
                 formatTime(contractVisit.visit.time ?? '')
               }</Text>
               <Text style={styles.courseName}>{contractVisit.visit.service_name || '未命名課程'}</Text>
-              {contractVisit.visit.location_name && (
-                <Text style={styles.locationText}>{contractVisit.visit.location_name}</Text>
+              {contractVisit.visit?.data?.location_name && (
+                <Text style={styles.locationText}>{contractVisit.visit?.data?.location_name}</Text>
               )}
               <View style={styles.courseInfo}>
                 <View style={styles.providerInfo}>

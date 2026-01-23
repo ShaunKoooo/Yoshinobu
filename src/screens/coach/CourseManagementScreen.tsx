@@ -352,8 +352,8 @@ const CourseManagementScreen = () => {
                 <Text style={styles.serviceText}>{visit.service_name || '未指定服務'}</Text>
 
                 {/* 地點 */}
-                {visit.location_name && (
-                  <Text style={styles.locationText}>{visit.location_name}</Text>
+                {visit?.data?.location_name && (
+                  <Text style={styles.locationText}>{visit?.data?.location_name}</Text>
                 )}
 
                 {/* 時長和教練 */}
