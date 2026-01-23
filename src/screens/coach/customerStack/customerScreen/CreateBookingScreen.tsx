@@ -21,6 +21,7 @@ import {
   MyAlert,
 } from 'src/components';
 import { Colors } from 'src/theme';
+import { AppConfig } from 'src/config/AppConfig';
 import {
   useServices,
   useProviders,
@@ -115,6 +116,7 @@ const CreateBookingScreen = () => {
   const [noContractAlertVisible, setNoContractAlertVisible] = useState(false);
   const hasShownAlertRef = useRef(false);
 
+  // 只有 bb 才需要地點選擇
   const { data: locations, isLoading: locationsLoading } = useLocations();
   const { data: services, isLoading: servicesLoading } = useServices();
   const { data: providers, isLoading: providersLoading } = useProviders();
@@ -149,7 +151,10 @@ const CreateBookingScreen = () => {
   }, [contractError]);
 
   // 當 locations 載入後，優先使用上次選擇的 ID，若無則使用第一個為預設值
+  // 只有 bb 才需要
   useEffect(() => {
+    if (AppConfig.APP_TYPE !== 'bb') return;
+
     if (locations?.locations && locations?.locations?.length > 0 && locationId === null) {
       const loadLastSelectedLocation = async () => {
         const lastSelectedId = await storageService.getLastSelectedLocationId();
@@ -265,18 +270,24 @@ const CreateBookingScreen = () => {
       return;
     }
 
-    const selectedLocation = locations?.locations?.find(l => l.id === locationId);
+    // 只有 bb 才需要傳送 location 相關參數
+    const bookingData: any = {
+      service_id: serviceId,
+      provider_id: providerId,
+      start_datetime: bookingDate + ' ' + formatBookingTime(bookingTime),
+      client_id: finalClientId,
+      contract_id: availableContract.id,
+    };
+
+    // bb 才加入 location 資訊
+    if (AppConfig.APP_TYPE === 'bb') {
+      const selectedLocation = locations?.locations?.find(l => l.id === locationId);
+      bookingData.location_id = locationId || null;
+      bookingData.location_name = selectedLocation?.name || '';
+    }
 
     createBooking.mutate(
-      {
-        service_id: serviceId,
-        provider_id: providerId,
-        location_id: locationId || null,
-        location_name: selectedLocation?.name || null,
-        start_datetime: bookingDate + ' ' + formatBookingTime(bookingTime),
-        client_id: finalClientId,
-        contract_id: availableContract.id,
-      },
+      bookingData,
       {
         onSuccess: (data) => {
           Alert.alert(
@@ -353,26 +364,30 @@ const CreateBookingScreen = () => {
   return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollContainer}>
-        {/* 選擇地點 */}
-        <TouchableOpacity
-          style={styles.row}
-          onPress={locationModal.handleOpen}
-        >
-          <Text style={styles.label}>選擇地點</Text>
-          <View style={styles.selectorContainer}>
-            <Text
-              style={[
-                styles.selectorText,
-                !selectedLocation && styles.placeholderText,
-              ]}
+        {/* 選擇地點 - 只有 bb 才顯示 */}
+        {AppConfig.APP_TYPE === 'bb' && (
+          <>
+            <TouchableOpacity
+              style={styles.row}
+              onPress={locationModal.handleOpen}
             >
-              {selectedLocation?.name || '請選擇'}
-            </Text>
-            <Icon name="right-open-big" size={16} />
-          </View>
-        </TouchableOpacity>
+              <Text style={styles.label}>選擇地點</Text>
+              <View style={styles.selectorContainer}>
+                <Text
+                  style={[
+                    styles.selectorText,
+                    !selectedLocation && styles.placeholderText,
+                  ]}
+                >
+                  {selectedLocation?.name || '請選擇'}
+                </Text>
+                <Icon name="right-open-big" size={16} />
+              </View>
+            </TouchableOpacity>
 
-        <View style={styles.divider} />
+            <View style={styles.divider} />
+          </>
+        )}
 
         {/* 服務項目 */}
         <TouchableOpacity
@@ -489,18 +504,21 @@ const CreateBookingScreen = () => {
         />
       </View>
 
-      {/* Location Modal */}
-      <BottomSheetModal
-        visible={locationModal.isOpen}
-        onClose={locationModal.handleCancel}
-        onConfirm={locationModal.handleConfirm}
-      >
-        <MyPicker
-          items={locationItems}
-          selectedValue={locationModal.tempValue ?? undefined}
-          onValueChange={(value) => locationModal.setTempValue(Number(value))}
-        />
-      </BottomSheetModal>
+      {/* Location Modal - 只有 bb 才顯示 */}
+      {AppConfig.APP_TYPE === 'bb' && (
+        <BottomSheetModal
+          title="選擇地點"
+          visible={locationModal.isOpen}
+          onClose={locationModal.handleCancel}
+          onConfirm={locationModal.handleConfirm}
+        >
+          <MyPicker
+            items={locationItems}
+            selectedValue={locationModal.tempValue ?? undefined}
+            onValueChange={(value) => locationModal.setTempValue(Number(value))}
+          />
+        </BottomSheetModal>
+      )}
 
       {/* Service Modal */}
       <BottomSheetModal

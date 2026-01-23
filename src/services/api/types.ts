@@ -339,8 +339,8 @@ export interface FirstAvailableSlot {
 export interface CreateBookingRequest {
   service_id: number;
   provider_id: number;
-  location_id: number | null;
-  location_name: string | null;
+  location_id?: number | null;
+  location_name?: string | null;
   start_datetime: string; // "YYYY-MM-DD HH:MM"
   contract_id: number;
   client_id: number;
