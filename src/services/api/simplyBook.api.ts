@@ -2,6 +2,7 @@ import { apiClient } from './config';
 import { COACH_ENDPOINTS, CLIENT_ENDPOINTS } from './endpoints.config';
 import { storageService } from '../storage.service';
 import type {
+  GetLocationsResponse,
   Service,
   Provider,
   Schedule,
@@ -18,6 +19,18 @@ import type {
  * SimplyBook 預約系統 API
  */
 export const simplyBookApi = {
+  /**
+   * 取得地點列表
+   */
+  getLocations: async (): Promise<GetLocationsResponse> => {
+    const userRole = await storageService.getUserRole();
+    const endpoint = userRole === 'client'
+      ? CLIENT_ENDPOINTS.LOCATIONS
+      : COACH_ENDPOINTS.LOCATIONS;
+    console.log('📱 getLocations - userRole:', userRole, 'endpoint:', endpoint);
+    return await apiClient.get<GetLocationsResponse>(endpoint);
+  },
+
   /**
    * 取得服務項目列表
    */

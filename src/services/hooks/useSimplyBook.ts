@@ -14,6 +14,7 @@ import type {
 // Query Keys
 export const simplyBookKeys = {
   all: ['simplyBook'] as const,
+  locations: () => [...simplyBookKeys.all, 'locations'] as const,
   services: () => [...simplyBookKeys.all, 'services'] as const,
   providers: () => [...simplyBookKeys.all, 'providers'] as const,
   schedules: (params: GetSchedulesRequest) =>
@@ -22,6 +23,17 @@ export const simplyBookKeys = {
     [...simplyBookKeys.all, 'slots', params] as const,
   firstAvailableSlot: (params: FirstAvailableSlotRequest) =>
     [...simplyBookKeys.all, 'firstAvailableSlot', params] as const,
+};
+
+/**
+ * 取得地點列表
+ */
+export const useLocations = () => {
+  return useQuery({
+    queryKey: simplyBookKeys.locations(),
+    queryFn: () => simplyBookApi.getLocations(),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
 };
 
 /**

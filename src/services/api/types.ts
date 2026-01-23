@@ -251,6 +251,29 @@ export interface CreateShareContractResponse {
 
 // ==================== SimplyBook 預約系統 ====================
 
+export interface Location {
+  id: number;
+  name: string;
+  description: string;
+  picture: string;
+  picture_preview: string;
+  providers: number[];
+  address1: string;
+  address2: string;
+  phone: string;
+  city: string;
+  zip: string;
+  country_id: string;
+  is_visible: boolean;
+  lat: string;
+  lng: string;
+  full_address: string;
+}
+
+export interface GetLocationsResponse {
+  locations: Location[];
+}
+
 export interface Service {
   id: number;
   name: string;

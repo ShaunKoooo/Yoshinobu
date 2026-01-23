@@ -51,6 +51,7 @@ const COACH_ENDPOINTS = {
   SUBMIT_CONTRACT_VISIT_FOR_VERIFICATION: (id: number) => `/api/spa/user/v1/contract_visits/${id}/submit_for_verification`,
 
   // 預約系統 (SimplyBook)
+  LOCATIONS: '/api/spa/user/v1/simply_book/locations',
   SERVICES: '/api/spa/user/v1/simply_book/services',
   PROVIDERS: '/api/spa/user/v1/simply_book/providers',
   SCHEDULES: '/api/spa/user/v1/simply_book/schedules',
@@ -81,6 +82,7 @@ const CLIENT_ENDPOINTS = {
   COMPLETE_CONTRACT_VISIT: (id: number) => `/api/spa/client/v1/contract_visits/${id}/complete`,
 
   // 預約系統 (SimplyBook)
+  LOCATIONS: '/api/spa/client/v1/simply_book/locations',
   SERVICES: '/api/spa/client/v1/simply_book/services',
   PROVIDERS: '/api/spa/client/v1/simply_book/providers',
   SCHEDULES: '/api/spa/client/v1/simply_book/schedules',
