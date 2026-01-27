@@ -6,8 +6,8 @@ import { Alert } from 'react-native';
 
 // API 基礎配置
 export const API_CONFIG = {
-  BASE_URL: 'https://ff-staging.cofit.me',
-  CLIENT_BASE_URL: 'https://ff-staging.cofit.me', // 客戶端 API（手機登入）
+  BASE_URL: 'https://ff.cofit.me',
+  CLIENT_BASE_URL: 'https://ff.cofit.me', // 客戶端 API（手機登入）
   TIMEOUT: 30000,
 
   // TODO 拆分 staging / production 環境
@@ -77,9 +77,9 @@ export class ApiClient {
     } catch (error: any) {
       // 檢查是否為網路錯誤
       if (error.message === 'Network request failed' ||
-          error.message?.includes('Failed to fetch') ||
-          error.message?.includes('Network Error') ||
-          error.name === 'TypeError') {
+        error.message?.includes('Failed to fetch') ||
+        error.message?.includes('Network Error') ||
+        error.name === 'TypeError') {
         console.error('🌐 網路異常:', error);
         Alert.alert('網路異常', '請檢查您的網路連線');
       }
@@ -93,8 +93,8 @@ export class ApiClient {
     // 過濾掉 undefined 的值
     const filteredParams = params
       ? Object.fromEntries(
-          Object.entries(params).filter(([_, value]) => value !== undefined)
-        )
+        Object.entries(params).filter(([_, value]) => value !== undefined)
+      )
       : undefined;
 
     const queryString = filteredParams
