@@ -454,15 +454,6 @@ const CourseManagementScreen = () => {
       >
         {bookingToVerify && (
           <View style={styles.verifyModalContent}>
-            <View style={styles.verifyModalRow}>
-              <Text style={styles.verifyModalLabel}>合約號碼</Text>
-              <View style={styles.verifyModalValueContainer}>
-                <Text style={styles.verifyModalValue}>
-                  {bookingToVerify.contract.contract_number}
-                </Text>
-                {bookingToVerify.contract.shared && <Badge variant="shared" text="共用" />}
-              </View>
-            </View>
 
             <View style={styles.verifyModalRow}>
               <Text style={styles.verifyModalLabel}>合約類別</Text>
